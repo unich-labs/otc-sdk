@@ -1,0 +1,37 @@
+{
+    "name": "otc-sdk",
+    "version": "0.6.0",
+    "description": "Middleware between FPT Platform and Quorum Blockchain",
+    "license": "UNLICENSED",
+    "dependencies": {},
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "browser": "dist.browser/index.js",
+    "scripts": {
+        "pre-build:node": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+        "pre-build:browser": "rimraf dist.browser",
+        "build:node": "yarn pre-build:node && tsc -b",
+        "build:browser": "yarn pre-build:browser && rollup -c --bundleConfigAsCjs",
+        "build": "yarn build:node && yarn build:browser",
+        "test": "mocha -r ts-node/register ./test/*.test.ts"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-json": "^6.1.0",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@types/node": "^20.12.7",
+        "rimraf": "^5.0.5",
+        "rollup": "^4.14.3",
+        "rollup-plugin-polyfill-node": "^0.13.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.5"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": true,
+        "singleQuote": false,
+        "printWidth": 160
+    }
+}
