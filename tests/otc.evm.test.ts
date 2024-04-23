@@ -119,11 +119,6 @@ describe("OTC EVM testing", () => {
         const offerId = BigInt(3);
         const amount = BigInt(100000000000000000000) * WEI6;
 
-        const offer = await otc.getOffer(offerId);
-        console.log("🚀 ~ file: otc.evm.test.ts:123 ~ it ~ offer:", offer);
-
-        otc.fillOffer(offerId, amount).then(console.log);
-
         // assert.deepEqual(
         //     {
         //         to: otcAddress,
@@ -133,11 +128,11 @@ describe("OTC EVM testing", () => {
         // );
     });
 
-    // it("Fill invalid offer", async () => {
-    //     const offerId = BigInt(0);
-    //     const amount = BigInt(10) * WEI6;
-    //     await expect(
-    //         otc.getFillOfferAmount(offerId, amount)
-    //     ).to.eventually.be.rejectedWith("Invalid Offer");
-    // });
+    it("Fill invalid offer", async () => {
+        const offerId = BigInt(0);
+        const amount = BigInt(10) * WEI6;
+        await expect(
+            otc.getFillOfferValue(offerId, amount)
+        ).to.eventually.be.rejectedWith("Invalid Offer");
+    });
 });
