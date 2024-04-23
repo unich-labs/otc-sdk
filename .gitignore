@@ -189,3 +189,5 @@ dist.browser
 .idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,java
+
+example
