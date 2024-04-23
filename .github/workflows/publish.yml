@@ -14,14 +14,11 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: "18.x"
+                  registry-url: "https://npm.pkg.github.com"
             - name: Install dependencies
               run: npm i
             - name: Build the package
               run: npm run build
-            - name: Login to GitHub Package Registry
-              run: npm login --registry https://npm.pkg.github.com --legacy-peer-deps
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
             - run: npm publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
