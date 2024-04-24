@@ -1,10 +1,9 @@
 import {
     Contract,
     Provider,
-    Signer,
     JsonRpcProvider,
     ContractTransaction,
-    ethers,
+    ZeroAddress,
 } from "ethers";
 import {
     CHAINS,
@@ -23,10 +22,11 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     protected _contract: Contract;
     protected _network: EvmNetwork;
 
-    constructor(chainId: CHAIN_ID) {
+    constructor(chainId: CHAIN_ID, providers?: Provider[]) {
         this._contractAddress = CONTRACTS[chainId].OTC.address as EvmAddress;
         this._network = new EvmNetwork(
-            CHAINS[chainId].rpcUrls.map((r) => new JsonRpcProvider(r))
+            providers ??
+                CHAINS[chainId].rpcUrls.map((r) => new JsonRpcProvider(r))
         );
         this._contract = new Contract(this._contractAddress, OtcAbi, {
             provider: this._network.provider,
@@ -94,9 +94,10 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         return this._contract.lastOrderId();
     }
 
-    async getFillOfferAmount(offerId: bigint, amount: bigint): Promise<bigint> {
+    async getFillOfferValue(offerId: bigint, amount: bigint): Promise<bigint> {
         const offer = await this.getOffer(offerId);
         if (offer.amount === BigInt(0)) throw new Error("Invalid Offer");
+        if (offer.exToken !== ZeroAddress) return BigInt(0);
         let value = offer.collateral;
         if (offer.offerType === EOfferType.Sell) {
             value = offer.value;
@@ -158,16 +159,14 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
 
     async fillOffer(
         offerId: bigint,
-        amount: bigint,
-        withNative: boolean = false
+        amount: bigint
     ): Promise<ContractTransaction> {
         let methodName = "fillOffer";
         let payload = [offerId, amount];
         let overrides = {};
-
-        if (withNative) {
+        let value = await this.getFillOfferValue(offerId, amount);
+        if (value !== BigInt(0)) {
             methodName = "fillOfferETH";
-            let value = await this.getFillOfferAmount(offerId, amount);
             overrides = {
                 value,
             };
