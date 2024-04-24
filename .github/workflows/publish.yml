@@ -19,6 +19,6 @@ jobs:
             - name: Build the package
               run: npm run build
             - name: Set login token
-                  - echo "//npm.pkg.github.com/:_authToken=$SECRET_GITHUB_TOKEN" > ~/.npmrc
+              run: echo "//npm.pkg.github.com/:_authToken=$SECRET_GITHUB_TOKEN" > ~/.npmrc
             - name: Publish the package
               run: npm publish
