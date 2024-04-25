@@ -17,7 +17,7 @@ export type IOffer<BN, Address> = {
     filledAmount: BN;
     status: EOfferStatus;
     offerBy: Address;
-    fullMatch: Address;
+    fullMatch: boolean;
 };
 
 export type IOrder<BN, Address> = {
@@ -29,25 +29,29 @@ export type IOrder<BN, Address> = {
 };
 
 export interface IOtc<Address, BN, Transaction> {
-    config: () => Promise<IOtcConfig<BN, Address>>;
-    getOffer: (offerId: BN) => Promise<IOffer<BN, Address>>;
-    getOrder: (orderId: BN) => Promise<IOrder<BN, Address>>;
-    createOtcToken: (
-        tokenId: string,
-        settleDuration: number
-    ) => Promise<Transaction>;
-    settleOtcToken: (
-        tokenId: string,
-        tokenAddress: Address,
-        settleRate: BN
-    ) => Promise<Transaction>;
-    createOffer: (
-        offerType: EOfferType,
-        tokenId: string,
-        amount: BN,
-        value: BN,
-        exToken: Address,
-        fullMatch: boolean,
-        withNative?: boolean
-    ) => Promise<Transaction>;
+    // TODO abstract OTC class
+    // config: () => Promise<IOtcConfig<BN, Address>>;
+    // getOffer: (offerId: BN) => Promise<IOffer<BN, Address>>;
+    // getOrder: (orderId: BN) => Promise<IOrder<BN, Address>>;
+    // createOtcToken: (
+    //     tokenId: any,
+    //     settleDuration: number,
+    //     operator: Address
+    // ) => Promise<Transaction>;
+    // settleOtcToken: (
+    //     tokenId: any,
+    //     tokenAddress: Address,
+    //     settleRate: BN,
+    //     operator: Address
+    // ) => Promise<Transaction>;
+    // createOffer: (
+    //     offerType: EOfferType,
+    //     tokenId: any,
+    //     amount: BN,
+    //     value: BN,
+    //     exToken: Address,
+    //     fullMatch: boolean,
+    //     withNative?: boolean,
+    //     user?: Address
+    // ) => Promise<Transaction>;
 }
