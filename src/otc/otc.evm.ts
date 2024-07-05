@@ -13,7 +13,7 @@ import {
     EvmAddress,
     WEI6,
 } from "../configs";
-import { OtcAbi } from "../abis";
+import OtcAbi from "../abis/OTC.json";
 import { EvmNetwork } from "../networks";
 import { IOtc, IOffer, IOtcConfig } from "./otc.interface";
 

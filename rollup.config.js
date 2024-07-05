@@ -1,16 +1,45 @@
-import resolve from "@rollup/plugin-node-resolve";
+import nodeResolve from "@rollup/plugin-node-resolve";
+import typescript from "@rollup/plugin-typescript";
+import replace from "@rollup/plugin-replace";
 import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
 import nodePolyfills from "rollup-plugin-polyfill-node";
+import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
 
+const env = process.env.NODE_ENV;
+
 export default {
-    input: "dist/index.js",
+    input: "src/index.ts",
+    plugins: [
+        commonjs(),
+        json(),
+        nodeResolve({
+            browser: true,
+            extensions: [".js", ".ts"],
+            dedupe: ["bn.js", "buffer"],
+            preferBuiltins: false,
+        }),
+        typescript({
+            tsconfig: "./tsconfig.base.json",
+            moduleResolution: "node",
+            outDir: "types",
+            target: "es2019",
+            outputToFilesystem: false,
+        }),
+        replace({
+            preventAssignment: true,
+            values: {
+                "process.env.NODE_ENV": JSON.stringify(env),
+                "process.env.ANCHOR_BROWSER": JSON.stringify(true),
+            },
+        }),
+        nodePolyfills(),
+        terser(),
+    ],
+    external: ["@coral-xyz/borsh", "@solana/web3.js", "@solana/spl-token"],
     output: {
-        file: "dist.browser/index.js",
-        format: "umd",
-        name: "LC",
+        file: "dist/browser/index.js",
+        format: "es",
+        sourcemap: true,
     },
-    context: "commonjsGlobal",
-    plugins: [commonjs(), resolve({ browser: true }), json(), nodePolyfills(), terser()],
 };

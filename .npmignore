@@ -6,3 +6,4 @@ tsconfig.tsbuildinfo
 rollup.config.js
 *lock
 example
+.rollup.cache
