@@ -1,4 +1,12 @@
-import { BN, Program, IdlAccounts, IdlTypes, web3 } from "@coral-xyz/anchor";
+import {
+    BN,
+    Program,
+    IdlAccounts,
+    IdlTypes,
+    web3,
+    AnchorError,
+    ProgramError,
+} from "@coral-xyz/anchor";
 import {
     Connection,
     PublicKey,
@@ -29,6 +37,12 @@ import {
 } from "./solana/accounts";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { ContractTransaction } from "ethers";
+import {
+    NativeAnchorError,
+    NativeError,
+    idlErrors,
+    parseCustomError,
+} from "./solana/errors";
 
 export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
     public connection: Connection;
@@ -672,5 +686,45 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                   .transaction());
 
         return transaction;
+    }
+
+    parseError(err: any) {
+        const anchorError = AnchorError.parse(err.logs);
+        if (anchorError) {
+            // Parse Anchor error into another type such that it's consistent.
+            return NativeAnchorError.parse(anchorError);
+        }
+
+        const programError = ProgramError.parse(err, idlErrors);
+        if (typeof err == typeof 0 && idlErrors.has(err)) {
+            return new NativeAnchorError(
+                parseInt(err),
+                idlErrors.get(err) ?? "Unknown Error",
+                [],
+                []
+            );
+        }
+        if (programError) {
+            return programError;
+        }
+
+        let customErr = parseCustomError(err);
+        if (customErr != null) {
+            return customErr;
+        }
+
+        let nativeErr = NativeError.parse(err);
+        if (nativeErr != null) {
+            return nativeErr;
+        }
+
+        if (err.simulationResponse) {
+            let simulatedError = AnchorError.parse(err.simulationResponse.logs);
+            if (simulatedError) {
+                return NativeAnchorError.parse(simulatedError);
+            }
+        }
+
+        return err;
     }
 }

@@ -8,8 +8,8 @@ export const CONTRACTS: Record<
         OTC: {
             address: EvmAddress | string;
             deployedBlock?: number;
+            authority?: string;
         };
-        AUTHORITY?: string;
     }
 > = {
     [CHAIN_ID.ARBITRUM_SEPOLIA]: {
@@ -20,9 +20,8 @@ export const CONTRACTS: Record<
     },
     [CHAIN_ID.SOLANA_DEVNET]: {
         OTC: {
-            address: "24XvN4rrtuqyEev5bvAq5p6iW8nFCwAuHD8g4qM9HBSG",
-            // deployedBlock: 291071420,
+            address: "8EMNysnqHuY88H291esnAcEvwjdNXV5N9XZ3FoD7ffFe",
+            authority: "EGN5Sfq1CGsysUY4qhSDyQvgPCBRepqXi8AvChiyeNir",
         },
-        AUTHORITY: "HYNWdfGBNzzfM6qHk1VK7TwgsT34CrL5KKtbKSqDTDKr",
     },
 };

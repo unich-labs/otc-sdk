@@ -59,7 +59,7 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
 
     async getOfferCollateral(value: bigint): Promise<bigint> {
         const config = await this.config();
-        return (value * config.pledgeRate) / WEI6;
+        return (value * config.pledgeRate) / BigInt(WEI6);
     }
 
     async getOffer(offerId: bigint): Promise<IOffer<bigint, EvmAddress>> {

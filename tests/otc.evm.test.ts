@@ -49,8 +49,8 @@ describe("OTC EVM testing", () => {
         const offerType = EOfferType.Sell;
         const tokenId =
             "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
-        const amount = BigInt(1000) * WEI6;
-        const value = BigInt(100) * WEI6;
+        const amount = BigInt(1000) * BigInt(WEI6);
+        const value = BigInt(100) * BigInt(WEI6);
         const exToken = "0x9aa40cc99973d8407a2ae7b2237d26e615ecafd2";
         const fullMatch = true;
         const withNative = false;
@@ -76,8 +76,8 @@ describe("OTC EVM testing", () => {
         const offerType = EOfferType.Sell;
         const tokenId =
             "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
-        const amount = BigInt(1000) * WEI6;
-        const value = BigInt(100) * WEI6;
+        const amount = BigInt(1000) * BigInt(WEI6);
+        const value = BigInt(100) * BigInt(WEI6);
         const exToken = ethers.ZeroAddress;
         const fullMatch = true;
         const withNative = true;
@@ -104,7 +104,7 @@ describe("OTC EVM testing", () => {
 
     it("Fill Sell offer without Native coin", async () => {
         const offerId = BigInt(1);
-        const amount = BigInt(10) * WEI6;
+        const amount = BigInt(10) * BigInt(WEI6);
 
         assert.deepEqual(
             {
@@ -117,7 +117,7 @@ describe("OTC EVM testing", () => {
 
     it("Fill Sell offer wit Native coin", async () => {
         const offerId = BigInt(3);
-        const amount = BigInt(100000000000000000000) * WEI6;
+        const amount = BigInt(100000000000000000000) * BigInt(WEI6);
 
         // assert.deepEqual(
         //     {
@@ -130,7 +130,7 @@ describe("OTC EVM testing", () => {
 
     it("Fill invalid offer", async () => {
         const offerId = BigInt(0);
-        const amount = BigInt(10) * WEI6;
+        const amount = BigInt(10) * BigInt(WEI6);
         await expect(
             otc.getFillOfferValue(offerId, amount)
         ).to.eventually.be.rejectedWith("Invalid Offer");
