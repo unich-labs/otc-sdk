@@ -24,6 +24,9 @@
         "build": "yarn build:node && yarn build:browser && build:doc",
         "test": "mocha 'tests/**/*.{ts,js}' --exit"
     },
+    "publishConfig": {
+       "@scope:registry": "https://gitlab.unich.com/api/v4/projects/23/packages/npm/"
+    },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^25.0.8",
         "@rollup/plugin-json": "^6.1.0",
