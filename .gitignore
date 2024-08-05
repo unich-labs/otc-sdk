@@ -9,6 +9,9 @@
 # Compiled class file
 *.class
 
+.npmrc
+.env
+
 # Log file
 *.log
 
