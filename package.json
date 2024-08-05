@@ -17,10 +17,10 @@
     "browser": "./dist/browser/index.js",
     "types": "./dist/cjs/index.d.ts",
     "scripts": {
-        "pre-build:node": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+        "pre-build:node": "rimraf dist && rimraf tsconfig.tsbuildinfo && rimraf docs",
         "build:node": "yarn pre-build:node && tsc && tsc -p tsconfig.cjs.json",
         "build:browser": "rollup --config --bundleConfigAsCjs",
-        "build:doc": "typedoc src/index.ts",
+        "build:doc": "typedoc --plugin typedoc-plugin-markdown src/index.ts",
         "build": "yarn build:node && yarn build:browser && yarn build:doc",
         "test": "mocha 'tests/**/*.{ts,js}' --exit"
     },
@@ -49,6 +49,7 @@
         "rollup-plugin-polyfill-node": "^0.13.0",
         "ts-node": "^10.9.2",
         "typedoc": "^0.26.5",
+        "typedoc-plugin-markdown": "^4.2.3",
         "typescript": "^5.4.5"
     },
     "prettier": {
