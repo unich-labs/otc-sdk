@@ -1,4 +1,4 @@
-import { EOfferStatus, EOfferType, EOrderStatus } from "../configs";
+import { EOrderStatus, EOrderType, ETradeStatus } from "../configs";
 
 export type IOtcConfig<BN, Address> = {
     pledgeRate: BN;
@@ -7,31 +7,31 @@ export type IOtcConfig<BN, Address> = {
     feeWallet: Address;
 };
 
-export type IOffer<BN, Address> = {
-    offerType: EOfferType;
+export type IOrder<BN, Address> = {
+    orderType: EOrderType;
     tokenId: string;
     exToken: Address;
     amount: BN;
     value: BN;
     collateral: BN;
     filledAmount: BN;
-    status: EOfferStatus;
+    status: EOrderStatus;
     offerBy: Address;
     fullMatch: boolean;
 };
 
-export type IOrder<BN, Address> = {
+export type ITrade<BN, Address> = {
     orderId: BN;
     amount: BN;
     seller: Address;
     buyer: Address;
-    status: EOrderStatus;
+    status: ETradeStatus;
 };
 
 export interface IOtc<Address, BN, Transaction> {
     // TODO abstract OTC class
     // config: () => Promise<IOtcConfig<BN, Address>>;
-    // getOffer: (offerId: BN) => Promise<IOffer<BN, Address>>;
+    // getOffer: (offerId: BN) => Promise<IOrder<BN, Address>>;
     // getOrder: (orderId: BN) => Promise<IOrder<BN, Address>>;
     // createOtcToken: (
     //     tokenId: any,
@@ -45,13 +45,12 @@ export interface IOtc<Address, BN, Transaction> {
     //     operator: Address
     // ) => Promise<Transaction>;
     // createOffer: (
-    //     offerType: EOfferType,
+    //     offerType: EOrderType,
     //     tokenId: any,
     //     amount: BN,
     //     value: BN,
     //     exToken: Address,
     //     fullMatch: boolean,
-    //     withNative?: boolean,
     //     user?: Address
     // ) => Promise<Transaction>;
 }

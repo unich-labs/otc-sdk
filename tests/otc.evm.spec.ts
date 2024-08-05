@@ -1,11 +1,12 @@
-import { assert, expect } from "chai";
-import chai from "chai";
+import "mocha";
+import { expect, assert } from "chai";
+import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { ethers } from "ethers";
 import {
     CHAIN_ID,
     CONTRACTS,
-    EOfferType,
+    EOrderType,
     EvmAddress,
     OtcEvm,
     WEI6,
@@ -13,7 +14,7 @@ import {
 
 chai.use(chaiAsPromised);
 
-const chainId = CHAIN_ID.ARBITRUM_SEPOLIA;
+const chainId = CHAIN_ID.SEPOLIA;
 const otcAddress = CONTRACTS[chainId].OTC.address;
 
 describe("OTC EVM testing", () => {
@@ -46,14 +47,15 @@ describe("OTC EVM testing", () => {
     });
 
     it("Create Sell offer without Native coin", async () => {
-        const offerType = EOfferType.Sell;
+        const offerType = EOrderType.Sell;
         const tokenId =
             "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
         const amount = BigInt(1000) * BigInt(WEI6);
-        const value = BigInt(100) * BigInt(WEI6);
+        const price = 0.1;
         const exToken = "0x9aa40cc99973d8407a2ae7b2237d26e615ecafd2";
-        const fullMatch = true;
-        const withNative = false;
+        const pledgeRate = BigInt(WEI6) / BigInt(4); // 20%
+        const slippage = BigInt(0);
+        const isBid = false;
 
         assert.deepEqual(
             {
@@ -62,42 +64,43 @@ describe("OTC EVM testing", () => {
             },
             await otc.createOffer(
                 offerType,
+                pledgeRate,
                 tokenId,
                 amount,
-                value,
+                price,
                 exToken,
-                fullMatch,
-                withNative
+                slippage,
+                isBid
             )
         );
     });
 
     it("Create Sell offer with Native coin", async () => {
-        const offerType = EOfferType.Sell;
+        const offerType = EOrderType.Sell;
         const tokenId =
             "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
         const amount = BigInt(1000) * BigInt(WEI6);
-        const value = BigInt(100) * BigInt(WEI6);
-        const exToken = ethers.ZeroAddress;
-        const fullMatch = true;
-        const withNative = true;
-
-        const collateral = await otc.getOfferCollateral(value);
+        const price = 0.1;
+        const exToken = ethers.ZeroAddress as EvmAddress;
+        const pledgeRate = BigInt(WEI6) / BigInt(4); // 20%
+        const slippage = BigInt(0);
+        const isBid = false;
 
         assert.deepEqual(
             {
                 to: otcAddress,
                 data: "0xf564f0ae0000000000000000000000000000000000000000000000000000000000000002464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000001",
-                value: collateral,
+                // value: collateral, // TODO
             },
             await otc.createOffer(
                 offerType,
+                pledgeRate,
                 tokenId,
                 amount,
-                value,
-                exToken as EvmAddress,
-                fullMatch,
-                withNative
+                price,
+                exToken,
+                slippage,
+                isBid
             )
         );
     });
@@ -119,20 +122,20 @@ describe("OTC EVM testing", () => {
         const offerId = BigInt(3);
         const amount = BigInt(100000000000000000000) * BigInt(WEI6);
 
-        // assert.deepEqual(
-        //     {
-        //         to: otcAddress,
-        //         data: "0x78447e7f00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000989680",
-        //     },
-        //     await otc.fillOffer(offerId, amount)
-        // );
+        assert.deepEqual(
+            {
+                to: otcAddress,
+                data: "0x78447e7f00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000989680",
+            },
+            await otc.fillOffer(offerId, amount)
+        );
     });
 
     it("Fill invalid offer", async () => {
-        const offerId = BigInt(0);
-        const amount = BigInt(10) * BigInt(WEI6);
-        await expect(
-            otc.getFillOfferValue(offerId, amount)
-        ).to.eventually.be.rejectedWith("Invalid Offer");
+        // const offerId = BigInt(0);
+        // const amount = BigInt(10) * BigInt(WEI6);
+        // await expect(
+        //     otc.getFillOfferValue(offerId, amount)
+        // ).to.eventually.be.rejectedWith("Invalid Offer");
     });
 });

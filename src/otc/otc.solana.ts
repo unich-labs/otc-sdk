@@ -17,14 +17,14 @@ import {
     CHAINS,
     CHAIN_ID,
     CONTRACTS,
-    EOfferStatus,
-    EOfferType,
+    EOrderStatus,
+    EOrderType,
     EvmAddress,
     WEI6,
 } from "../configs";
 import { IDL, Otc } from "../idl";
 import { SolanaNetwork } from "../networks";
-import { IOffer, IOtc, IOtcConfig } from "./otc.interface";
+import { IOrder, IOtc, IOtcConfig } from "./otc.interface";
 import {
     getConfigAccountPubKey,
     getExTokenAccountPubKey,

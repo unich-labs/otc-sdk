@@ -1,15 +1,15 @@
-export enum EOfferType {
+export enum EOrderType {
     Buy = 1,
     Sell = 2,
 }
 
-export enum EOfferStatus {
+export enum EOrderStatus {
     Open = 1,
     Filled = 2,
     Canceled = 3,
 }
 
-export enum EOrderStatus {
+export enum ETradeStatus {
     Open = 1,
     SettleFilled = 2,
     SettleCanceled = 3,

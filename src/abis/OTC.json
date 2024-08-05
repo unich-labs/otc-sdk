@@ -44,6 +44,11 @@
     },
     {
         "inputs": [],
+        "name": "AlreadyExistsError",
+        "type": "error"
+    },
+    {
+        "inputs": [],
         "name": "FailedInnerCall",
         "type": "error"
     },
@@ -139,7 +144,7 @@
                 "type": "uint256"
             }
         ],
-        "name": "CloseOffer",
+        "name": "CloseOrder",
         "type": "event"
     },
     {
@@ -167,7 +172,7 @@
             {
                 "indexed": false,
                 "internalType": "uint8",
-                "name": "offerType",
+                "name": "orderType",
                 "type": "uint8"
             },
             {
@@ -190,9 +195,15 @@
             },
             {
                 "indexed": false,
-                "internalType": "uint256",
-                "name": "value",
-                "type": "uint256"
+                "internalType": "int24",
+                "name": "tick",
+                "type": "int24"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint160",
+                "name": "sqrtPriceX96",
+                "type": "uint160"
             },
             {
                 "indexed": false,
@@ -202,18 +213,43 @@
             },
             {
                 "indexed": false,
-                "internalType": "bool",
-                "name": "fullMatch",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "slippage",
+                "type": "uint256"
             },
             {
                 "indexed": false,
                 "internalType": "address",
                 "name": "doer",
                 "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isBid",
+                "type": "bool"
             }
         ],
-        "name": "NewOffer",
+        "name": "NewOrder",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "tokenId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "pledgeRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "NewToken",
         "type": "event"
     },
     {
@@ -239,6 +275,18 @@
             },
             {
                 "indexed": false,
+                "internalType": "uint160",
+                "name": "buyerSqrtPriceX96",
+                "type": "uint160"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint160",
+                "name": "selleSsqrtPriceX96",
+                "type": "uint160"
+            },
+            {
+                "indexed": false,
                 "internalType": "address",
                 "name": "seller",
                 "type": "address"
@@ -250,7 +298,7 @@
                 "type": "address"
             }
         ],
-        "name": "NewOrder",
+        "name": "NewTrade",
         "type": "event"
     },
     {
@@ -258,18 +306,30 @@
         "inputs": [
             {
                 "indexed": false,
-                "internalType": "bytes32",
-                "name": "tokenId",
-                "type": "bytes32"
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
             },
             {
                 "indexed": false,
                 "internalType": "uint256",
-                "name": "settleDuration",
+                "name": "amount",
                 "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "seller",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
             }
         ],
-        "name": "NewToken",
+        "name": "OrderUpdate",
         "type": "event"
     },
     {
@@ -439,6 +499,43 @@
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256[]",
+                "name": "tradeIds",
+                "type": "uint256[]"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "shareBy",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "ShareOrder",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
                 "internalType": "bytes32",
                 "name": "tokenId",
                 "type": "bytes32"
@@ -470,9 +567,15 @@
             },
             {
                 "indexed": false,
-                "internalType": "uint256",
+                "internalType": "uint48",
                 "name": "settleTime",
-                "type": "uint256"
+                "type": "uint48"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint48",
+                "name": "settleDuration",
+                "type": "uint48"
             }
         ],
         "name": "TokenToSettlePhase",
@@ -521,7 +624,7 @@
             {
                 "indexed": false,
                 "internalType": "uint256",
-                "name": "oldPledgeRate",
+                "name": "oldFeeShare",
                 "type": "uint256"
             },
             {
@@ -545,7 +648,7 @@
             {
                 "indexed": false,
                 "internalType": "uint256",
-                "name": "newPledgeRate",
+                "name": "newFeeShare",
                 "type": "uint256"
             }
         ],
@@ -644,59 +747,17 @@
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
+                "internalType": "address",
+                "name": "",
+                "type": "address"
             }
         ],
-        "name": "cancelOffer",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256[]",
-                "name": "offerIds",
-                "type": "uint256[]"
-            }
-        ],
-        "name": "cancelOffers",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "config",
+        "name": "acceptedTokens",
         "outputs": [
             {
-                "components": [
-                    {
-                        "internalType": "uint256",
-                        "name": "pledgeRate",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "feeRefund",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "feeSettle",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "feeWallet",
-                        "type": "address"
-                    }
-                ],
-                "internalType": "struct Config",
+                "internalType": "bool",
                 "name": "",
-                "type": "tuple"
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -710,12 +771,83 @@
                 "type": "bytes32"
             },
             {
-                "internalType": "uint48",
-                "name": "settleDuration",
-                "type": "uint48"
+                "internalType": "uint256",
+                "name": "pledgeRate",
+                "type": "uint256"
             }
         ],
-        "name": "createToken",
+        "name": "addOtcToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "config",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "feeRefund",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "feeSettle",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "feeShare",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "feeWallet",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "orderType",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "tokenId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint160",
+                "name": "sqrtPriceX96",
+                "type": "uint160"
+            },
+            {
+                "internalType": "address",
+                "name": "exToken",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "slippage",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isBid",
+                "type": "bool"
+            }
+        ],
+        "name": "createOrder",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -723,63 +855,39 @@
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
+                "internalType": "uint8",
+                "name": "orderType",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "tokenId",
+                "type": "bytes32"
             },
             {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
-            }
-        ],
-        "name": "fillOffer",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+            },
             {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
+                "internalType": "uint160",
+                "name": "sqrtPriceX96",
+                "type": "uint160"
             },
             {
                 "internalType": "uint256",
-                "name": "amount",
+                "name": "slippage",
                 "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isBid",
+                "type": "bool"
             }
         ],
-        "name": "fillOfferETH",
+        "name": "createOrderETH",
         "outputs": [],
         "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "orderId",
-                "type": "uint256"
-            }
-        ],
-        "name": "forceCancelOrder",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256[]",
-                "name": "orderIds",
-                "type": "uint256[]"
-            }
-        ],
-        "name": "forceCancelOrders",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -799,6 +907,35 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint160",
+                "name": "sqrtPriceX96",
+                "type": "uint160"
+            },
+            {
+                "internalType": "uint8",
+                "name": "exDecimals",
+                "type": "uint8"
+            }
+        ],
+        "name": "getValueFromPrice",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "pure",
         "type": "function"
     },
     {
@@ -851,76 +988,6 @@
         "type": "function"
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            }
-        ],
-        "name": "isAcceptedToken",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
-            }
-        ],
-        "name": "isBuyOffer",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
-            }
-        ],
-        "name": "isSellOffer",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "lastOfferId",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [],
         "name": "lastOrderId",
         "outputs": [
@@ -934,26 +1001,55 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "lastShareId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "lastTradeId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "orders",
+        "outputs": [
+            {
                 "internalType": "uint8",
-                "name": "offerType",
+                "name": "orderType",
                 "type": "uint8"
+            },
+            {
+                "internalType": "bool",
+                "name": "isBid",
+                "type": "bool"
             },
             {
                 "internalType": "bytes32",
                 "name": "tokenId",
                 "type": "bytes32"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "value",
-                "type": "uint256"
             },
             {
                 "internalType": "address",
@@ -961,275 +1057,39 @@
                 "type": "address"
             },
             {
-                "internalType": "bool",
-                "name": "fullMatch",
-                "type": "bool"
-            }
-        ],
-        "name": "newOffer",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint8",
-                "name": "offerType",
-                "type": "uint8"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "tokenId",
-                "type": "bytes32"
-            },
-            {
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
             },
             {
+                "internalType": "uint160",
+                "name": "sqrtPriceX96",
+                "type": "uint160"
+            },
+            {
                 "internalType": "uint256",
-                "name": "value",
+                "name": "slippage",
                 "type": "uint256"
             },
             {
-                "internalType": "bool",
-                "name": "fullMatch",
-                "type": "bool"
-            }
-        ],
-        "name": "newOfferETH",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+                "internalType": "uint256",
+                "name": "collateral",
+                "type": "uint256"
+            },
             {
                 "internalType": "uint256",
-                "name": "offerId",
+                "name": "filledAmount",
                 "type": "uint256"
-            }
-        ],
-        "name": "offerAmount",
-        "outputs": [
+            },
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
-            }
-        ],
-        "name": "offerAmountAvailable",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
-            }
-        ],
-        "name": "offerExToken",
-        "outputs": [
+                "internalType": "uint8",
+                "name": "status",
+                "type": "uint8"
+            },
             {
                 "internalType": "address",
-                "name": "",
+                "name": "orderBy",
                 "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
-            }
-        ],
-        "name": "offerStatus",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "offerId",
-                "type": "uint256"
-            }
-        ],
-        "name": "offerValue",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "id",
-                "type": "uint256"
-            }
-        ],
-        "name": "offers",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "uint8",
-                        "name": "offerType",
-                        "type": "uint8"
-                    },
-                    {
-                        "internalType": "bytes32",
-                        "name": "tokenId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "exToken",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "value",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "collateral",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "filledAmount",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "status",
-                        "type": "uint8"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "offeredBy",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "fullMatch",
-                        "type": "bool"
-                    }
-                ],
-                "internalType": "struct Offer",
-                "name": "",
-                "type": "tuple"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "orderId",
-                "type": "uint256"
-            }
-        ],
-        "name": "orderStatus",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "id",
-                "type": "uint256"
-            }
-        ],
-        "name": "orders",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "uint256",
-                        "name": "offerId",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "buyer",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "status",
-                        "type": "uint8"
-                    }
-                ],
-                "internalType": "struct Order",
-                "name": "",
-                "type": "tuple"
             }
         ],
         "stateMutability": "view",
@@ -1292,35 +1152,22 @@
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "orderId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "hash",
-                "type": "bytes32"
-            }
-        ],
-        "name": "settle2Steps",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint256[]",
-                "name": "orderIds",
+                "name": "tradeIds",
                 "type": "uint256[]"
             },
             {
-                "internalType": "bytes32[]",
-                "name": "hashes",
-                "type": "bytes32[]"
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
             }
         ],
-        "name": "settle2StepsBatch",
+        "name": "shareOrders",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1329,52 +1176,39 @@
         "inputs": [
             {
                 "internalType": "uint256",
-                "name": "orderId",
+                "name": "",
                 "type": "uint256"
             }
         ],
-        "name": "settleCancelled",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256[]",
-                "name": "orderIds",
-                "type": "uint256[]"
-            }
-        ],
-        "name": "settleCancelleds",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+        "name": "shares",
+        "outputs": [
             {
                 "internalType": "uint256",
-                "name": "orderId",
+                "name": "offerId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "shareBy",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "filledAmount",
                 "type": "uint256"
             }
         ],
-        "name": "settleFilled",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256[]",
-                "name": "orderIds",
-                "type": "uint256[]"
-            }
-        ],
-        "name": "settleFilleds",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -1425,6 +1259,11 @@
                 "internalType": "uint152",
                 "name": "settleRate",
                 "type": "uint152"
+            },
+            {
+                "internalType": "uint48",
+                "name": "settleDuration",
+                "type": "uint48"
             }
         ],
         "name": "tokenToSettlePhase",
@@ -1449,43 +1288,110 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "tokenId",
+                "name": "",
                 "type": "bytes32"
             }
         ],
         "name": "tokens",
         "outputs": [
             {
-                "components": [
-                    {
-                        "internalType": "address",
-                        "name": "token",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint48",
-                        "name": "settleTime",
-                        "type": "uint48"
-                    },
-                    {
-                        "internalType": "uint48",
-                        "name": "settleDuration",
-                        "type": "uint48"
-                    },
-                    {
-                        "internalType": "uint152",
-                        "name": "settleRate",
-                        "type": "uint152"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "status",
-                        "type": "uint8"
-                    }
-                ],
-                "internalType": "struct Token",
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "pledgeRate",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint48",
+                "name": "settleTime",
+                "type": "uint48"
+            },
+            {
+                "internalType": "uint48",
+                "name": "settleDuration",
+                "type": "uint48"
+            },
+            {
+                "internalType": "uint152",
+                "name": "settleRate",
+                "type": "uint152"
+            },
+            {
+                "internalType": "uint8",
+                "name": "status",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
                 "name": "",
-                "type": "tuple"
+                "type": "uint256"
+            }
+        ],
+        "name": "trades",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "orderId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint160",
+                "name": "buyerSqrtPriceX96",
+                "type": "uint160"
+            },
+            {
+                "internalType": "uint160",
+                "name": "sellerSqrtPriceX96",
+                "type": "uint160"
+            },
+            {
+                "internalType": "uint8",
+                "name": "settled",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint256",
+                "name": "buyerCashouted",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sellerCashouted",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "seller",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "internalType": "uint8",
+                "name": "status",
+                "type": "uint8"
             }
         ],
         "stateMutability": "view",
@@ -1510,7 +1416,7 @@
             },
             {
                 "internalType": "uint256",
-                "name": "pledgeRate_",
+                "name": "feeShare_",
                 "type": "uint256"
             }
         ],
@@ -1541,12 +1447,12 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_token",
+                "name": "token",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_to",
+                "name": "to",
                 "type": "address"
             }
         ],

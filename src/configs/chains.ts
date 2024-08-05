@@ -1,6 +1,7 @@
 export enum CHAIN_ID {
     // ETHEREUM = 1,
-    ARBITRUM_SEPOLIA = 421614,
+    SEPOLIA = 11155111,
+    // SOLANA_MAINNET = 99999999999,
     SOLANA_DEVNET = 99999999990,
 }
 
@@ -13,14 +14,14 @@ export const CHAINS: Record<
         explorerUrl: string;
     }
 > = {
-    [CHAIN_ID.ARBITRUM_SEPOLIA]: {
+    [CHAIN_ID.SEPOLIA]: {
         isMainnet: false,
-        name: "Arbitrum Sepolia",
+        name: "Sepolia",
         rpcUrls: [
-            "https://public.stackup.sh/api/v1/node/arbitrum-sepolia",
-            "https://arbitrum-sepolia.blockpi.network/v1/rpc/public",
+            "https://eth-sepolia.g.alchemy.com/v2/demo",
+            "https://rpc.sepolia.org",
         ],
-        explorerUrl: "https://sepolia.arbiscan.io/",
+        explorerUrl: "https://sepolia.etherscan.io/",
     },
     [CHAIN_ID.SOLANA_DEVNET]: {
         isMainnet: false,

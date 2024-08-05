@@ -12,10 +12,10 @@ export const CONTRACTS: Record<
         };
     }
 > = {
-    [CHAIN_ID.ARBITRUM_SEPOLIA]: {
+    [CHAIN_ID.SEPOLIA]: {
         OTC: {
-            address: "0xE0b56499b1269e9C2760d8783034DB49e3eb895A",
-            deployedBlock: 30446090,
+            address: "0xeDa54F17062fac1a685fEAe8A5d8bDC22f782252",
+            deployedBlock: 6439372,
         },
     },
     [CHAIN_ID.SOLANA_DEVNET]: {

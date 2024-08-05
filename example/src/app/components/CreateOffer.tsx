@@ -4,7 +4,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ethers } from "ethers";
 import { ZeroAddress } from "ethers";
 import { Label, TextInput, Button, Dropdown, Checkbox } from "flowbite-react";
-import { OtcEvm, EvmAddress, EOfferType } from "otc-sdk";
+import { OtcEvm, EvmAddress, EOrderType } from "otc-sdk";
 import { useState, useCallback } from "react";
 import { useChainId, useAccount, useSendTransaction, useClient } from "wagmi";
 
@@ -14,7 +14,7 @@ export default function CreateOffer() {
     const { sendTransaction } = useSendTransaction();
     const { openConnectModal } = useConnectModal();
 
-    const [offerType, setOfferType] = useState<EOfferType>(EOfferType.Sell);
+    const [offerType, setOfferType] = useState<EOrderType>(EOrderType.Sell);
     const [tokenId, setTokenId] = useState<string>(
         "0x0000000000000000000000000000000000000000000000000000000000000000"
     );
@@ -76,18 +76,18 @@ export default function CreateOffer() {
                         />
                     </div>
                     <Dropdown
-                        label={offerType === EOfferType.Buy ? "Buy" : "Sell"}
+                        label={offerType === EOrderType.Buy ? "Buy" : "Sell"}
                         value={offerType}
                     >
                         <Dropdown.Item
-                            value={EOfferType.Buy}
-                            onClick={() => setOfferType(EOfferType.Buy)}
+                            value={EOrderType.Buy}
+                            onClick={() => setOfferType(EOrderType.Buy)}
                         >
                             Buy
                         </Dropdown.Item>
                         <Dropdown.Item
-                            value={EOfferType.Sell}
-                            onClick={() => setOfferType(EOfferType.Sell)}
+                            value={EOrderType.Sell}
+                            onClick={() => setOfferType(EOrderType.Sell)}
                         >
                             Sell
                         </Dropdown.Item>

@@ -4,7 +4,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ethers } from "ethers";
 import { ZeroAddress } from "ethers";
 import { Label, TextInput, Button, Dropdown, Checkbox } from "flowbite-react";
-import { OtcEvm, EvmAddress, EOfferType } from "otc-sdk";
+import { OtcEvm, EvmAddress, EOrderType } from "otc-sdk";
 import { useState, useCallback } from "react";
 import { useChainId, useAccount, useSendTransaction } from "wagmi";
 
