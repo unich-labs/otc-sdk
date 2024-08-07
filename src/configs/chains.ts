@@ -18,8 +18,8 @@ export const CHAINS: Record<
         isMainnet: false,
         name: "Sepolia",
         rpcUrls: [
-            "https://eth-sepolia.g.alchemy.com/v2/demo",
-            "https://rpc.sepolia.org",
+            "https://1rpc.io/sepolia",
+            "https://eth-sepolia.public.blastapi.io	",
         ],
         explorerUrl: "https://sepolia.etherscan.io/",
     },

@@ -17,7 +17,7 @@ import {
     EvmAddress,
     WEI6,
 } from "../configs";
-import OtcAbi from "../abis/OTC.json";
+import OtcAbi from "./evm/abis";
 import { EvmNetwork } from "../networks";
 import { IOtc, IOrder, IOtcConfig } from "./otc.interface";
 import { EVM_OTC_TOPIC0 } from "../configs/events";
@@ -63,16 +63,10 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     async config(): Promise<IOtcConfig<bigint, EvmAddress>> {
         const config = await this._contract.config();
         return {
-            pledgeRate: config[0],
-            feeRefund: config[1],
-            feeSettle: config[2],
-            feeWallet: config[3],
+            feeRefund: config[0],
+            feeSettle: config[1],
+            feeWallet: config[2],
         };
-    }
-
-    async getOfferCollateral(value: bigint): Promise<bigint> {
-        const config = await this.config();
-        return (value * config.pledgeRate) / BigInt(WEI6);
     }
 
     /**
@@ -122,67 +116,145 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         return this._contract.lastTradeId();
     }
 
-    async getFillOrderValue(orderId: bigint, amount: bigint): Promise<bigint> {
+    getSqrtX96(price: number): BigInt {
+        return BigInt(Math.sqrt(price) * 2 ** 96);
+    }
+
+    async getValueFromPrice(amount: bigint, price: number): Promise<bigint> {
+        return this.contract.getValueFromPrice(
+            amount,
+            this.getSqrtX96(price),
+            9
+        );
+    }
+
+    async getValueFromSqrtPriceX96(
+        amount: bigint,
+        sqrtPriceX96: bigint
+    ): Promise<bigint> {
+        return this.contract.getValueFromPrice(amount, sqrtPriceX96, 9);
+    }
+
+    async getFillOrderCollateral(
+        orderId: bigint,
+        amount: bigint
+    ): Promise<bigint> {
         const order = await this.getOrder(orderId);
         if (order.amount === BigInt(0)) throw new Error("Invalid Order");
         if (order.exToken !== ZeroAddress) return BigInt(0);
-        let value = order.collateral;
-        if (order.orderType === EOrderType.Sell) {
-            value = order.value;
-        }
-        return (value * amount) / order.amount;
+        return this.getValueFromSqrtPriceX96(amount, order.amount); // TODO
     }
 
+    async getOrderCollateral(
+        tokenId: string,
+        amount: bigint,
+        price: number
+    ): Promise<bigint> {
+        const value = this.getValueFromPrice(amount, price);
+        const token = await this.getToken(tokenId);
+        const collateral = BigInt(WEI6); // TODO
+        // (value * BigInt(token.pledgeRate)) / BigInt(WEI6);
+
+        return collateral;
+    }
+
+    // MARK: Operator functions
+
     /**
-     * Add a new OTC token
+     * Add new OTC token by operator
      * @param tokenId id of OTC token
-     * @param settleDuration settle duration of otc token
+     * @param pledgeRate pledge rate of OTC token
      * @returns Promise<ContractTransaction>
      */
-    createOtcToken(
+    addOtcToken(
         tokenId: string,
-        settleDuration: number
+        pledgeRate: bigint
     ): Promise<ContractTransaction> {
-        return this.contract.createToken.populateTransaction(
+        return this.contract.addOtcToken.populateTransaction(
+            tokenId,
+            pledgeRate
+        );
+    }
+
+    tokenToSettlePhase(
+        tokenId: string,
+        tokenAddress: EvmAddress,
+        settleRate: bigint,
+        settleDuration: bigint
+    ): Promise<ContractTransaction> {
+        return this.contract.tokenToSettlePhase.populateTransaction(
+            tokenId,
+            tokenAddress,
+            settleRate,
+            settleDuration
+        );
+    }
+
+    tokenToggleActivation(tokenId: string): Promise<ContractTransaction> {
+        return this.contract.tokenToggleActivation.populateTransaction(tokenId);
+    }
+
+    tokenForceCancelSettlePhase(tokenId: string): Promise<ContractTransaction> {
+        return this.contract.tokenForceCancelSettlePhase.populateTransaction(
+            tokenId
+        );
+    }
+
+    updateSettleDuration(
+        tokenId: string,
+        settleDuration: bigint
+    ): Promise<ContractTransaction> {
+        return this.contract.updateSettleDuration.populateTransaction(
             tokenId,
             settleDuration
         );
     }
 
-    /**
-     * Settle OTC token
-     * @param tokenId id of OTC token
-     * @param tokenAddress contract address of OTC token
-     * @param settleRate settle rate of OTC token
-     * @returns Promise<ContractTransaction>
-     */
-    settleOtcToken(
-        tokenId: string,
-        tokenAddress: EvmAddress,
-        settleRate: bigint
+    updateConfig(
+        feeWallet: EvmAddress,
+        feeSettle: bigint,
+        feeRefund: bigint
     ): Promise<ContractTransaction> {
-        return this.contract.tokenToSettlePhase.populateTransaction(
-            tokenId,
-            tokenAddress,
-            settleRate
+        return this.contract.updateConfig.populateTransaction(
+            feeWallet,
+            feeSettle,
+            feeRefund
         );
     }
+
+    setAcceptedTokens(
+        tokenAddresses: EvmAddress[],
+        isAccepted: boolean
+    ): Promise<ContractTransaction> {
+        return this.contract.setAcceptedTokens.populateTransaction(
+            tokenAddresses,
+            isAccepted
+        );
+    }
+
+    forceCancelOrder(orderId: bigint): Promise<ContractTransaction> {
+        return this.contract.forceCancelOrder.populateTransaction(orderId);
+    }
+
+    settle2Steps(orderId: bigint, hash: string): Promise<ContractTransaction> {
+        return this.contract.settle2Steps.populateTransaction(orderId, hash);
+    }
+
+    // MARK: User functions
 
     /**
      * Create a new order
      * @param offerType order type
-     * @param pledgeRate pledge rate of OTC token
      * @param tokenId id of otc token
      * @param amount order amount
      * @param price order price
-     * @param exToken exchange token contract address
+     * @param exToken exchange token contract address, if exToken == 0x0000000000000000000000000000000000000000 => createOrderETH, else createOrder
      * @param slippage slippage of order
      * @param isBid is bid order
      * @returns Promise<ContractTransaction>
      */
-    async createOffer(
+    async createOrder(
         offerType: EOrderType,
-        pledgeRate: bigint,
         tokenId: string,
         amount: bigint,
         price: number,
@@ -190,14 +262,8 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         slippage: bigint,
         isBid: boolean
     ): Promise<ContractTransaction> {
-        let methodName = "newOffer";
+        let methodName = "createOrder";
         const sqrtPriceX96 = BigInt(Math.sqrt(price) * 2 ** 96);
-        const _value = await this.contract.getValueFromPrice(
-            amount,
-            sqrtPriceX96,
-            9
-        );
-        const collateral = (_value * pledgeRate) / BigInt(WEI6);
         let payload = [
             offerType,
             tokenId,
@@ -209,7 +275,13 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         ];
         let overrides = {};
         if (exToken == ZeroAddress) {
-            methodName = "newOfferETH";
+            const collateral = await this.getOrderCollateral(
+                tokenId,
+                amount,
+                price
+            );
+
+            methodName = "createOrderETH";
             payload = [
                 offerType,
                 tokenId,
@@ -229,6 +301,41 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     }
 
     /**
+     * Accept bid order by order owner
+     * @param bidOrderId id of bid order
+     * @param orderId id of matched order
+     * @returns Promise<ContractTransaction>
+     */
+    async matchBidOrder(
+        bidOrderId: bigint,
+        orderId: bigint
+    ): Promise<ContractTransaction> {
+        return this.contract.matchBidOrder.populateTransaction(
+            bidOrderId,
+            orderId
+        );
+    }
+
+    /**
+     * Change amount and price of open order by order owner
+     * @param orderId id of order
+     * @param amount updated amount
+     * @param price updated price
+     * @returns Promise<ContractTransaction>
+     */
+    async changeOrder(
+        orderId: bigint,
+        amount: bigint,
+        price: number
+    ): Promise<ContractTransaction> {
+        return this.contract.changeOrder.populateTransaction(
+            orderId,
+            amount,
+            this.getSqrtX96(price)
+        );
+    }
+
+    /**
      * Fill open order
      * @param orderId id of order
      * @param amount fill amount
@@ -241,11 +348,11 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         let methodName = "fillOffer";
         let payload = [orderId, amount];
         let overrides = {};
-        let value = await this.getFillOrderValue(orderId, amount);
-        if (value !== BigInt(0)) {
+        const collateral = await this.getFillOrderCollateral(orderId, amount);
+        if (collateral == BigInt(0)) {
             methodName = "fillOfferETH";
             overrides = {
-                value,
+                value: collateral,
             };
         }
 
@@ -255,22 +362,55 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     }
 
     /**
-     * Cashout trades with ids
-     * @param tradeIds ids of trades
-     * @param amount cashout amount
-     * @param value cashout value
+     * Cancel open order by order owner
+     * @param orderId id of order
      * @returns Promise<ContractTransaction>
      */
-    async cashoutOrders(
+    async cancelOrder(orderId: bigint): Promise<ContractTransaction> {
+        return this.contract.cancelOrder.populateTransaction(orderId);
+    }
+
+    /**
+     * Settle trade order by buyer or seller of trade order
+     * @param tradeId id of trade order that is settled
+     * @returns
+     */
+    async settleFilled(tradeId: bigint): Promise<ContractTransaction> {
+        // TODO impl
+        return this.contract.settleFilled.populateTransaction(tradeId);
+    }
+
+    /**
+     * Cancel unfulfilled settled trade order by buyer or seller of trade order to refund assets
+     * @param tradeId id of trade order that is canceled
+     * @returns
+     */
+    async settleCancelled(tradeId: bigint): Promise<ContractTransaction> {
+        return this.contract.settleCancelled.populateTransaction(tradeId);
+    }
+
+    /**
+     * Cash out trades with ids
+     * @param tradeIds list id of trade that is cash out
+     * @param amount cash out amount
+     * @param price cash out price
+     * @returns Promise<ContractTransaction>
+     */
+    async cashOutTrades(
         tradeIds: bigint[],
         amount: bigint,
-        value: bigint
+        price: number
     ): Promise<ContractTransaction> {
-        return this.contract["shareOrders"].populateTransaction(
+        return this.contract.cashOutTrades.populateTransaction(
             tradeIds,
             amount,
-            value
+            this.getSqrtX96(price)
         );
+    }
+
+    async buyCashOut(cashOutId: bigint): Promise<ContractTransaction> {
+        // TODO impl
+        return this.contract.buyCashOut.populateTransaction(cashOutId);
     }
 
     /**
@@ -284,31 +424,60 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
             try {
                 let event;
                 switch (log.topics[0]) {
-                    case EVM_OTC_TOPIC0.NEW_TOKEN:
+                    case EVM_OTC_TOPIC0.NewToken:
                         event = "NewToken";
                         break;
 
-                    case EVM_OTC_TOPIC0.NEW_ORDER:
+                    case EVM_OTC_TOPIC0.UpdateAcceptedTokens:
+                        event = "UpdateAcceptedTokens";
+                        break;
+
+                    case EVM_OTC_TOPIC0.TokenToSettlePhase:
+                        event = "TokenToSettlePhase";
+                        break;
+
+                    case EVM_OTC_TOPIC0.UpdateTokenStatus:
+                        event = "UpdateTokenStatus";
+                        break;
+
+                    case EVM_OTC_TOPIC0.TokenForceCancelSettlePhase:
+                        event = "TokenForceCancelSettlePhase";
+                        break;
+
+                    case EVM_OTC_TOPIC0.Settle2Steps:
+                        event = "Settle2Steps";
+                        break;
+
+                    case EVM_OTC_TOPIC0.UpdateTokenSettleDuration:
+                        event = "UpdateTokenSettleDuration";
+                        break;
+
+                    case EVM_OTC_TOPIC0.NewOrder:
                         event = "NewOrder";
                         break;
 
-                    case EVM_OTC_TOPIC0.CLOSE_ORDER:
-                        event = "CloseOrder";
+                    case EVM_OTC_TOPIC0.OrderUpdated:
+                        event = "OrderUpdated";
                         break;
 
-                    case EVM_OTC_TOPIC0.NEW_TRADE:
+                    case EVM_OTC_TOPIC0.OrderClosed:
+                        event = "OrderClosed";
+                        break;
+
+                    case EVM_OTC_TOPIC0.NewTrade:
                         event = "NewTrade";
                         break;
 
-                    case EVM_OTC_TOPIC0.CASHOUT_ORDER:
-                        event = "ShareOrder";
+                    case EVM_OTC_TOPIC0.TradeSettleFilled:
+                        event = "TradeSettleFilled";
                         break;
 
-                    case EVM_OTC_TOPIC0.SETTLE_FILLED:
-                        event = "SettleFilled";
+                    case EVM_OTC_TOPIC0.TradeSettleCancelled:
+                        event = "TradeSettleCancelled";
                         break;
-                    case EVM_OTC_TOPIC0.SETTLE_CANCELED:
-                        event = "SettleCancelled";
+
+                    case EVM_OTC_TOPIC0.TradeCashOuted:
+                        event = "TradeCashOuted";
                         break;
 
                     default:

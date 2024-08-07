@@ -1,8 +1,8 @@
-[**@unich-lab/otc-sdk**](../README.md) • **Docs**
+[**otc-sdk**](../README.md) • **Docs**
 
 ***
 
-[@unich-lab/otc-sdk](../globals.md) / WEI6
+[otc-sdk](../README.md) / WEI6
 
 # Variable: WEI6
 

@@ -1,8 +1,8 @@
-[**@unich-lab/otc-sdk**](../README.md) • **Docs**
+[**otc-sdk**](../README.md) • **Docs**
 
 ***
 
-[@unich-lab/otc-sdk](../globals.md) / OtcEvm
+[otc-sdk](../README.md) / OtcEvm
 
 # Class: OtcEvm
 
@@ -82,6 +82,34 @@ otc/otc.evm.ts:41
 
 ## Methods
 
+### addOtcToken()
+
+> **addOtcToken**(`tokenId`, `pledgeRate`): `Promise`\<`ContractTransaction`\>
+
+Add new OTC token by operator
+
+#### Parameters
+
+• **tokenId**: `string`
+
+id of OTC token
+
+• **pledgeRate**: `bigint`
+
+pledge rate of OTC token
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+Promise<ContractTransaction>
+
+#### Defined in
+
+otc/otc.evm.ts:169
+
+***
+
 ### address()
 
 > **address**(): `string`
@@ -100,25 +128,35 @@ otc/otc.evm.ts:55
 
 ***
 
-### cashoutOrders()
+### buyCashOut()
 
-> **cashoutOrders**(`tradeIds`, `amount`, `value`): `Promise`\<`ContractTransaction`\>
-
-Cashout trades with ids
+> **buyCashOut**(`cashOutId`): `Promise`\<`ContractTransaction`\>
 
 #### Parameters
 
-• **tradeIds**: `bigint`[]
+• **cashOutId**: `bigint`
 
-ids of trades
+#### Returns
 
-• **amount**: `bigint`
+`Promise`\<`ContractTransaction`\>
 
-cashout amount
+#### Defined in
 
-• **value**: `bigint`
+otc/otc.evm.ts:411
 
-cashout value
+***
+
+### cancelOrder()
+
+> **cancelOrder**(`orderId`): `Promise`\<`ContractTransaction`\>
+
+Cancel open order by order owner
+
+#### Parameters
+
+• **orderId**: `bigint`
+
+id of order
 
 #### Returns
 
@@ -128,7 +166,71 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:264
+otc/otc.evm.ts:369
+
+***
+
+### cashOutTrades()
+
+> **cashOutTrades**(`tradeIds`, `amount`, `price`): `Promise`\<`ContractTransaction`\>
+
+Cash out trades with ids
+
+#### Parameters
+
+• **tradeIds**: `bigint`[]
+
+list id of trade that is cash out
+
+• **amount**: `bigint`
+
+cash out amount
+
+• **price**: `number`
+
+cash out price
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+Promise<ContractTransaction>
+
+#### Defined in
+
+otc/otc.evm.ts:399
+
+***
+
+### changeOrder()
+
+> **changeOrder**(`orderId`, `amount`, `price`): `Promise`\<`ContractTransaction`\>
+
+Change amount and price of open order by order owner
+
+#### Parameters
+
+• **orderId**: `bigint`
+
+id of order
+
+• **amount**: `bigint`
+
+updated amount
+
+• **price**: `number`
+
+updated price
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+Promise<ContractTransaction>
+
+#### Defined in
+
+otc/otc.evm.ts:326
 
 ***
 
@@ -150,9 +252,9 @@ otc/otc.evm.ts:63
 
 ***
 
-### createOffer()
+### createOrder()
 
-> **createOffer**(`offerType`, `pledgeRate`, `tokenId`, `amount`, `price`, `exToken`, `slippage`, `isBid`): `Promise`\<`ContractTransaction`\>
+> **createOrder**(`offerType`, `tokenId`, `amount`, `price`, `exToken`, `slippage`, `isBid`): `Promise`\<`ContractTransaction`\>
 
 Create a new order
 
@@ -161,10 +263,6 @@ Create a new order
 • **offerType**: [`EOrderType`](../enumerations/EOrderType.md)
 
 order type
-
-• **pledgeRate**: `bigint`
-
-pledge rate of OTC token
 
 • **tokenId**: `string`
 
@@ -180,7 +278,7 @@ order price
 
 • **exToken**: \`0x$\{string\}\`
 
-exchange token contract address
+exchange token contract address, if exToken == 0x0000000000000000000000000000000000000000 => createOrderETH, else createOrder
 
 • **slippage**: `bigint`
 
@@ -198,35 +296,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:183
-
-***
-
-### createOtcToken()
-
-> **createOtcToken**(`tokenId`, `settleDuration`): `Promise`\<`ContractTransaction`\>
-
-Add a new OTC token
-
-#### Parameters
-
-• **tokenId**: `string`
-
-id of OTC token
-
-• **settleDuration**: `number`
-
-settle duration of otc token
-
-#### Returns
-
-`Promise`\<`ContractTransaction`\>
-
-Promise<ContractTransaction>
-
-#### Defined in
-
-otc/otc.evm.ts:142
+otc/otc.evm.ts:256
 
 ***
 
@@ -254,13 +324,31 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:237
+otc/otc.evm.ts:344
 
 ***
 
-### getFillOrderValue()
+### forceCancelOrder()
 
-> **getFillOrderValue**(`orderId`, `amount`): `Promise`\<`bigint`\>
+> **forceCancelOrder**(`orderId`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **orderId**: `bigint`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:235
+
+***
+
+### getFillOrderCollateral()
+
+> **getFillOrderCollateral**(`orderId`, `amount`): `Promise`\<`bigint`\>
 
 #### Parameters
 
@@ -274,7 +362,7 @@ otc/otc.evm.ts:237
 
 #### Defined in
 
-otc/otc.evm.ts:125
+otc/otc.evm.ts:138
 
 ***
 
@@ -288,7 +376,7 @@ otc/otc.evm.ts:125
 
 #### Defined in
 
-otc/otc.evm.ts:117
+otc/otc.evm.ts:111
 
 ***
 
@@ -302,25 +390,7 @@ otc/otc.evm.ts:117
 
 #### Defined in
 
-otc/otc.evm.ts:121
-
-***
-
-### getOfferCollateral()
-
-> **getOfferCollateral**(`value`): `Promise`\<`bigint`\>
-
-#### Parameters
-
-• **value**: `bigint`
-
-#### Returns
-
-`Promise`\<`bigint`\>
-
-#### Defined in
-
-otc/otc.evm.ts:73
+otc/otc.evm.ts:115
 
 ***
 
@@ -344,7 +414,47 @@ IOrder
 
 #### Defined in
 
-otc/otc.evm.ts:83
+otc/otc.evm.ts:77
+
+***
+
+### getOrderCollateral()
+
+> **getOrderCollateral**(`tokenId`, `amount`, `price`): `Promise`\<`bigint`\>
+
+#### Parameters
+
+• **tokenId**: `string`
+
+• **amount**: `bigint`
+
+• **price**: `number`
+
+#### Returns
+
+`Promise`\<`bigint`\>
+
+#### Defined in
+
+otc/otc.evm.ts:148
+
+***
+
+### getSqrtX96()
+
+> **getSqrtX96**(`price`): `BigInt`
+
+#### Parameters
+
+• **price**: `number`
+
+#### Returns
+
+`BigInt`
+
+#### Defined in
+
+otc/otc.evm.ts:119
 
 ***
 
@@ -368,7 +478,7 @@ OTC token info
 
 #### Defined in
 
-otc/otc.evm.ts:113
+otc/otc.evm.ts:107
 
 ***
 
@@ -392,7 +502,75 @@ Trade info
 
 #### Defined in
 
-otc/otc.evm.ts:104
+otc/otc.evm.ts:98
+
+***
+
+### getValueFromPrice()
+
+> **getValueFromPrice**(`amount`, `price`): `Promise`\<`bigint`\>
+
+#### Parameters
+
+• **amount**: `bigint`
+
+• **price**: `number`
+
+#### Returns
+
+`Promise`\<`bigint`\>
+
+#### Defined in
+
+otc/otc.evm.ts:123
+
+***
+
+### getValueFromSqrtPriceX96()
+
+> **getValueFromSqrtPriceX96**(`amount`, `sqrtPriceX96`): `Promise`\<`bigint`\>
+
+#### Parameters
+
+• **amount**: `bigint`
+
+• **sqrtPriceX96**: `bigint`
+
+#### Returns
+
+`Promise`\<`bigint`\>
+
+#### Defined in
+
+otc/otc.evm.ts:131
+
+***
+
+### matchBidOrder()
+
+> **matchBidOrder**(`bidOrderId`, `orderId`): `Promise`\<`ContractTransaction`\>
+
+Accept bid order by order owner
+
+#### Parameters
+
+• **bidOrderId**: `bigint`
+
+id of bid order
+
+• **orderId**: `bigint`
+
+id of matched order
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+Promise<ContractTransaction>
+
+#### Defined in
+
+otc/otc.evm.ts:309
 
 ***
 
@@ -416,36 +594,190 @@ Event info
 
 #### Defined in
 
-otc/otc.evm.ts:281
+otc/otc.evm.ts:421
 
 ***
 
-### settleOtcToken()
+### setAcceptedTokens()
 
-> **settleOtcToken**(`tokenId`, `tokenAddress`, `settleRate`): `Promise`\<`ContractTransaction`\>
-
-Settle OTC token
+> **setAcceptedTokens**(`tokenAddresses`, `isAccepted`): `Promise`\<`ContractTransaction`\>
 
 #### Parameters
 
-• **tokenId**: `string`
+• **tokenAddresses**: \`0x$\{string\}\`[]
 
-id of OTC token
-
-• **tokenAddress**: \`0x$\{string\}\`
-
-contract address of OTC token
-
-• **settleRate**: `bigint`
-
-settle rate of OTC token
+• **isAccepted**: `boolean`
 
 #### Returns
 
 `Promise`\<`ContractTransaction`\>
 
-Promise<ContractTransaction>
+#### Defined in
+
+otc/otc.evm.ts:225
+
+***
+
+### settle2Steps()
+
+> **settle2Steps**(`orderId`, `hash`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **orderId**: `bigint`
+
+• **hash**: `string`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
 
 #### Defined in
 
-otc/otc.evm.ts:159
+otc/otc.evm.ts:239
+
+***
+
+### settleCancelled()
+
+> **settleCancelled**(`tradeId`): `Promise`\<`ContractTransaction`\>
+
+Cancel unfulfilled settled trade order by buyer or seller of trade order to refund assets
+
+#### Parameters
+
+• **tradeId**: `bigint`
+
+id of trade order that is canceled
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:388
+
+***
+
+### settleFilled()
+
+> **settleFilled**(`tradeId`): `Promise`\<`ContractTransaction`\>
+
+Settle trade order by buyer or seller of trade order
+
+#### Parameters
+
+• **tradeId**: `bigint`
+
+id of trade order that is settled
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:378
+
+***
+
+### tokenForceCancelSettlePhase()
+
+> **tokenForceCancelSettlePhase**(`tokenId`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **tokenId**: `string`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:197
+
+***
+
+### tokenToSettlePhase()
+
+> **tokenToSettlePhase**(`tokenId`, `tokenAddress`, `settleRate`, `settleDuration`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **tokenId**: `string`
+
+• **tokenAddress**: \`0x$\{string\}\`
+
+• **settleRate**: `bigint`
+
+• **settleDuration**: `bigint`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:179
+
+***
+
+### tokenToggleActivation()
+
+> **tokenToggleActivation**(`tokenId`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **tokenId**: `string`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:193
+
+***
+
+### updateConfig()
+
+> **updateConfig**(`feeWallet`, `feeSettle`, `feeRefund`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **feeWallet**: \`0x$\{string\}\`
+
+• **feeSettle**: `bigint`
+
+• **feeRefund**: `bigint`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:213
+
+***
+
+### updateSettleDuration()
+
+> **updateSettleDuration**(`tokenId`, `settleDuration`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **tokenId**: `string`
+
+• **settleDuration**: `bigint`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:203

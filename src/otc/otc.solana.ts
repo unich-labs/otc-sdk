@@ -22,7 +22,7 @@ import {
     EvmAddress,
     WEI6,
 } from "../configs";
-import { IDL, Otc } from "../idl";
+import { IDL, Otc } from "./solana/idl";
 import { SolanaNetwork } from "../networks";
 import { IOrder, IOtc, IOtcConfig } from "./otc.interface";
 import {
@@ -36,7 +36,6 @@ import {
     getVaultOtcTokenAccountPubKey,
 } from "./solana/accounts";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { ContractTransaction } from "ethers";
 import {
     NativeAnchorError,
     NativeError,

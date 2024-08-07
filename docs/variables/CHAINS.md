@@ -1,8 +1,8 @@
-[**@unich-lab/otc-sdk**](../README.md) • **Docs**
+[**otc-sdk**](../README.md) • **Docs**
 
 ***
 
-[@unich-lab/otc-sdk](../globals.md) / CHAINS
+[otc-sdk](../README.md) / CHAINS
 
 # Variable: CHAINS
 

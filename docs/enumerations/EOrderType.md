@@ -1,8 +1,8 @@
-[**@unich-lab/otc-sdk**](../README.md) • **Docs**
+[**otc-sdk**](../README.md) • **Docs**
 
 ***
 
-[@unich-lab/otc-sdk](../globals.md) / EOrderType
+[otc-sdk](../README.md) / EOrderType
 
 # Enumeration: EOrderType
 

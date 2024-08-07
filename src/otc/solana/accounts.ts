@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
-import { Otc } from "../../idl";
+import { Otc } from "./idl";
 
 const getSeed = (seed: string, program: anchor.Program<Otc>): Buffer => {
     return Buffer.from(

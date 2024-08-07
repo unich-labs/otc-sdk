@@ -1,8 +1,8 @@
-[**@unich-lab/otc-sdk**](../README.md) • **Docs**
+[**otc-sdk**](../README.md) • **Docs**
 
 ***
 
-[@unich-lab/otc-sdk](../globals.md) / CHAIN\_ID
+[otc-sdk](../README.md) / CHAIN\_ID
 
 # Enumeration: CHAIN\_ID
 

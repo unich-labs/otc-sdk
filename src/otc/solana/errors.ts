@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 
-import { IDL } from "../../idl";
+import { IDL } from "./idl";
 
 export const OTC_ERRORS: Map<number, string> = new Map([
     // TODO pre-defined custom error message

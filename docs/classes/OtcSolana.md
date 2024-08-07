@@ -1,8 +1,8 @@
-[**@unich-lab/otc-sdk**](../README.md) • **Docs**
+[**otc-sdk**](../README.md) • **Docs**
 
 ***
 
-[@unich-lab/otc-sdk](../globals.md) / OtcSolana
+[otc-sdk](../README.md) / OtcSolana
 
 # Class: OtcSolana
 
@@ -28,7 +28,7 @@
 
 #### Defined in
 
-otc/otc.solana.ts:56
+otc/otc.solana.ts:55
 
 ## Properties
 
@@ -48,7 +48,7 @@ otc/otc.solana.ts:56
 
 #### Defined in
 
-otc/otc.solana.ts:54
+otc/otc.solana.ts:53
 
 ***
 
@@ -58,7 +58,7 @@ otc/otc.solana.ts:54
 
 #### Defined in
 
-otc/otc.solana.ts:52
+otc/otc.solana.ts:51
 
 ***
 
@@ -68,7 +68,7 @@ otc/otc.solana.ts:52
 
 #### Defined in
 
-otc/otc.solana.ts:48
+otc/otc.solana.ts:47
 
 ***
 
@@ -78,7 +78,7 @@ otc/otc.solana.ts:48
 
 #### Defined in
 
-otc/otc.solana.ts:49
+otc/otc.solana.ts:48
 
 ## Methods
 
@@ -100,7 +100,7 @@ otc/otc.solana.ts:49
 
 #### Defined in
 
-otc/otc.solana.ts:235
+otc/otc.solana.ts:234
 
 ***
 
@@ -118,7 +118,7 @@ otc/otc.solana.ts:235
 
 #### Defined in
 
-otc/otc.solana.ts:64
+otc/otc.solana.ts:63
 
 ***
 
@@ -138,7 +138,7 @@ otc/otc.solana.ts:64
 
 #### Defined in
 
-otc/otc.solana.ts:161
+otc/otc.solana.ts:160
 
 ***
 
@@ -172,7 +172,7 @@ otc/otc.solana.ts:161
 
 #### Defined in
 
-otc/otc.solana.ts:348
+otc/otc.solana.ts:347
 
 ***
 
@@ -192,7 +192,7 @@ otc/otc.solana.ts:348
 
 #### Defined in
 
-otc/otc.solana.ts:72
+otc/otc.solana.ts:71
 
 ***
 
@@ -210,7 +210,7 @@ otc/otc.solana.ts:72
 
 #### Defined in
 
-otc/otc.solana.ts:111
+otc/otc.solana.ts:110
 
 ***
 
@@ -224,7 +224,7 @@ otc/otc.solana.ts:111
 
 #### Defined in
 
-otc/otc.solana.ts:155
+otc/otc.solana.ts:154
 
 ***
 
@@ -238,7 +238,7 @@ otc/otc.solana.ts:155
 
 #### Defined in
 
-otc/otc.solana.ts:143
+otc/otc.solana.ts:142
 
 ***
 
@@ -252,7 +252,7 @@ otc/otc.solana.ts:143
 
 #### Defined in
 
-otc/otc.solana.ts:149
+otc/otc.solana.ts:148
 
 ***
 
@@ -270,7 +270,7 @@ otc/otc.solana.ts:149
 
 #### Defined in
 
-otc/otc.solana.ts:123
+otc/otc.solana.ts:122
 
 ***
 
@@ -288,7 +288,7 @@ otc/otc.solana.ts:123
 
 #### Defined in
 
-otc/otc.solana.ts:99
+otc/otc.solana.ts:98
 
 ***
 
@@ -308,7 +308,7 @@ otc/otc.solana.ts:99
 
 #### Defined in
 
-otc/otc.solana.ts:83
+otc/otc.solana.ts:82
 
 ***
 
@@ -326,7 +326,7 @@ otc/otc.solana.ts:83
 
 #### Defined in
 
-otc/otc.solana.ts:133
+otc/otc.solana.ts:132
 
 ***
 
@@ -352,7 +352,7 @@ otc/otc.solana.ts:133
 
 #### Defined in
 
-otc/otc.solana.ts:475
+otc/otc.solana.ts:474
 
 ***
 
@@ -372,7 +372,7 @@ otc/otc.solana.ts:475
 
 #### Defined in
 
-otc/otc.solana.ts:201
+otc/otc.solana.ts:200
 
 ***
 
@@ -396,7 +396,7 @@ otc/otc.solana.ts:201
 
 #### Defined in
 
-otc/otc.solana.ts:436
+otc/otc.solana.ts:435
 
 ***
 
@@ -414,7 +414,7 @@ otc/otc.solana.ts:436
 
 #### Defined in
 
-otc/otc.solana.ts:691
+otc/otc.solana.ts:690
 
 ***
 
@@ -440,7 +440,7 @@ otc/otc.solana.ts:691
 
 #### Defined in
 
-otc/otc.solana.ts:306
+otc/otc.solana.ts:305
 
 ***
 
@@ -462,7 +462,7 @@ otc/otc.solana.ts:306
 
 #### Defined in
 
-otc/otc.solana.ts:179
+otc/otc.solana.ts:178
 
 ***
 
@@ -484,7 +484,7 @@ otc/otc.solana.ts:179
 
 #### Defined in
 
-otc/otc.solana.ts:536
+otc/otc.solana.ts:535
 
 ***
 
@@ -514,7 +514,7 @@ otc/otc.solana.ts:536
 
 #### Defined in
 
-otc/otc.solana.ts:262
+otc/otc.solana.ts:261
 
 ***
 
@@ -538,4 +538,4 @@ otc/otc.solana.ts:262
 
 #### Defined in
 
-otc/otc.solana.ts:217
+otc/otc.solana.ts:216

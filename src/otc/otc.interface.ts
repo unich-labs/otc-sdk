@@ -1,7 +1,6 @@
 import { EOrderStatus, EOrderType, ETradeStatus } from "../configs";
 
 export type IOtcConfig<BN, Address> = {
-    pledgeRate: BN;
     feeRefund: BN;
     feeSettle: BN;
     feeWallet: Address;
