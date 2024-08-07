@@ -20,7 +20,7 @@ import {
 import OtcAbi from "../abis/OTC.json";
 import { EvmNetwork } from "../networks";
 import { IOtc, IOrder, IOtcConfig } from "./otc.interface";
-import { EVM_OTC_TOPIC0 } from "src/configs/events";
+import { EVM_OTC_TOPIC0 } from "../configs/events";
 
 export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     protected _contractAddress: EvmAddress;
