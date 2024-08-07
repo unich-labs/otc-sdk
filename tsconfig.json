@@ -1,11 +1,23 @@
 {
-    "extends": "./tsconfig.base.json",
+    "include": ["./src/**/*"],
     "compilerOptions": {
-        "module": "ESNext",
-        "target": "ESNext",
+        "baseUrl": ".",
+        "typeRoots": ["node_modules/@types"],
+        "module": "esnext",
+        "target": "esnext",
         "moduleResolution": "node",
         "outDir": "dist/esm",
         "rootDir": "./src",
-        "resolveJsonModule": true
+        "sourceMap": true,
+        "declaration": true,
+        "declarationMap": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "noImplicitAny": false,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true
     }
 }
