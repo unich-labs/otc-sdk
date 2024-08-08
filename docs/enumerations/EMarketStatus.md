@@ -2,9 +2,9 @@
 
 ***
 
-[otc-sdk](../README.md) / ETokenStatus
+[otc-sdk](../README.md) / EMarketStatus
 
-# Enumeration: ETokenStatus
+# Enumeration: EMarketStatus
 
 ## Enumeration Members
 
@@ -14,7 +14,7 @@
 
 #### Defined in
 
-configs/enums.ts:20
+configs/enums.ts:2
 
 ***
 
@@ -24,7 +24,7 @@ configs/enums.ts:20
 
 #### Defined in
 
-configs/enums.ts:21
+configs/enums.ts:3
 
 ***
 
@@ -34,4 +34,4 @@ configs/enums.ts:21
 
 #### Defined in
 
-configs/enums.ts:22
+configs/enums.ts:4

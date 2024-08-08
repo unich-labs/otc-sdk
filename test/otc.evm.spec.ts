@@ -10,7 +10,7 @@ import {
     OtcEvm,
     WEI6,
 } from "../src";
-import { ethers } from "ethers";
+import { ZeroAddress, ethers } from "ethers";
 
 chai.use(chaiAsPromised);
 
@@ -32,69 +32,52 @@ describe("OTC EVM testing", () => {
         const config = await otc.config();
     });
 
-    it("Create OTC token", async () => {
-        const tokenId =
-            "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
+    it("Create new market", async () => {
+        const marketId =
+            "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
+        const exToken = ZeroAddress as `0x${string}`;
         const pledgeRate = BigInt(WEI6) / BigInt(5); // 20%
+        const minTrade = BigInt(WEI6) * BigInt(WEI6) * BigInt(WEI6); // 1e18
         assert.deepEqual(
             {
                 to: otcAddress,
-                data: "0xdb13b93a464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de650000000000000000000000000000000000000000000000000000000000030d40",
+                data: "0x0fbfe9ecd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f2800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400000000000000000000000000000000000000000000000000de0b6b3a7640000",
             },
-            await otc.addOtcToken(tokenId, pledgeRate)
+            await otc.newMarket(marketId, exToken, pledgeRate, minTrade)
         );
     });
 
     // it("Create Sell offer without Native coin", async () => {
     //     const offerType = EOrderType.Sell;
-    //     const tokenId =
-    //         "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
+    //     const marketId =
+    //         "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
     //     const amount = BigInt(1000) * BigInt(WEI6);
     //     const price = 0.1;
-    //     const exToken = "0x9aa40cc99973d8407a2ae7b2237d26e615ecafd2";
-    //     const slippage = BigInt(0);
     //     const isBid = false;
     //     assert.deepEqual(
     //         {
     //             to: otcAddress,
-    //             data: "0x041c56600000000000000000000000000000000000000000000000000000000000000002464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000050f44d8921243c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    //             data: "0xa61707b70000000000000000000000000000000000000000000000000000000000000002d03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000050f44d8921243c00000000000000000000000000000000000000000000000000000000000000000000000000",
+    //             value: 1000000n, // TODO use sdk
     //         },
-    //         await otc.createOrder(
-    //             offerType,
-    //             tokenId,
-    //             amount,
-    //             price,
-    //             exToken,
-    //             slippage,
-    //             isBid
-    //         )
+    //         await otc.createOrder(offerType, marketId, amount, price, isBid)
     //     );
     // });
 
     // it("Create Sell offer with Native coin", async () => {
     //     const offerType = EOrderType.Sell;
-    //     const tokenId =
-    //         "0x464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65"; // keccak256("MOCK_OTC_TOKEN")
+    //     const marketId =
+    //         "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
     //     const amount = BigInt(1000) * BigInt(WEI6);
     //     const price = 0.1;
-    //     const exToken = ethers.ZeroAddress as EvmAddress;
-    //     const slippage = BigInt(0);
     //     const isBid = false;
     //     assert.deepEqual(
     //         {
     //             to: otcAddress,
-    //             data: "0xf564f0ae0000000000000000000000000000000000000000000000000000000000000002464bc3e3bd691660d23304498151f69ab2e13e61e836bdbf36ab5b826a12de65000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000001",
-    //             // value: collateral, // TODO
+    //             data: "0xa61707b70000000000000000000000000000000000000000000000000000000000000002d03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000050f44d8921243c00000000000000000000000000000000000000000000000000000000000000000000000000",
+    //             value: 1000000n, // TODO use sdk
     //         },
-    //         await otc.createOrder(
-    //             offerType,
-    //             tokenId,
-    //             amount,
-    //             price,
-    //             exToken,
-    //             slippage,
-    //             isBid
-    //         )
+    //         await otc.createOrder(offerType, marketId, amount, price, isBid)
     //     );
     // });
 
@@ -109,6 +92,7 @@ describe("OTC EVM testing", () => {
     //         await otc.fillOffer(offerId, amount)
     //     );
     // });
+
     // it("Fill Sell offer wit Native coin", async () => {
     //     const offerId = BigInt(3);
     //     const amount = BigInt("100000000000000000000") * BigInt(WEI6);

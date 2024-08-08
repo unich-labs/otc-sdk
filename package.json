@@ -29,7 +29,7 @@
         "clean": "rimraf dist",
         "build": "yarn clean && rollup --config --bundleConfigAsCjs",
         "build:doc": "rimraf docs && typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts --readme none",
-        "test": "ts-mocha -p ./tsconfig.testing.json -r ts-node/register test/*.spec.ts --timeout 200000"
+        "test": "ts-mocha -r ts-node/register test/*.spec.ts --timeout 200000"
     },
     "publishConfig": {
         "@scope:registry": "https://gitlab.unich.com/api/v4/projects/23/packages/npm/"

@@ -5,7 +5,7 @@ export const EVM_OTC_TOPIC0 = {
         "0x6a980e8ca36409cff27b8778560e2a0f5183fea53171bc0aeff7317906c7c1f4",
     TokenToSettlePhase:
         "0xb6281c3a2566e189de67ad077ce1e9d89fe08961548cb9de8d7c112c0cf3b443",
-    UpdateTokenStatus:
+    UpdatEMarketStatus:
         "0x853e3a954af7889419a6922a1bc350b54c6217937a4a2aed1176ed3f5a1dfb52",
     TokenForceCancelSettlePhase:
         "0x6ac56c552b96d07b41e8ee97200f747e7476892e0e2e53e9803199bfe014b0a8",

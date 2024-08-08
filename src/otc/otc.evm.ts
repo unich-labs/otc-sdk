@@ -1,13 +1,11 @@
 import {
     Contract,
-    Provider,
-    JsonRpcProvider,
     ContractTransaction,
-    ZeroAddress,
-    formatUnits,
-    formatEther,
-    Log,
     Interface,
+    JsonRpcProvider,
+    Log,
+    Provider,
+    ZeroAddress,
 } from "ethers";
 import {
     CHAINS,
@@ -17,10 +15,10 @@ import {
     EvmAddress,
     WEI6,
 } from "../configs";
-import OtcAbi from "./evm/abis";
-import { EvmNetwork } from "../networks";
-import { IOtc, IOrder, IOtcConfig } from "./otc.interface";
 import { EVM_OTC_TOPIC0 } from "../configs/events";
+import { EvmNetwork } from "../networks";
+import { OtcAbi } from "./evm/abis";
+import { IMarket, IOrder, IOtc, IOtcConfig, ITrade } from "./otc.interface";
 
 export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     protected _contractAddress: EvmAddress;
@@ -70,42 +68,62 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     }
 
     /**
+     * Get OTC token info
+     * @param marketId id of token
+     * @returns Promise<IMarket<bigint, EvmAddress>>
+     */
+    async getMarket(marketId: string): Promise<IMarket<bigint, EvmAddress>> {
+        const token = await this._contract.markets(marketId);
+        return {
+            token: token[0],
+            exToken: token[1],
+            pledgeRate: token[2],
+            settleTime: token[3],
+            settleDuration: token[4],
+            settleRate: token[5],
+            status: token[6],
+            minTrade: token[7],
+        };
+    }
+
+    /**
      * Get order info
      * @param orderId id of order
      * @returns IOrder
      */
     async getOrder(orderId: bigint): Promise<IOrder<bigint, EvmAddress>> {
-        const offer = await this._contract.offers(orderId);
+        const order = await this._contract.orders(orderId);
         return {
-            orderType: offer[0],
-            tokenId: offer[1],
-            exToken: offer[2],
-            amount: offer[3],
-            value: offer[4],
-            collateral: offer[5],
-            filledAmount: offer[6],
-            status: offer[7],
-            offerBy: offer[8],
-            fullMatch: offer[9],
+            marketId: order[0],
+            orderType: order[1],
+            isBid: order[2],
+            amount: order[3],
+            sqrtPriceX96: order[4],
+            filledAmount: order[5],
+            status: order[6],
+            orderBy: order[7],
         };
     }
 
     /**
      * Get trade info
      * @param tradeId id of trade
-     * @returns Trade info
+     * @returns Promise<ITrade<bigint, EvmAddress>>
      */
-    async getTrade(tradeId: bigint): Promise<any> {
-        return this._contract.trades(tradeId);
-    }
-
-    /**
-     * Get OTC token info
-     * @param tokenId id of token
-     * @returns OTC token info
-     */
-    async getToken(tokenId: string): Promise<any> {
-        return this._contract.tokens(tokenId);
+    async getTrade(tradeId: bigint): Promise<ITrade<bigint, EvmAddress>> {
+        const trade = await this._contract.trades(tradeId);
+        return {
+            marketId: trade[0],
+            amount: trade[1],
+            buyerSqrtPriceX96: trade[2],
+            sellerSqrtPriceX96: trade[3],
+            settled: trade[4].toNumber(),
+            buyerCashOuted: trade[5],
+            sellerCashOuted: trade[6],
+            seller: trade[7],
+            buyer: trade[8],
+            status: trade[9],
+        };
     }
 
     async getLastOrderId(): Promise<bigint> {
@@ -140,20 +158,21 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         amount: bigint
     ): Promise<bigint> {
         const order = await this.getOrder(orderId);
+        const market = await this.getMarket(order.marketId);
         if (order.amount === BigInt(0)) throw new Error("Invalid Order");
-        if (order.exToken !== ZeroAddress) return BigInt(0);
+        if (market.exToken !== ZeroAddress) return BigInt(0);
         return this.getValueFromSqrtPriceX96(amount, order.amount); // TODO
     }
 
     async getOrderCollateral(
-        tokenId: string,
+        marketId: string,
         amount: bigint,
         price: number
     ): Promise<bigint> {
         const value = this.getValueFromPrice(amount, price);
-        const token = await this.getToken(tokenId);
+        const market = await this.getMarket(marketId);
         const collateral = BigInt(WEI6); // TODO
-        // (value * BigInt(token.pledgeRate)) / BigInt(WEI6);
+        // (value * BigInt(market.pledgeRate)) / BigInt(WEI6);
 
         return collateral;
     }
@@ -161,51 +180,59 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     // MARK: Operator functions
 
     /**
-     * Add new OTC token by operator
+     * Add new market by operator
      * @param tokenId id of OTC token
      * @param pledgeRate pledge rate of OTC token
      * @returns Promise<ContractTransaction>
      */
-    addOtcToken(
-        tokenId: string,
-        pledgeRate: bigint
+    newMarket(
+        marketId: string,
+        exToken: EvmAddress,
+        pledgeRate: bigint,
+        minTrade: bigint
     ): Promise<ContractTransaction> {
-        return this.contract.addOtcToken.populateTransaction(
-            tokenId,
-            pledgeRate
+        return this.contract.newMarket.populateTransaction(
+            marketId,
+            exToken,
+            pledgeRate,
+            minTrade
         );
     }
 
-    tokenToSettlePhase(
-        tokenId: string,
+    marketToSettlePhase(
+        marketId: string,
         tokenAddress: EvmAddress,
         settleRate: bigint,
         settleDuration: bigint
     ): Promise<ContractTransaction> {
-        return this.contract.tokenToSettlePhase.populateTransaction(
-            tokenId,
+        return this.contract.marketToSettlePhase.populateTransaction(
+            marketId,
             tokenAddress,
             settleRate,
             settleDuration
         );
     }
 
-    tokenToggleActivation(tokenId: string): Promise<ContractTransaction> {
-        return this.contract.tokenToggleActivation.populateTransaction(tokenId);
+    marketToggleActivation(marketId: string): Promise<ContractTransaction> {
+        return this.contract.marketToggleActivation.populateTransaction(
+            marketId
+        );
     }
 
-    tokenForceCancelSettlePhase(tokenId: string): Promise<ContractTransaction> {
-        return this.contract.tokenForceCancelSettlePhase.populateTransaction(
-            tokenId
+    marketForceCancelSettlePhase(
+        marketId: string
+    ): Promise<ContractTransaction> {
+        return this.contract.marketForceCancelSettlePhase.populateTransaction(
+            marketId
         );
     }
 
     updateSettleDuration(
-        tokenId: string,
+        marketId: string,
         settleDuration: bigint
     ): Promise<ContractTransaction> {
         return this.contract.updateSettleDuration.populateTransaction(
-            tokenId,
+            marketId,
             settleDuration
         );
     }
@@ -219,16 +246,6 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
             feeWallet,
             feeSettle,
             feeRefund
-        );
-    }
-
-    setAcceptedTokens(
-        tokenAddresses: EvmAddress[],
-        isAccepted: boolean
-    ): Promise<ContractTransaction> {
-        return this.contract.setAcceptedTokens.populateTransaction(
-            tokenAddresses,
-            isAccepted
         );
     }
 
@@ -255,41 +272,23 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      */
     async createOrder(
         offerType: EOrderType,
-        tokenId: string,
+        marketId: string,
         amount: bigint,
         price: number,
-        exToken: EvmAddress,
-        slippage: bigint,
         isBid: boolean
     ): Promise<ContractTransaction> {
         let methodName = "createOrder";
         const sqrtPriceX96 = BigInt(Math.sqrt(price) * 2 ** 96);
-        let payload = [
-            offerType,
-            tokenId,
-            amount,
-            sqrtPriceX96,
-            exToken,
-            slippage,
-            isBid,
-        ];
+        let payload = [offerType, marketId, amount, sqrtPriceX96, isBid];
         let overrides = {};
-        if (exToken == ZeroAddress) {
+        const market = await this.getMarket(marketId);
+        if (market.exToken == ZeroAddress) {
             const collateral = await this.getOrderCollateral(
-                tokenId,
+                marketId,
                 amount,
                 price
             );
-
             methodName = "createOrderETH";
-            payload = [
-                offerType,
-                tokenId,
-                amount,
-                sqrtPriceX96,
-                slippage,
-                isBid,
-            ];
             overrides = {
                 value: collateral,
             };
@@ -436,8 +435,8 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
                         event = "TokenToSettlePhase";
                         break;
 
-                    case EVM_OTC_TOPIC0.UpdateTokenStatus:
-                        event = "UpdateTokenStatus";
+                    case EVM_OTC_TOPIC0.UpdatEMarketStatus:
+                        event = "UpdatEMarketStatus";
                         break;
 
                     case EVM_OTC_TOPIC0.TokenForceCancelSettlePhase:

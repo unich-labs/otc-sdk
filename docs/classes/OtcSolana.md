@@ -8,7 +8,7 @@
 
 ## Implements
 
-- `IOtc`\<`PublicKey`, `BN`, `Transaction`\>
+- [`IOtc`](../interfaces/IOtc.md)\<`PublicKey`, `BN`, `Transaction`\>
 
 ## Constructors
 

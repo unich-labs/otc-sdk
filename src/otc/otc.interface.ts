@@ -1,31 +1,178 @@
-import { EOrderStatus, EOrderType, ETradeStatus } from "../configs";
+import {
+    EOrderStatus,
+    EOrderType,
+    ETradeStatus,
+    EMarketStatus,
+} from "../configs";
 
-export type IOtcConfig<BN, Address> = {
+/**
+ * Config interface
+ */
+export interface IOtcConfig<BN, Address> {
+    /**
+     * fee to refund
+     */
     feeRefund: BN;
+
+    /**
+     * fee to settle and cash out
+     */
     feeSettle: BN;
+
+    /**
+     * fee wallet that is received fee
+     */
     feeWallet: Address;
-};
+}
 
-export type IOrder<BN, Address> = {
-    orderType: EOrderType;
-    tokenId: string;
+/**
+ * Market interface
+ */
+export interface IMarket<BN, Address> {
+    /**
+     * OTC token address
+     */
+    token: Address;
+
+    /**
+     * exchange token address
+     */
     exToken: Address;
-    amount: BN;
-    value: BN;
-    collateral: BN;
-    filledAmount: BN;
-    status: EOrderStatus;
-    offerBy: Address;
-    fullMatch: boolean;
-};
 
-export type ITrade<BN, Address> = {
-    orderId: BN;
+    /**
+     * pledge rate of market
+     */
+    pledgeRate: BN;
+
+    /**
+     * settle time of market
+     */
+    settleTime: BN;
+
+    /**
+     * settle duration of market
+     */
+    settleDuration: BN;
+
+    /**
+     * settle rate of market
+     */
+    settleRate: BN;
+
+    /**
+     * market status
+     */
+    status: EMarketStatus;
+
+    /**
+     * min exchange token amount to trade on market
+     */
+    minTrade: BN;
+}
+
+/**
+ *  Order interface
+ */
+export interface IOrder<BN, Address> {
+    /**
+     * id of market
+     */
+    marketId: string;
+
+    /**
+     * order type (buy or sell)
+     */
+    orderType: EOrderType;
+
+    /**
+     * is bid order
+     */
+    isBid: boolean;
+
+    /**
+     * order amount
+     */
     amount: BN;
+
+    /**
+     * sqrtX96 price of order
+     */
+    sqrtPriceX96: BN;
+
+    /**
+     * filled amount of order
+     */
+    filledAmount: BN;
+
+    /**
+     * order status
+     */
+    status: EOrderStatus;
+
+    /**
+     * order owner address
+     */
+    orderBy: Address;
+}
+
+/**
+ * Trade order interface
+ */
+export interface ITrade<BN, Address> {
+    /**
+     * id of market
+     */
+    marketId: BN;
+
+    /**
+     * amount of trade order
+     */
+    amount: BN;
+
+    /**
+     * sqrtX96 price of buyer
+     */
+    buyerSqrtPriceX96: BN;
+
+    /**
+     * sqrtX96 price of seller
+     */
+    sellerSqrtPriceX96: BN;
+
+    /**
+     * settled status
+     * default 1
+     * buyer settled: 2
+     * seller settled: 3
+     * both buyer and seller settle: 6
+     */
+    settled: number;
+
+    /**
+     * amount that buyer cash out
+     */
+    buyerCashOuted: BN;
+
+    /**
+     * amount that seller cash out
+     */
+    sellerCashOuted: BN;
+
+    /**
+     * seller address
+     */
     seller: Address;
+
+    /**
+     * buyer address
+     */
     buyer: Address;
+
+    /**
+     * trade order status
+     */
     status: ETradeStatus;
-};
+}
 
 export interface IOtc<Address, BN, Transaction> {
     // TODO abstract OTC class

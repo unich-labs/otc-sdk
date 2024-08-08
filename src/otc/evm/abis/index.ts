@@ -1,4 +1,4 @@
-const OtcAbi = [
+export const OtcAbi = [
     {
         inputs: [],
         name: "AccessControlBadConfirmation",
@@ -45,6 +45,11 @@ const OtcAbi = [
     {
         inputs: [],
         name: "AlreadyExistsError",
+        type: "error",
+    },
+    {
+        inputs: [],
+        name: "EmptyError",
         type: "error",
     },
     {
@@ -96,20 +101,58 @@ const OtcAbi = [
         inputs: [
             {
                 indexed: false,
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+        ],
+        name: "MarketForceCancelSettlePhase",
+        type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+            {
+                indexed: false,
+                internalType: "address",
+                name: "token",
+                type: "address",
+            },
+            {
+                indexed: false,
                 internalType: "uint256",
-                name: "id",
+                name: "settleRate",
                 type: "uint256",
             },
             {
                 indexed: false,
-                internalType: "uint8",
-                name: "orderType",
-                type: "uint8",
+                internalType: "uint48",
+                name: "settleTime",
+                type: "uint48",
             },
             {
                 indexed: false,
+                internalType: "uint48",
+                name: "settleDuration",
+                type: "uint48",
+            },
+        ],
+        name: "MarketToSettlePhase",
+        type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
@@ -121,32 +164,45 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "uint256",
-                name: "amount",
+                name: "pledgeRate",
+                type: "uint256",
+            },
+        ],
+        name: "NewMarket",
+        type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+            {
+                indexed: false,
+                internalType: "uint256",
+                name: "orderId",
                 type: "uint256",
             },
             {
                 indexed: false,
-                internalType: "int24",
-                name: "tick",
-                type: "int24",
+                internalType: "uint8",
+                name: "orderType",
+                type: "uint8",
+            },
+            {
+                indexed: false,
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
             },
             {
                 indexed: false,
                 internalType: "uint160",
                 name: "sqrtPriceX96",
                 type: "uint160",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "collateral",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "slippage",
-                type: "uint256",
             },
             {
                 indexed: false,
@@ -170,38 +226,25 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
                 indexed: false,
                 internalType: "uint256",
-                name: "pledgeRate",
-                type: "uint256",
-            },
-        ],
-        name: "NewToken",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "id",
+                name: "tradeId",
                 type: "uint256",
             },
             {
                 indexed: false,
                 internalType: "uint256",
-                name: "offerId",
+                name: "orderId",
                 type: "uint256",
             },
             {
                 indexed: false,
                 internalType: "uint256",
-                name: "matchedOfferId",
+                name: "matchedOrderId",
                 type: "uint256",
             },
             {
@@ -219,7 +262,7 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "uint160",
-                name: "selleSsqrtPriceX96",
+                name: "sellerSqrtPriceX96",
                 type: "uint160",
             },
             {
@@ -244,7 +287,7 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "uint256",
-                name: "offerId",
+                name: "orderId",
                 type: "uint256",
             },
             {
@@ -263,7 +306,7 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "uint256",
-                name: "id",
+                name: "orderId",
                 type: "uint256",
             },
             {
@@ -393,56 +436,6 @@ const OtcAbi = [
         inputs: [
             {
                 indexed: false,
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-        ],
-        name: "TokenForceCancelSettlePhase",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-            {
-                indexed: false,
-                internalType: "address",
-                name: "token",
-                type: "address",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "settleRate",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "uint48",
-                name: "settleTime",
-                type: "uint48",
-            },
-            {
-                indexed: false,
-                internalType: "uint48",
-                name: "settleDuration",
-                type: "uint48",
-            },
-        ],
-        name: "TokenToSettlePhase",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
                 internalType: "uint256",
                 name: "id",
                 type: "uint256",
@@ -542,25 +535,6 @@ const OtcAbi = [
         inputs: [
             {
                 indexed: false,
-                internalType: "address[]",
-                name: "tokens",
-                type: "address[]",
-            },
-            {
-                indexed: false,
-                internalType: "bool",
-                name: "isAccepted",
-                type: "bool",
-            },
-        ],
-        name: "UpdateAcceptedTokens",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
                 internalType: "address",
                 name: "oldFeeWallet",
                 type: "address",
@@ -605,23 +579,23 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
                 indexed: false,
                 internalType: "uint48",
-                name: "oldValue",
+                name: "prevDuration",
                 type: "uint48",
             },
             {
                 indexed: false,
                 internalType: "uint48",
-                name: "newValue",
+                name: "duration",
                 type: "uint48",
             },
         ],
-        name: "UpdateTokenSettleDuration",
+        name: "UpdateMarketSettleDuration",
         type: "event",
     },
     {
@@ -630,23 +604,23 @@ const OtcAbi = [
             {
                 indexed: false,
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
                 indexed: false,
                 internalType: "uint8",
-                name: "oldValue",
+                name: "prevStatus",
                 type: "uint8",
             },
             {
                 indexed: false,
                 internalType: "uint8",
-                name: "newValue",
+                name: "status",
                 type: "uint8",
             },
         ],
-        name: "UpdateTokenStatus",
+        name: "UpdateMarketStatus",
         type: "event",
     },
     {
@@ -691,43 +665,6 @@ const OtcAbi = [
     {
         inputs: [
             {
-                internalType: "address",
-                name: "",
-                type: "address",
-            },
-        ],
-        name: "acceptedTokens",
-        outputs: [
-            {
-                internalType: "bool",
-                name: "",
-                type: "bool",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-            {
-                internalType: "uint256",
-                name: "pledgeRate",
-                type: "uint256",
-            },
-        ],
-        name: "addOtcToken",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
                 internalType: "uint256",
                 name: "cashOutId",
                 type: "uint256",
@@ -747,7 +684,7 @@ const OtcAbi = [
         inputs: [
             {
                 internalType: "uint256",
-                name: "offerId",
+                name: "orderId",
                 type: "uint256",
             },
         ],
@@ -791,7 +728,7 @@ const OtcAbi = [
         outputs: [
             {
                 internalType: "uint256",
-                name: "offerId",
+                name: "orderId",
                 type: "uint256",
             },
             {
@@ -873,7 +810,7 @@ const OtcAbi = [
             },
             {
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
@@ -885,16 +822,6 @@ const OtcAbi = [
                 internalType: "uint160",
                 name: "sqrtPriceX96",
                 type: "uint160",
-            },
-            {
-                internalType: "address",
-                name: "exToken",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "slippage",
-                type: "uint256",
             },
             {
                 internalType: "bool",
@@ -916,7 +843,7 @@ const OtcAbi = [
             },
             {
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
@@ -928,11 +855,6 @@ const OtcAbi = [
                 internalType: "uint160",
                 name: "sqrtPriceX96",
                 type: "uint160",
-            },
-            {
-                internalType: "uint256",
-                name: "slippage",
-                type: "uint256",
             },
             {
                 internalType: "bool",
@@ -967,7 +889,7 @@ const OtcAbi = [
         inputs: [
             {
                 internalType: "uint256",
-                name: "offerId",
+                name: "orderId",
                 type: "uint256",
             },
             {
@@ -1133,6 +1055,114 @@ const OtcAbi = [
     {
         inputs: [
             {
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+        ],
+        name: "marketForceCancelSettlePhase",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+            {
+                internalType: "address",
+                name: "tokenAddress",
+                type: "address",
+            },
+            {
+                internalType: "uint152",
+                name: "settleRate",
+                type: "uint152",
+            },
+            {
+                internalType: "uint48",
+                name: "settleDuration",
+                type: "uint48",
+            },
+        ],
+        name: "marketToSettlePhase",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+        ],
+        name: "marketToggleActivation",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "bytes32",
+                name: "",
+                type: "bytes32",
+            },
+        ],
+        name: "markets",
+        outputs: [
+            {
+                internalType: "address",
+                name: "token",
+                type: "address",
+            },
+            {
+                internalType: "address",
+                name: "exToken",
+                type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "pledgeRate",
+                type: "uint256",
+            },
+            {
+                internalType: "uint48",
+                name: "settleTime",
+                type: "uint48",
+            },
+            {
+                internalType: "uint48",
+                name: "settleDuration",
+                type: "uint48",
+            },
+            {
+                internalType: "uint152",
+                name: "settleRate",
+                type: "uint152",
+            },
+            {
+                internalType: "uint8",
+                name: "status",
+                type: "uint8",
+            },
+            {
+                internalType: "uint256",
+                name: "minTrade",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
                 internalType: "uint256",
                 name: "bidOrderId",
                 type: "uint256",
@@ -1151,6 +1181,34 @@ const OtcAbi = [
     {
         inputs: [
             {
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+            {
+                internalType: "address",
+                name: "exToken",
+                type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "pledgeRate",
+                type: "uint256",
+            },
+            {
+                internalType: "uint256",
+                name: "minTrade",
+                type: "uint256",
+            },
+        ],
+        name: "newMarket",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
                 internalType: "uint256",
                 name: "",
                 type: "uint256",
@@ -1158,6 +1216,11 @@ const OtcAbi = [
         ],
         name: "orders",
         outputs: [
+            {
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
             {
                 internalType: "uint8",
                 name: "orderType",
@@ -1169,16 +1232,6 @@ const OtcAbi = [
                 type: "bool",
             },
             {
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-            {
-                internalType: "address",
-                name: "exToken",
-                type: "address",
-            },
-            {
                 internalType: "uint256",
                 name: "amount",
                 type: "uint256",
@@ -1187,16 +1240,6 @@ const OtcAbi = [
                 internalType: "uint160",
                 name: "sqrtPriceX96",
                 type: "uint160",
-            },
-            {
-                internalType: "uint256",
-                name: "slippage",
-                type: "uint256",
-            },
-            {
-                internalType: "uint256",
-                name: "collateral",
-                type: "uint256",
             },
             {
                 internalType: "uint256",
@@ -1249,24 +1292,6 @@ const OtcAbi = [
             },
         ],
         name: "revokeRole",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "address[]",
-                name: "tokenAddresses",
-                type: "address[]",
-            },
-            {
-                internalType: "bool",
-                name: "isAccepted",
-                type: "bool",
-            },
-        ],
-        name: "setAcceptedTokens",
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",
@@ -1337,109 +1362,6 @@ const OtcAbi = [
     {
         inputs: [
             {
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-        ],
-        name: "tokenForceCancelSettlePhase",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-            {
-                internalType: "address",
-                name: "tokenAddress",
-                type: "address",
-            },
-            {
-                internalType: "uint152",
-                name: "settleRate",
-                type: "uint152",
-            },
-            {
-                internalType: "uint48",
-                name: "settleDuration",
-                type: "uint48",
-            },
-        ],
-        name: "tokenToSettlePhase",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "bytes32",
-                name: "tokenId",
-                type: "bytes32",
-            },
-        ],
-        name: "tokenToggleActivation",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "bytes32",
-                name: "",
-                type: "bytes32",
-            },
-        ],
-        name: "tokens",
-        outputs: [
-            {
-                internalType: "address",
-                name: "token",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "pledgeRate",
-                type: "uint256",
-            },
-            {
-                internalType: "uint48",
-                name: "settleTime",
-                type: "uint48",
-            },
-            {
-                internalType: "uint48",
-                name: "settleDuration",
-                type: "uint48",
-            },
-            {
-                internalType: "uint152",
-                name: "settleRate",
-                type: "uint152",
-            },
-            {
-                internalType: "uint8",
-                name: "status",
-                type: "uint8",
-            },
-            {
-                internalType: "uint8",
-                name: "decimals",
-                type: "uint8",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
                 internalType: "uint256",
                 name: "",
                 type: "uint256",
@@ -1448,9 +1370,9 @@ const OtcAbi = [
         name: "trades",
         outputs: [
             {
-                internalType: "uint256",
-                name: "orderId",
-                type: "uint256",
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
             },
             {
                 internalType: "uint256",
@@ -1528,12 +1450,12 @@ const OtcAbi = [
         inputs: [
             {
                 internalType: "bytes32",
-                name: "tokenId",
+                name: "marketId",
                 type: "bytes32",
             },
             {
                 internalType: "uint48",
-                name: "newValue",
+                name: "duration",
                 type: "uint48",
             },
         ],
@@ -1561,5 +1483,3 @@ const OtcAbi = [
         type: "function",
     },
 ];
-
-export default OtcAbi;

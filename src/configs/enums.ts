@@ -1,3 +1,9 @@
+export enum EMarketStatus {
+    Active = 1,
+    Inactive = 2,
+    Settle = 3,
+}
+
 export enum EOrderType {
     Buy = 1,
     Sell = 2,
@@ -14,10 +20,4 @@ export enum ETradeStatus {
     SettleFilled = 2,
     SettleCanceled = 3,
     Canceled = 4,
-}
-
-export enum ETokenStatus {
-    Active = 1,
-    Inactive = 2,
-    Settle = 3,
 }

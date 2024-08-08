@@ -7,9 +7,9 @@
 ## Enumerations
 
 - [CHAIN\_ID](enumerations/CHAIN_ID.md)
+- [EMarketStatus](enumerations/EMarketStatus.md)
 - [EOrderStatus](enumerations/EOrderStatus.md)
 - [EOrderType](enumerations/EOrderType.md)
-- [ETokenStatus](enumerations/ETokenStatus.md)
 - [ETradeStatus](enumerations/ETradeStatus.md)
 
 ## Classes
@@ -18,6 +18,14 @@
 - [OtcEvm](classes/OtcEvm.md)
 - [OtcSolana](classes/OtcSolana.md)
 - [SolanaNetwork](classes/SolanaNetwork.md)
+
+## Interfaces
+
+- [IMarket](interfaces/IMarket.md)
+- [IOrder](interfaces/IOrder.md)
+- [IOtc](interfaces/IOtc.md)
+- [IOtcConfig](interfaces/IOtcConfig.md)
+- [ITrade](interfaces/ITrade.md)
 
 ## Type Aliases
 

@@ -8,7 +8,7 @@
 
 ## Implements
 
-- `IOtc`\<[`EvmAddress`](../type-aliases/EvmAddress.md), `bigint`, `ContractTransaction`\>
+- [`IOtc`](../interfaces/IOtc.md)\<[`EvmAddress`](../type-aliases/EvmAddress.md), `bigint`, `ContractTransaction`\>
 
 ## Constructors
 
@@ -28,7 +28,7 @@
 
 #### Defined in
 
-otc/otc.evm.ts:30
+otc/otc.evm.ts:28
 
 ## Properties
 
@@ -38,7 +38,7 @@ otc/otc.evm.ts:30
 
 #### Defined in
 
-otc/otc.evm.ts:27
+otc/otc.evm.ts:25
 
 ***
 
@@ -48,7 +48,7 @@ otc/otc.evm.ts:27
 
 #### Defined in
 
-otc/otc.evm.ts:26
+otc/otc.evm.ts:24
 
 ***
 
@@ -58,7 +58,7 @@ otc/otc.evm.ts:26
 
 #### Defined in
 
-otc/otc.evm.ts:28
+otc/otc.evm.ts:26
 
 ## Accessors
 
@@ -78,37 +78,9 @@ otc/otc.evm.ts:28
 
 #### Defined in
 
-otc/otc.evm.ts:41
+otc/otc.evm.ts:39
 
 ## Methods
-
-### addOtcToken()
-
-> **addOtcToken**(`tokenId`, `pledgeRate`): `Promise`\<`ContractTransaction`\>
-
-Add new OTC token by operator
-
-#### Parameters
-
-• **tokenId**: `string`
-
-id of OTC token
-
-• **pledgeRate**: `bigint`
-
-pledge rate of OTC token
-
-#### Returns
-
-`Promise`\<`ContractTransaction`\>
-
-Promise<ContractTransaction>
-
-#### Defined in
-
-otc/otc.evm.ts:169
-
-***
 
 ### address()
 
@@ -124,7 +96,7 @@ OTC contract address
 
 #### Defined in
 
-otc/otc.evm.ts:55
+otc/otc.evm.ts:53
 
 ***
 
@@ -142,7 +114,7 @@ otc/otc.evm.ts:55
 
 #### Defined in
 
-otc/otc.evm.ts:411
+otc/otc.evm.ts:410
 
 ***
 
@@ -166,7 +138,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:369
+otc/otc.evm.ts:368
 
 ***
 
@@ -198,7 +170,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:399
+otc/otc.evm.ts:398
 
 ***
 
@@ -230,31 +202,31 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:326
+otc/otc.evm.ts:325
 
 ***
 
 ### config()
 
-> **config**(): `Promise`\<`IOtcConfig`\<`bigint`, \`0x$\{string\}\`\>\>
+> **config**(): `Promise`\<[`IOtcConfig`](../interfaces/IOtcConfig.md)\<`bigint`, \`0x$\{string\}\`\>\>
 
 Get OTC contract config
 
 #### Returns
 
-`Promise`\<`IOtcConfig`\<`bigint`, \`0x$\{string\}\`\>\>
+`Promise`\<[`IOtcConfig`](../interfaces/IOtcConfig.md)\<`bigint`, \`0x$\{string\}\`\>\>
 
 OTC contract config
 
 #### Defined in
 
-otc/otc.evm.ts:63
+otc/otc.evm.ts:61
 
 ***
 
 ### createOrder()
 
-> **createOrder**(`offerType`, `tokenId`, `amount`, `price`, `exToken`, `slippage`, `isBid`): `Promise`\<`ContractTransaction`\>
+> **createOrder**(`offerType`, `marketId`, `amount`, `price`, `isBid`): `Promise`\<`ContractTransaction`\>
 
 Create a new order
 
@@ -264,9 +236,7 @@ Create a new order
 
 order type
 
-• **tokenId**: `string`
-
-id of otc token
+• **marketId**: `string`
 
 • **amount**: `bigint`
 
@@ -275,14 +245,6 @@ order amount
 • **price**: `number`
 
 order price
-
-• **exToken**: \`0x$\{string\}\`
-
-exchange token contract address, if exToken == 0x0000000000000000000000000000000000000000 => createOrderETH, else createOrder
-
-• **slippage**: `bigint`
-
-slippage of order
 
 • **isBid**: `boolean`
 
@@ -296,7 +258,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:256
+otc/otc.evm.ts:273
 
 ***
 
@@ -324,7 +286,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:344
+otc/otc.evm.ts:343
 
 ***
 
@@ -342,7 +304,7 @@ otc/otc.evm.ts:344
 
 #### Defined in
 
-otc/otc.evm.ts:235
+otc/otc.evm.ts:252
 
 ***
 
@@ -362,7 +324,7 @@ otc/otc.evm.ts:235
 
 #### Defined in
 
-otc/otc.evm.ts:138
+otc/otc.evm.ts:156
 
 ***
 
@@ -376,7 +338,7 @@ otc/otc.evm.ts:138
 
 #### Defined in
 
-otc/otc.evm.ts:111
+otc/otc.evm.ts:129
 
 ***
 
@@ -390,13 +352,37 @@ otc/otc.evm.ts:111
 
 #### Defined in
 
-otc/otc.evm.ts:115
+otc/otc.evm.ts:133
+
+***
+
+### getMarket()
+
+> **getMarket**(`marketId`): `Promise`\<[`IMarket`](../interfaces/IMarket.md)\<`bigint`, \`0x$\{string\}\`\>\>
+
+Get OTC token info
+
+#### Parameters
+
+• **marketId**: `string`
+
+id of token
+
+#### Returns
+
+`Promise`\<[`IMarket`](../interfaces/IMarket.md)\<`bigint`, \`0x$\{string\}\`\>\>
+
+Promise<IMarket<bigint, EvmAddress>>
+
+#### Defined in
+
+otc/otc.evm.ts:75
 
 ***
 
 ### getOrder()
 
-> **getOrder**(`orderId`): `Promise`\<`IOrder`\<`bigint`, \`0x$\{string\}\`\>\>
+> **getOrder**(`orderId`): `Promise`\<[`IOrder`](../interfaces/IOrder.md)\<`bigint`, \`0x$\{string\}\`\>\>
 
 Get order info
 
@@ -408,23 +394,23 @@ id of order
 
 #### Returns
 
-`Promise`\<`IOrder`\<`bigint`, \`0x$\{string\}\`\>\>
+`Promise`\<[`IOrder`](../interfaces/IOrder.md)\<`bigint`, \`0x$\{string\}\`\>\>
 
 IOrder
 
 #### Defined in
 
-otc/otc.evm.ts:77
+otc/otc.evm.ts:94
 
 ***
 
 ### getOrderCollateral()
 
-> **getOrderCollateral**(`tokenId`, `amount`, `price`): `Promise`\<`bigint`\>
+> **getOrderCollateral**(`marketId`, `amount`, `price`): `Promise`\<`bigint`\>
 
 #### Parameters
 
-• **tokenId**: `string`
+• **marketId**: `string`
 
 • **amount**: `bigint`
 
@@ -436,7 +422,7 @@ otc/otc.evm.ts:77
 
 #### Defined in
 
-otc/otc.evm.ts:148
+otc/otc.evm.ts:167
 
 ***
 
@@ -454,37 +440,13 @@ otc/otc.evm.ts:148
 
 #### Defined in
 
-otc/otc.evm.ts:119
-
-***
-
-### getToken()
-
-> **getToken**(`tokenId`): `Promise`\<`any`\>
-
-Get OTC token info
-
-#### Parameters
-
-• **tokenId**: `string`
-
-id of token
-
-#### Returns
-
-`Promise`\<`any`\>
-
-OTC token info
-
-#### Defined in
-
-otc/otc.evm.ts:107
+otc/otc.evm.ts:137
 
 ***
 
 ### getTrade()
 
-> **getTrade**(`tradeId`): `Promise`\<`any`\>
+> **getTrade**(`tradeId`): `Promise`\<[`ITrade`](../interfaces/ITrade.md)\<`bigint`, \`0x$\{string\}\`\>\>
 
 Get trade info
 
@@ -496,13 +458,13 @@ id of trade
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`ITrade`](../interfaces/ITrade.md)\<`bigint`, \`0x$\{string\}\`\>\>
 
-Trade info
+Promise<ITrade<bigint, EvmAddress>>
 
 #### Defined in
 
-otc/otc.evm.ts:98
+otc/otc.evm.ts:113
 
 ***
 
@@ -522,7 +484,7 @@ otc/otc.evm.ts:98
 
 #### Defined in
 
-otc/otc.evm.ts:123
+otc/otc.evm.ts:141
 
 ***
 
@@ -542,7 +504,67 @@ otc/otc.evm.ts:123
 
 #### Defined in
 
-otc/otc.evm.ts:131
+otc/otc.evm.ts:149
+
+***
+
+### marketForceCancelSettlePhase()
+
+> **marketForceCancelSettlePhase**(`marketId`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **marketId**: `string`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:222
+
+***
+
+### marketToSettlePhase()
+
+> **marketToSettlePhase**(`marketId`, `tokenAddress`, `settleRate`, `settleDuration`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **marketId**: `string`
+
+• **tokenAddress**: \`0x$\{string\}\`
+
+• **settleRate**: `bigint`
+
+• **settleDuration**: `bigint`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:202
+
+***
+
+### marketToggleActivation()
+
+> **marketToggleActivation**(`marketId`): `Promise`\<`ContractTransaction`\>
+
+#### Parameters
+
+• **marketId**: `string`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+#### Defined in
+
+otc/otc.evm.ts:216
 
 ***
 
@@ -570,7 +592,37 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:309
+otc/otc.evm.ts:308
+
+***
+
+### newMarket()
+
+> **newMarket**(`marketId`, `exToken`, `pledgeRate`, `minTrade`): `Promise`\<`ContractTransaction`\>
+
+Add new market by operator
+
+#### Parameters
+
+• **marketId**: `string`
+
+• **exToken**: \`0x$\{string\}\`
+
+• **pledgeRate**: `bigint`
+
+pledge rate of OTC token
+
+• **minTrade**: `bigint`
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+Promise<ContractTransaction>
+
+#### Defined in
+
+otc/otc.evm.ts:188
 
 ***
 
@@ -594,27 +646,7 @@ Event info
 
 #### Defined in
 
-otc/otc.evm.ts:421
-
-***
-
-### setAcceptedTokens()
-
-> **setAcceptedTokens**(`tokenAddresses`, `isAccepted`): `Promise`\<`ContractTransaction`\>
-
-#### Parameters
-
-• **tokenAddresses**: \`0x$\{string\}\`[]
-
-• **isAccepted**: `boolean`
-
-#### Returns
-
-`Promise`\<`ContractTransaction`\>
-
-#### Defined in
-
-otc/otc.evm.ts:225
+otc/otc.evm.ts:420
 
 ***
 
@@ -634,7 +666,7 @@ otc/otc.evm.ts:225
 
 #### Defined in
 
-otc/otc.evm.ts:239
+otc/otc.evm.ts:256
 
 ***
 
@@ -656,7 +688,7 @@ id of trade order that is canceled
 
 #### Defined in
 
-otc/otc.evm.ts:388
+otc/otc.evm.ts:387
 
 ***
 
@@ -678,67 +710,7 @@ id of trade order that is settled
 
 #### Defined in
 
-otc/otc.evm.ts:378
-
-***
-
-### tokenForceCancelSettlePhase()
-
-> **tokenForceCancelSettlePhase**(`tokenId`): `Promise`\<`ContractTransaction`\>
-
-#### Parameters
-
-• **tokenId**: `string`
-
-#### Returns
-
-`Promise`\<`ContractTransaction`\>
-
-#### Defined in
-
-otc/otc.evm.ts:197
-
-***
-
-### tokenToSettlePhase()
-
-> **tokenToSettlePhase**(`tokenId`, `tokenAddress`, `settleRate`, `settleDuration`): `Promise`\<`ContractTransaction`\>
-
-#### Parameters
-
-• **tokenId**: `string`
-
-• **tokenAddress**: \`0x$\{string\}\`
-
-• **settleRate**: `bigint`
-
-• **settleDuration**: `bigint`
-
-#### Returns
-
-`Promise`\<`ContractTransaction`\>
-
-#### Defined in
-
-otc/otc.evm.ts:179
-
-***
-
-### tokenToggleActivation()
-
-> **tokenToggleActivation**(`tokenId`): `Promise`\<`ContractTransaction`\>
-
-#### Parameters
-
-• **tokenId**: `string`
-
-#### Returns
-
-`Promise`\<`ContractTransaction`\>
-
-#### Defined in
-
-otc/otc.evm.ts:193
+otc/otc.evm.ts:377
 
 ***
 
@@ -760,17 +732,17 @@ otc/otc.evm.ts:193
 
 #### Defined in
 
-otc/otc.evm.ts:213
+otc/otc.evm.ts:240
 
 ***
 
 ### updateSettleDuration()
 
-> **updateSettleDuration**(`tokenId`, `settleDuration`): `Promise`\<`ContractTransaction`\>
+> **updateSettleDuration**(`marketId`, `settleDuration`): `Promise`\<`ContractTransaction`\>
 
 #### Parameters
 
-• **tokenId**: `string`
+• **marketId**: `string`
 
 • **settleDuration**: `bigint`
 
@@ -780,4 +752,4 @@ otc/otc.evm.ts:213
 
 #### Defined in
 
-otc/otc.evm.ts:203
+otc/otc.evm.ts:230

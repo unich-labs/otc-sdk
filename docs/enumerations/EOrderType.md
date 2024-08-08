@@ -14,7 +14,7 @@
 
 #### Defined in
 
-configs/enums.ts:2
+configs/enums.ts:8
 
 ***
 
@@ -24,4 +24,4 @@ configs/enums.ts:2
 
 #### Defined in
 
-configs/enums.ts:3
+configs/enums.ts:9
