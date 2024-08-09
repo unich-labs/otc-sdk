@@ -1,18 +1,16 @@
-export const EVM_OTC_TOPIC0 = {
-    NewToken:
-        "0x1da02fe9181848bf1b401dde762d155f0da084c24db69129a3c7479f970ddbcc",
-    UpdateAcceptedTokens:
-        "0x6a980e8ca36409cff27b8778560e2a0f5183fea53171bc0aeff7317906c7c1f4",
-    TokenToSettlePhase:
-        "0xb6281c3a2566e189de67ad077ce1e9d89fe08961548cb9de8d7c112c0cf3b443",
-    UpdatEMarketStatus:
-        "0x853e3a954af7889419a6922a1bc350b54c6217937a4a2aed1176ed3f5a1dfb52",
-    TokenForceCancelSettlePhase:
-        "0x6ac56c552b96d07b41e8ee97200f747e7476892e0e2e53e9803199bfe014b0a8",
+export const OTC_TOPIC0 = {
+    NewMarket:
+        "0x338490d0c1cf92878463a5ca2c353d6aaacaf8496203e0e966eb0783193ec247",
+    MarketToSettlePhase:
+        "0x2d3adea3f91b66be626060b251d24ea7fdadcfea9bb41151bd39d1a8eb6abc0e",
+    UpdateMarketStatus:
+        "0x2d27075cd2fbf7a0ed5357db698d631702553e269d6ab3ef93c45eecf7f12707",
+    MarketForceCancelSettlePhase:
+        "0x3131853836d34767b2b6b5b883d9358cb87a5cfe0d409b177bfe9794b01db42a",
+    UpdateMarketSettleDuration:
+        "0xfed50438fab426e7279f9b4abda502aba7e52371572e819e763e8d76d9d638b1",
     Settle2Steps:
         "0xbac7c71779ccc41f8c859e9d622536f76f0375a85b23e1b3d4134f613a9fff54",
-    UpdateTokenSettleDuration:
-        "0xd5042937eda12ebddebb9d9ecaf0d88595a67d0d28513340610674acbd48274b",
     NewOrder:
         "0x1f8e24732c962c7cd0dace9a5bcc805d4e54a18799e663135496038861b5c7cf",
     OrderUpdated:

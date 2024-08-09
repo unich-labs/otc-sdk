@@ -15,7 +15,7 @@ import {
     EvmAddress,
     WEI6,
 } from "../configs";
-import { EVM_OTC_TOPIC0 } from "../configs/events";
+import { OTC_TOPIC0 } from "./evm/events";
 import { EvmNetwork } from "../networks";
 import { OtcAbi } from "./evm/abis";
 import { IMarket, IOrder, IOtc, IOtcConfig, ITrade } from "./otc.interface";
@@ -423,59 +423,55 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
             try {
                 let event;
                 switch (log.topics[0]) {
-                    case EVM_OTC_TOPIC0.NewToken:
-                        event = "NewToken";
+                    case OTC_TOPIC0.NewMarket:
+                        event = "NewMarket";
                         break;
 
-                    case EVM_OTC_TOPIC0.UpdateAcceptedTokens:
-                        event = "UpdateAcceptedTokens";
+                    case OTC_TOPIC0.MarketToSettlePhase:
+                        event = "MarketToSettlePhase";
                         break;
 
-                    case EVM_OTC_TOPIC0.TokenToSettlePhase:
-                        event = "TokenToSettlePhase";
+                    case OTC_TOPIC0.UpdateMarketStatus:
+                        event = "UpdateMarketStatus";
                         break;
 
-                    case EVM_OTC_TOPIC0.UpdatEMarketStatus:
-                        event = "UpdatEMarketStatus";
+                    case OTC_TOPIC0.MarketForceCancelSettlePhase:
+                        event = "MarketForceCancelSettlePhase";
                         break;
 
-                    case EVM_OTC_TOPIC0.TokenForceCancelSettlePhase:
-                        event = "TokenForceCancelSettlePhase";
+                    case OTC_TOPIC0.UpdateMarketSettleDuration:
+                        event = "UpdateMarketSettleDuration";
                         break;
 
-                    case EVM_OTC_TOPIC0.Settle2Steps:
+                    case OTC_TOPIC0.Settle2Steps:
                         event = "Settle2Steps";
                         break;
 
-                    case EVM_OTC_TOPIC0.UpdateTokenSettleDuration:
-                        event = "UpdateTokenSettleDuration";
-                        break;
-
-                    case EVM_OTC_TOPIC0.NewOrder:
+                    case OTC_TOPIC0.NewOrder:
                         event = "NewOrder";
                         break;
 
-                    case EVM_OTC_TOPIC0.OrderUpdated:
+                    case OTC_TOPIC0.OrderUpdated:
                         event = "OrderUpdated";
                         break;
 
-                    case EVM_OTC_TOPIC0.OrderClosed:
+                    case OTC_TOPIC0.OrderClosed:
                         event = "OrderClosed";
                         break;
 
-                    case EVM_OTC_TOPIC0.NewTrade:
+                    case OTC_TOPIC0.NewTrade:
                         event = "NewTrade";
                         break;
 
-                    case EVM_OTC_TOPIC0.TradeSettleFilled:
+                    case OTC_TOPIC0.TradeSettleFilled:
                         event = "TradeSettleFilled";
                         break;
 
-                    case EVM_OTC_TOPIC0.TradeSettleCancelled:
+                    case OTC_TOPIC0.TradeSettleCancelled:
                         event = "TradeSettleCancelled";
                         break;
 
-                    case EVM_OTC_TOPIC0.TradeCashOuted:
+                    case OTC_TOPIC0.TradeCashOuted:
                         event = "TradeCashOuted";
                         break;
 
