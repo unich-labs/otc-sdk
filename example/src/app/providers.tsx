@@ -10,12 +10,12 @@ import {
     cookieToInitialState,
     createStorage,
 } from "wagmi";
-import { arbitrumSepolia } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 
 export const config = getDefaultConfig({
     appName: "My RainbowKit App",
     projectId: "YOUR_PROJECT_ID",
-    chains: [arbitrumSepolia],
+    chains: [sepolia],
     ssr: true, // If your dApp uses server side rendering (SSR)
     storage: createStorage({
         storage: cookieStorage,

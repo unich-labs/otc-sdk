@@ -27,14 +27,14 @@ export default function FillOffer() {
 
                 const otc = new OtcEvm(chainId);
 
-                const createOtcTokenData = await otc.fillOffer(
-                    BigInt(offerId),
-                    ethers.parseUnits(amount.toString())
-                );
-                console.log(
-                    "🚀 ~ file: FillOffer.tsx:34 ~ createOtcTokenData:",
-                    createOtcTokenData
-                );
+                // const createOtcTokenData = await otc.fillOffer(
+                //     BigInt(offerId),
+                //     ethers.parseUnits(amount.toString())
+                // );
+                // console.log(
+                //     "🚀 ~ file: FillOffer.tsx:34 ~ createOtcTokenData:",
+                //     createOtcTokenData
+                // );
 
                 // sendTransaction({
                 //     to: createOtcTokenData.to as EvmAddress,

@@ -80,6 +80,20 @@ otc/otc.evm.ts:26
 
 otc/otc.evm.ts:39
 
+***
+
+### provider
+
+> `get` **provider**(): `Provider`
+
+#### Returns
+
+`Provider`
+
+#### Defined in
+
+otc/otc.evm.ts:43
+
 ## Methods
 
 ### address()
@@ -96,7 +110,35 @@ OTC contract address
 
 #### Defined in
 
-otc/otc.evm.ts:53
+otc/otc.evm.ts:57
+
+***
+
+### approve()
+
+> **approve**(`marketId`, `amount`): `Promise`\<`ContractTransaction`\>
+
+Approve ERC20 for OTC
+
+#### Parameters
+
+• **marketId**: `string`
+
+id of market
+
+• **amount**: `bigint`
+
+approved amount
+
+#### Returns
+
+`Promise`\<`ContractTransaction`\>
+
+Promise<ContractTransaction>
+
+#### Defined in
+
+otc/otc.evm.ts:272
 
 ***
 
@@ -114,7 +156,7 @@ otc/otc.evm.ts:53
 
 #### Defined in
 
-otc/otc.evm.ts:410
+otc/otc.evm.ts:439
 
 ***
 
@@ -138,7 +180,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:368
+otc/otc.evm.ts:397
 
 ***
 
@@ -170,7 +212,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:398
+otc/otc.evm.ts:427
 
 ***
 
@@ -202,7 +244,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:325
+otc/otc.evm.ts:354
 
 ***
 
@@ -220,7 +262,7 @@ OTC contract config
 
 #### Defined in
 
-otc/otc.evm.ts:61
+otc/otc.evm.ts:65
 
 ***
 
@@ -258,7 +300,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:273
+otc/otc.evm.ts:294
 
 ***
 
@@ -286,7 +328,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:343
+otc/otc.evm.ts:372
 
 ***
 
@@ -304,7 +346,7 @@ otc/otc.evm.ts:343
 
 #### Defined in
 
-otc/otc.evm.ts:252
+otc/otc.evm.ts:256
 
 ***
 
@@ -324,7 +366,7 @@ otc/otc.evm.ts:252
 
 #### Defined in
 
-otc/otc.evm.ts:156
+otc/otc.evm.ts:160
 
 ***
 
@@ -338,7 +380,7 @@ otc/otc.evm.ts:156
 
 #### Defined in
 
-otc/otc.evm.ts:129
+otc/otc.evm.ts:133
 
 ***
 
@@ -352,7 +394,7 @@ otc/otc.evm.ts:129
 
 #### Defined in
 
-otc/otc.evm.ts:133
+otc/otc.evm.ts:137
 
 ***
 
@@ -376,7 +418,7 @@ Promise<IMarket<bigint, EvmAddress>>
 
 #### Defined in
 
-otc/otc.evm.ts:75
+otc/otc.evm.ts:79
 
 ***
 
@@ -400,7 +442,7 @@ IOrder
 
 #### Defined in
 
-otc/otc.evm.ts:94
+otc/otc.evm.ts:98
 
 ***
 
@@ -422,7 +464,7 @@ otc/otc.evm.ts:94
 
 #### Defined in
 
-otc/otc.evm.ts:167
+otc/otc.evm.ts:171
 
 ***
 
@@ -440,7 +482,7 @@ otc/otc.evm.ts:167
 
 #### Defined in
 
-otc/otc.evm.ts:137
+otc/otc.evm.ts:141
 
 ***
 
@@ -464,7 +506,7 @@ Promise<ITrade<bigint, EvmAddress>>
 
 #### Defined in
 
-otc/otc.evm.ts:113
+otc/otc.evm.ts:117
 
 ***
 
@@ -484,7 +526,7 @@ otc/otc.evm.ts:113
 
 #### Defined in
 
-otc/otc.evm.ts:141
+otc/otc.evm.ts:145
 
 ***
 
@@ -504,7 +546,7 @@ otc/otc.evm.ts:141
 
 #### Defined in
 
-otc/otc.evm.ts:149
+otc/otc.evm.ts:153
 
 ***
 
@@ -522,7 +564,7 @@ otc/otc.evm.ts:149
 
 #### Defined in
 
-otc/otc.evm.ts:222
+otc/otc.evm.ts:226
 
 ***
 
@@ -546,7 +588,7 @@ otc/otc.evm.ts:222
 
 #### Defined in
 
-otc/otc.evm.ts:202
+otc/otc.evm.ts:206
 
 ***
 
@@ -564,7 +606,7 @@ otc/otc.evm.ts:202
 
 #### Defined in
 
-otc/otc.evm.ts:216
+otc/otc.evm.ts:220
 
 ***
 
@@ -592,7 +634,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:308
+otc/otc.evm.ts:337
 
 ***
 
@@ -622,7 +664,7 @@ Promise<ContractTransaction>
 
 #### Defined in
 
-otc/otc.evm.ts:188
+otc/otc.evm.ts:192
 
 ***
 
@@ -646,7 +688,7 @@ Event info
 
 #### Defined in
 
-otc/otc.evm.ts:420
+otc/otc.evm.ts:449
 
 ***
 
@@ -666,7 +708,7 @@ otc/otc.evm.ts:420
 
 #### Defined in
 
-otc/otc.evm.ts:256
+otc/otc.evm.ts:260
 
 ***
 
@@ -688,7 +730,7 @@ id of trade order that is canceled
 
 #### Defined in
 
-otc/otc.evm.ts:387
+otc/otc.evm.ts:416
 
 ***
 
@@ -710,7 +752,7 @@ id of trade order that is settled
 
 #### Defined in
 
-otc/otc.evm.ts:377
+otc/otc.evm.ts:406
 
 ***
 
@@ -732,7 +774,7 @@ otc/otc.evm.ts:377
 
 #### Defined in
 
-otc/otc.evm.ts:240
+otc/otc.evm.ts:244
 
 ***
 
@@ -752,4 +794,4 @@ otc/otc.evm.ts:240
 
 #### Defined in
 
-otc/otc.evm.ts:230
+otc/otc.evm.ts:234

@@ -17,7 +17,7 @@ import {
 } from "../configs";
 import { OTC_TOPIC0 } from "./evm/events";
 import { EvmNetwork } from "../networks";
-import { OtcAbi } from "./evm/abis";
+import { OtcAbi, ERC20Abi } from "./evm/abis";
 import { IMarket, IOrder, IOtc, IOtcConfig, ITrade } from "./otc.interface";
 
 export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
@@ -38,6 +38,10 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
 
     get contract(): Contract {
         return this._contract;
+    }
+
+    get provider() {
+        return this._network.provider;
     }
 
     set contract(contractAddress: EvmAddress) {
@@ -260,6 +264,23 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     // MARK: User functions
 
     /**
+     * Approve ERC20 for OTC
+     * @param marketId id of market
+     * @param amount approved amount
+     * @returns Promise<ContractTransaction>
+     */
+    async approve(
+        marketId: string,
+        amount: bigint
+    ): Promise<ContractTransaction> {
+        const market = await this.getMarket(marketId);
+        const erc20 = new Contract(market.exToken, ERC20Abi, {
+            provider: this._network.provider,
+        });
+        return erc20.approve.populateTransaction(this._contractAddress, amount);
+    }
+
+    /**
      * Create a new order
      * @param offerType order type
      * @param tokenId id of otc token
@@ -280,6 +301,14 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         let methodName = "createOrder";
         const sqrtPriceX96 = BigInt(Math.sqrt(price) * 2 ** 96);
         let payload = [offerType, marketId, amount, sqrtPriceX96, isBid];
+        console.log(
+            "🚀 ~ file: otc.evm.ts:304 ~ OtcEvm ~ offerType, marketId, amount, sqrtPriceX96, isBid:",
+            offerType,
+            marketId,
+            amount,
+            sqrtPriceX96,
+            isBid
+        );
         let overrides = {};
         const market = await this.getMarket(marketId);
         if (market.exToken == ZeroAddress) {

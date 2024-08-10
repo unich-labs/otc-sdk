@@ -3,31 +3,13 @@
     "version": "0.0.1",
     "description": "OTC SDK",
     "license": "UNLICENSED",
-    "type": "module",
-    "main": "dist/index.js",
-    "module": "dist/sdk.esm.js",
-    "umd:main": "dist/sdk.umd.production.min.js",
-    "unpkg": "dist/sdk.umd.production.min.js",
-    "jsdelivr": "dist/sdk.umd.production.min.js",
-    "jsnext:main": "dist/sdk.esm.js",
-    "react-native": "dist/sdk.esm.js",
-    "source": "src/index.ts",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "import": "./dist/sdk.esm.mjs",
-            "require": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        },
-        "./*": "./*"
-    },
-    "files": [
-        "dist",
-        "src"
-    ],
+    "module": "./dist/esm/index.js",
+    "main": "./dist/cjs/index.js",
+    "browser": "./dist/browser/index.js",
+    "types": "./dist/cjs/index.d.ts",
     "scripts": {
-        "clean": "rimraf dist",
-        "build": "yarn clean && rollup --config --bundleConfigAsCjs",
+        "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+        "build": "yarn clean && tsc -p tsconfig.cjs.json && rollup --config --bundleConfigAsCjs",
         "build:doc": "rimraf docs && typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts --readme none",
         "test": "ts-mocha -r ts-node/register test/*.spec.ts --timeout 200000"
     },
@@ -38,7 +20,6 @@
         "@coral-xyz/anchor": "^0.29.0",
         "@solana/spl-token": "^0.4.3",
         "@solana/web3.js": "^1.91.7",
-        "@unich-lab/otc-sdk": "file:../otc-sdk",
         "ethers": "^6.12.0",
         "lodash": "^4.17.21"
     },

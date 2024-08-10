@@ -11,6 +11,8 @@ import {
     WEI6,
 } from "../src";
 import { ZeroAddress, ethers } from "ethers";
+import { Wallet } from "ethers";
+import { JsonRpcProvider } from "ethers";
 
 chai.use(chaiAsPromised);
 
@@ -30,6 +32,7 @@ describe("OTC EVM testing", () => {
 
     it("Get config", async () => {
         const config = await otc.config();
+        return config;
     });
 
     it("Create new market", async () => {
@@ -47,22 +50,42 @@ describe("OTC EVM testing", () => {
         );
     });
 
-    // it("Create Sell offer without Native coin", async () => {
-    //     const offerType = EOrderType.Sell;
-    //     const marketId =
-    //         "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
-    //     const amount = BigInt(1000) * BigInt(WEI6);
-    //     const price = 0.1;
-    //     const isBid = false;
-    //     assert.deepEqual(
-    //         {
-    //             to: otcAddress,
-    //             data: "0xa61707b70000000000000000000000000000000000000000000000000000000000000002d03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000050f44d8921243c00000000000000000000000000000000000000000000000000000000000000000000000000",
-    //             value: 1000000n, // TODO use sdk
-    //         },
-    //         await otc.createOrder(offerType, marketId, amount, price, isBid)
-    //     );
-    // });
+    it("Create Sell offer without Native coin", async () => {
+        const offerType = EOrderType.Sell;
+        const marketId =
+            "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
+        const amount = 100n * BigInt(WEI6) * BigInt(WEI6) * BigInt(WEI6);
+        const price = 0.1;
+        const isBid = false;
+        // assert.deepEqual(
+        //     {
+        //         to: otcAddress,
+        //         data: "0xa61707b70000000000000000000000000000000000000000000000000000000000000002d03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000050f44d8921243c00000000000000000000000000000000000000000000000000000000000000000000000000",
+        //         value: 1000000n, // TODO use sdk
+        //     },
+        //     await otc.createOrder(offerType, marketId, amount, price, isBid)
+        // );
+
+        const order = await otc.createOrder(
+            offerType,
+            marketId,
+            amount,
+            price,
+            isBid
+        );
+        console.log("🚀 ~ file: otc.evm.spec.ts:55 ~ it ~ order:", order);
+
+        const wallet = new Wallet(
+            "9ef539c5cca4cfb42cca026e99215996debdc364b76875b48db36755dad55558",
+            new JsonRpcProvider("https://eth-sepolia.public.blastapi.io")
+        );
+
+        try {
+            await wallet.estimateGas(order);
+        } catch (error) {
+            console.log(error);
+        }
+    });
 
     // it("Create Sell offer with Native coin", async () => {
     //     const offerType = EOrderType.Sell;

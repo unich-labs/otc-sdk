@@ -17,10 +17,7 @@ export const CHAINS: Record<
     [CHAIN_ID.SEPOLIA]: {
         isMainnet: false,
         name: "Sepolia",
-        rpcUrls: [
-            "https://1rpc.io/sepolia",
-            "https://eth-sepolia.public.blastapi.io	",
-        ],
+        rpcUrls: ["https://1rpc.io/sepolia"],
         explorerUrl: "https://sepolia.etherscan.io/",
     },
     [CHAIN_ID.SOLANA_DEVNET]: {

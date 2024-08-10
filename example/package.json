@@ -11,19 +11,14 @@
     "dependencies": {
         "@rainbow-me/rainbowkit": "^2.0.5",
         "@tanstack/react-query": "^5.32.0",
-        "add": "^2.0.6",
-        "encoding": "^0.1.13",
         "flowbite": "^2.3.0",
         "flowbite-react": "^0.9.0",
-        "lokijs": "1.x",
         "next": "14.2.2",
         "otc-sdk": "file:../",
-        "pino-pretty": "^11.0.0",
         "react": "^18",
         "react-dom": "^18",
         "viem": "2.x",
-        "wagmi": "^2.5.20",
-        "yarn": "^1.22.22"
+        "wagmi": "^2.5.20"
     },
     "devDependencies": {
         "@types/node": "^20",

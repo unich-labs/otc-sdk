@@ -1,4 +1,4 @@
-import sample from "lodash/sample";
+import lodash from "lodash";
 
 export abstract class Network<P, S> {
     protected _providers: P[];
@@ -17,7 +17,7 @@ export abstract class Network<P, S> {
     }
 
     get provider(): P {
-        return sample(this._providers)!;
+        return lodash.sample(this._providers)!;
     }
 
     get signerOrProvider(): S | P {
