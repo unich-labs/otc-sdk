@@ -1,4 +1,4 @@
-import lodash from "lodash";
+import * as lodash from "lodash";
 
 export abstract class Network<P, S> {
     protected _providers: P[];
