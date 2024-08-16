@@ -7,21 +7,23 @@ export const CONTRACTS: Record<
     {
         OTC: {
             address: EvmAddress | string;
-            deployedBlock?: number;
+            deployedAtBlockOrSignature?: number | string;
             authority?: string;
         };
     }
 > = {
     [CHAIN_ID.SEPOLIA]: {
         OTC: {
-            address: "0x42de05e4748f7b507133f4f49e171f1cb6003380",
-            deployedBlock: 6471245,
+            address: "0x4E62Ac30576C024788B1A05eA3F54a2214B39bc7",
+            deployedAtBlockOrSignature: 6510437,
         },
     },
     [CHAIN_ID.SOLANA_DEVNET]: {
         OTC: {
-            address: "8EMNysnqHuY88H291esnAcEvwjdNXV5N9XZ3FoD7ffFe",
-            authority: "EGN5Sfq1CGsysUY4qhSDyQvgPCBRepqXi8AvChiyeNir",
+            address: "FSrgFUr6fq4SdiXCGQakND5kmVuJz2aaxTwHqVn87S8Z",
+            authority: "B3z3mdndXbQdTeq3jhLsLJyzg13oKyzL8SJxpEtyQ9mp",
+            deployedAtBlockOrSignature:
+                "24tcekCtARNy5JEg71pkhr8x19A8GtUBE253J9HddQmEA3nHGmhUMUtCJ3e3weoWBhYVnLNB7HTXFT8pez6sCePf",
         },
     },
 };

@@ -14,13 +14,13 @@
 
 ### new OtcSolana()
 
-> **new OtcSolana**(`connection`, `programId`): [`OtcSolana`](OtcSolana.md)
+> **new OtcSolana**(`connection`, `program`): [`OtcSolana`](OtcSolana.md)
 
 #### Parameters
 
 • **connection**: `Connection`
 
-• **programId**: `string`
+• **program**: `PublicKey`
 
 #### Returns
 
@@ -28,7 +28,7 @@
 
 #### Defined in
 
-otc/otc.solana.ts:55
+otc/otc.solana.ts:37
 
 ## Properties
 
@@ -40,7 +40,7 @@ otc/otc.solana.ts:55
 
 ##### fields
 
-> **fields**: [`object`, `object`, `object`, `object`, `object`, `object`, `object`, `object`]
+> **fields**: [`object`, `object`, `object`, `object`, `object`, `object`]
 
 ##### kind
 
@@ -48,17 +48,17 @@ otc/otc.solana.ts:55
 
 #### Defined in
 
-otc/otc.solana.ts:53
+otc/otc.solana.ts:35
 
 ***
 
-### configAccountPubKey
+### configPda
 
-> **configAccountPubKey**: `PublicKey`
+> **configPda**: `PublicKey`
 
 #### Defined in
 
-otc/otc.solana.ts:51
+otc/otc.solana.ts:33
 
 ***
 
@@ -68,7 +68,7 @@ otc/otc.solana.ts:51
 
 #### Defined in
 
-otc/otc.solana.ts:47
+otc/otc.solana.ts:29
 
 ***
 
@@ -78,29 +78,31 @@ otc/otc.solana.ts:47
 
 #### Defined in
 
-otc/otc.solana.ts:48
+otc/otc.solana.ts:30
 
 ## Methods
 
-### addOtcToken()
+### addEventListener()
 
-> **addOtcToken**(`operator`, `tokenId`, `pledgeRate`): `Promise`\<`Transaction`\>
+> **addEventListener**\<`T`\>(`eventType`, `callback`): `number`
+
+#### Type Parameters
+
+• **T** *extends* `never`
 
 #### Parameters
 
-• **operator**: `PublicKey`
+• **eventType**: `T`
 
-• **tokenId**: `BN`
-
-• **pledgeRate**: `BN`
+• **callback**
 
 #### Returns
 
-`Promise`\<`Transaction`\>
+`number`
 
 #### Defined in
 
-otc/otc.solana.ts:234
+otc/otc.solana.ts:886
 
 ***
 
@@ -118,19 +120,23 @@ otc/otc.solana.ts:234
 
 #### Defined in
 
-otc/otc.solana.ts:63
+otc/otc.solana.ts:45
 
 ***
 
-### createConfigAccount()
+### cancelOrder()
 
-> **createConfigAccount**(`signer`, `feeWallet`): `Promise`\<`Transaction`\>
+> **cancelOrder**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **signer**: `PublicKey`
+• **data**
 
-• **feeWallet**: `PublicKey`
+• **data.marketId**: `BN`
+
+• **data.orderId**: `BN`
+
+• **data.user**: `PublicKey`
 
 #### Returns
 
@@ -138,33 +144,33 @@ otc/otc.solana.ts:63
 
 #### Defined in
 
-otc/otc.solana.ts:160
+otc/otc.solana.ts:414
 
 ***
 
 ### createOrder()
 
-> **createOrder**(`orderId`, `user`, `orderType`, `exToken`, `tokenId`, `amount`, `value`, `slippage`, `isBid`): `Promise`\<`Transaction`\>
+> **createOrder**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **orderId**: `BN`
+• **data**
 
-• **user**: `PublicKey`
+• **data.amount**: `BN`
 
-• **orderType**: `DecodeEnum`\<`object`, `EmptyDefined`\>
+• **data.isBid**: `boolean`
 
-• **exToken**: `PublicKey`
+• **data.marketId**: `BN`
 
-• **tokenId**: `BN`
+• **data.orderId?**: `any`
 
-• **amount**: `BN`
+• **data.orderType**: `DecodeEnum`\<`object`, `EmptyDefined`\>
 
-• **value**: `BN`
+• **data.slippage**: `BN`
 
-• **slippage**: `BN`
+• **data.user**: `PublicKey`
 
-• **isBid**: `boolean`
+• **data.value**: `BN`
 
 #### Returns
 
@@ -172,17 +178,17 @@ otc/otc.solana.ts:160
 
 #### Defined in
 
-otc/otc.solana.ts:347
+otc/otc.solana.ts:339
 
 ***
 
 ### fetchConfigAccount()
 
-> **fetchConfigAccount**(`configAccountPubKey`, `commitment`?): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
+> **fetchConfigAccount**(`configPda`, `commitment`?): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
 #### Parameters
 
-• **configAccountPubKey**: `PublicKey`
+• **configPda**: `PublicKey`
 
 • **commitment?**: `Commitment`
 
@@ -192,21 +198,57 @@ otc/otc.solana.ts:347
 
 #### Defined in
 
-otc/otc.solana.ts:71
+otc/otc.solana.ts:50
 
 ***
 
-### fetchExTokenAccount()
+### fetchLastCashoutId()
 
-> **fetchExTokenAccount**(`token`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
+> **fetchLastCashoutId**(`marketId`): `Promise`\<`BN`\>
 
 #### Parameters
 
-• **token**: `PublicKey`
+• **marketId**: `BN`
 
 #### Returns
 
-`Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
+`Promise`\<`BN`\>
+
+#### Defined in
+
+otc/otc.solana.ts:114
+
+***
+
+### fetchLastOrderId()
+
+> **fetchLastOrderId**(`marketId`): `Promise`\<`BN`\>
+
+#### Parameters
+
+• **marketId**: `BN`
+
+#### Returns
+
+`Promise`\<`BN`\>
+
+#### Defined in
+
+otc/otc.solana.ts:106
+
+***
+
+### fetchLastTradeId()
+
+> **fetchLastTradeId**(`marketId`): `Promise`\<`BN`\>
+
+#### Parameters
+
+• **marketId**: `BN`
+
+#### Returns
+
+`Promise`\<`BN`\>
 
 #### Defined in
 
@@ -214,53 +256,31 @@ otc/otc.solana.ts:110
 
 ***
 
-### fetchLastCashoutId()
+### fetchMarketAccount()
 
-> **fetchLastCashoutId**(): `Promise`\<`BN`\>
+> **fetchMarketAccount**(`marketId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
-#### Returns
+#### Parameters
 
-`Promise`\<`BN`\>
-
-#### Defined in
-
-otc/otc.solana.ts:154
-
-***
-
-### fetchLastOrderId()
-
-> **fetchLastOrderId**(): `Promise`\<`BN`\>
+• **marketId**: `BN`
 
 #### Returns
 
-`Promise`\<`BN`\>
+`Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
 #### Defined in
 
-otc/otc.solana.ts:142
-
-***
-
-### fetchLastTradeId()
-
-> **fetchLastTradeId**(): `Promise`\<`BN`\>
-
-#### Returns
-
-`Promise`\<`BN`\>
-
-#### Defined in
-
-otc/otc.solana.ts:148
+otc/otc.solana.ts:80
 
 ***
 
 ### fetchOrderAccount()
 
-> **fetchOrderAccount**(`orderId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
+> **fetchOrderAccount**(`marketId`, `orderId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
 #### Parameters
+
+• **marketId**: `BN`
 
 • **orderId**: `BN`
 
@@ -270,37 +290,19 @@ otc/otc.solana.ts:148
 
 #### Defined in
 
-otc/otc.solana.ts:122
-
-***
-
-### fetchOtcTokenAccount()
-
-> **fetchOtcTokenAccount**(`tokenId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
-
-#### Parameters
-
-• **tokenId**: `BN`
-
-#### Returns
-
-`Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
-
-#### Defined in
-
-otc/otc.solana.ts:98
+otc/otc.solana.ts:88
 
 ***
 
 ### fetchRoleAccount()
 
-> **fetchRoleAccount**(`user`, `configAccountPubKey`?): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
+> **fetchRoleAccount**(`user`, `configPda`?): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
 #### Parameters
 
 • **user**: `PublicKey`
 
-• **configAccountPubKey?**: `PublicKey`
+• **configPda?**: `PublicKey`
 
 #### Returns
 
@@ -308,15 +310,17 @@ otc/otc.solana.ts:98
 
 #### Defined in
 
-otc/otc.solana.ts:82
+otc/otc.solana.ts:61
 
 ***
 
 ### fetchTradeAccount()
 
-> **fetchTradeAccount**(`tradeId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
+> **fetchTradeAccount**(`marketId`, `tradeId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
 #### Parameters
+
+• **marketId**: `BN`
 
 • **tradeId**: `BN`
 
@@ -326,25 +330,27 @@ otc/otc.solana.ts:82
 
 #### Defined in
 
-otc/otc.solana.ts:132
+otc/otc.solana.ts:97
 
 ***
 
 ### fillOrder()
 
-> **fillOrder**(`user`, `exToken`, `orderId`, `tradeId`, `amount`): `Promise`\<`Transaction`\>
+> **fillOrder**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **user**: `PublicKey`
+• **data**
 
-• **exToken**: `PublicKey`
+• **data.amount**: `BN`
 
-• **orderId**: `BN`
+• **data.marketId**: `BN`
 
-• **tradeId**: `BN`
+• **data.orderId**: `BN`
 
-• **amount**: `BN`
+• **data.tradeId?**: `any`
+
+• **data.user**: `PublicKey`
 
 #### Returns
 
@@ -352,13 +358,13 @@ otc/otc.solana.ts:132
 
 #### Defined in
 
-otc/otc.solana.ts:474
+otc/otc.solana.ts:479
 
 ***
 
-### init()
+### initialize()
 
-> **init**(`authority`, `feeWallet`): `Promise`\<`Transaction`\>
+> **initialize**(`authority`, `feeWallet`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
@@ -372,23 +378,27 @@ otc/otc.solana.ts:474
 
 #### Defined in
 
-otc/otc.solana.ts:200
+otc/otc.solana.ts:118
 
 ***
 
 ### matchOrder()
 
-> **matchOrder**(`user`, `tradeBuyId`, `tradeSellId`, `tradeId`): `Promise`\<`Transaction`\>
+> **matchOrder**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **user**: `PublicKey`
+• **data**
 
-• **tradeBuyId**: `BN`
+• **data.marketId**: `BN`
 
-• **tradeSellId**: `BN`
+• **data.orderBuyId**: `BN`
 
-• **tradeId**: `BN`
+• **data.orderSellId**: `BN`
+
+• **data.tradeId?**: `any`
+
+• **data.user**: `PublicKey`
 
 #### Returns
 
@@ -396,7 +406,35 @@ otc/otc.solana.ts:200
 
 #### Defined in
 
-otc/otc.solana.ts:435
+otc/otc.solana.ts:561
+
+***
+
+### newMarket()
+
+> **newMarket**(`data`): `Promise`\<`Transaction`\>
+
+#### Parameters
+
+• **data**
+
+• **data.exToken**: `PublicKey`
+
+• **data.marketId**: `BN`
+
+• **data.minTrade**: `BN`
+
+• **data.operator**: `PublicKey`
+
+• **data.pledgeRate**: `BN`
+
+#### Returns
+
+`Promise`\<`Transaction`\>
+
+#### Defined in
+
+otc/otc.solana.ts:173
 
 ***
 
@@ -414,47 +452,59 @@ otc/otc.solana.ts:435
 
 #### Defined in
 
-otc/otc.solana.ts:690
+otc/otc.solana.ts:842
 
 ***
 
-### setExToken()
+### prepareTransaction()
 
-> **setExToken**(`operator`, `token`, `feeExTokenAccount`, `tokenProgram`, `is_accepted`): `Promise`\<`Transaction`\>
+> **prepareTransaction**(`tx`): `void`
 
 #### Parameters
 
-• **operator**: `PublicKey`
-
-• **token**: `PublicKey`
-
-• **feeExTokenAccount**: `PublicKey`
-
-• **tokenProgram**: `PublicKey`
-
-• **is\_accepted**: `boolean`
+• **tx**: `Transaction`
 
 #### Returns
 
-`Promise`\<`Transaction`\>
+`void`
 
 #### Defined in
 
-otc/otc.solana.ts:305
+otc/otc.solana.ts:832
+
+***
+
+### removeEventListener()
+
+> **removeEventListener**(`eventId`): `void`
+
+#### Parameters
+
+• **eventId**: `number`
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+otc/otc.solana.ts:939
 
 ***
 
 ### setRole()
 
-> **setRole**(`signer`, `user`, `role`): `Promise`\<`Transaction`\>
+> **setRole**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **signer**: `PublicKey`
+• **data**
 
-• **user**: `PublicKey`
+• **data.authority**: `PublicKey`
 
-• **role**: `DecodeEnum`\<`object`, `EmptyDefined`\>
+• **data.role**: `DecodeEnum`\<`object`, `EmptyDefined`\>
+
+• **data.user**: `PublicKey`
 
 #### Returns
 
@@ -462,21 +512,47 @@ otc/otc.solana.ts:305
 
 #### Defined in
 
-otc/otc.solana.ts:178
+otc/otc.solana.ts:133
+
+***
+
+### settleCanceled()
+
+> **settleCanceled**(`data`): `Promise`\<`Transaction`\>
+
+#### Parameters
+
+• **data**
+
+• **data.marketId**: `BN`
+
+• **data.tradeId**: `BN`
+
+• **data.user**: `PublicKey`
+
+#### Returns
+
+`Promise`\<`Transaction`\>
+
+#### Defined in
+
+otc/otc.solana.ts:729
 
 ***
 
 ### settleFilled()
 
-> **settleFilled**(`signer`, `orderId`, `tradeId`): `Promise`\<`Transaction`\>
+> **settleFilled**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **signer**: `PublicKey`
+• **data**
 
-• **orderId**: `BN`
+• **data.marketId**: `BN`
 
-• **tradeId**: `BN`
+• **data.tradeId**: `BN`
+
+• **data.user**: `PublicKey`
 
 #### Returns
 
@@ -484,29 +560,29 @@ otc/otc.solana.ts:178
 
 #### Defined in
 
-otc/otc.solana.ts:535
+otc/otc.solana.ts:618
 
 ***
 
-### settleOtcToken()
+### settleMarket()
 
-> **settleOtcToken**(`operator`, `tokenId`, `otcToken`, `settleRate`, `settleDuration`, `feeOtcTokenAccount`, `tokenProgram`): `Promise`\<`Transaction`\>
+> **settleMarket**(`data`): `Promise`\<`Transaction`\>
 
 #### Parameters
 
-• **operator**: `PublicKey`
+• **data**
 
-• **tokenId**: `BN`
+• **data.marketId**: `BN`
 
-• **otcToken**: `PublicKey`
+• **data.operator**: `PublicKey`
 
-• **settleRate**: `BN`
+• **data.settleDuration**: `BN`
 
-• **settleDuration**: `BN`
+• **data.settleRate**: `BN`
 
-• **feeOtcTokenAccount**: `PublicKey`
+• **data.settleTime**: `BN`
 
-• **tokenProgram**: `PublicKey`
+• **data.token**: `PublicKey`
 
 #### Returns
 
@@ -514,7 +590,7 @@ otc/otc.solana.ts:535
 
 #### Defined in
 
-otc/otc.solana.ts:261
+otc/otc.solana.ts:274
 
 ***
 
@@ -538,4 +614,38 @@ otc/otc.solana.ts:261
 
 #### Defined in
 
-otc/otc.solana.ts:216
+otc/otc.solana.ts:155
+
+***
+
+### updateMarket()
+
+> **updateMarket**(`data`): `Promise`\<`Transaction`\>
+
+#### Parameters
+
+• **data**
+
+• **data.marketId**: `BN`
+
+• **data.operator**: `PublicKey`
+
+• **data.updateData**
+
+• **data.updateData.pledgeRate?**: `any`
+
+• **data.updateData.settleDuration?**: `any`
+
+• **data.updateData.settleRate?**: `any`
+
+• **data.updateData.settleTime?**: `any`
+
+• **data.updateData.status?**: `DecodeEnum`\<`object`, `EmptyDefined`\>
+
+#### Returns
+
+`Promise`\<`Transaction`\>
+
+#### Defined in
+
+otc/otc.solana.ts:233

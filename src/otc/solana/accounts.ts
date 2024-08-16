@@ -1,6 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
+import { Program, BN } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
-import { Otc } from "./idl";
+import { Otc, IDL } from "./idl/otc";
 
 const getSeed = (seed: string, program: anchor.Program<Otc>): Buffer => {
     return Buffer.from(
@@ -9,7 +10,7 @@ const getSeed = (seed: string, program: anchor.Program<Otc>): Buffer => {
     );
 };
 
-const toBuffer = (value: anchor.BN, endian?: any, length?: any) => {
+const toBuffer = (value: BN, endian?: any, length?: any) => {
     try {
         return value.toBuffer(endian, length);
     } catch (error) {
@@ -17,64 +18,47 @@ const toBuffer = (value: anchor.BN, endian?: any, length?: any) => {
     }
 };
 
-export const getConfigAccountPubKey = (
-    program: anchor.Program<Otc>,
-    configAuthority: PublicKey
-) => {
+export const getConfigAccountPda = (program: Program<Otc>, configAuthority: PublicKey) => {
     return PublicKey.findProgramAddressSync(
         [getSeed("CONFIG_PDA_SEED", program), configAuthority.toBuffer()],
         program.programId
     )[0];
 };
 
-export const getVaultConfigAccountPubKey = (
-    program: anchor.Program<Otc>,
-    configAccount: PublicKey
-) => {
-    return PublicKey.findProgramAddressSync(
-        [getSeed("VAULT_CONFIG_PDA_SEED", program), configAccount.toBuffer()],
-        program.programId
-    )[0];
-};
-
-export const getRoleAccountPubKey = (
-    program: anchor.Program<Otc>,
+export const getRoleAccountPda = (
+    program: Program<Otc>,
     configAccount: PublicKey,
     user: PublicKey
 ) => {
     return PublicKey.findProgramAddressSync(
-        [
-            getSeed("ROLE_PDA_SEED", program),
-            configAccount.toBuffer(),
-            user.toBuffer(),
-        ],
+        [getSeed("ROLE_PDA_SEED", program), configAccount.toBuffer(), user.toBuffer()],
         program.programId
     )[0];
 };
 
-export const getOtcTokenAccountPubKey = (
-    program: anchor.Program<Otc>,
+export const getMarketAccountPda = (
+    program: Program<Otc>,
     configAccount: PublicKey,
-    tokenId: anchor.BN
+    marketId: BN
 ) => {
     return PublicKey.findProgramAddressSync(
         [
-            getSeed("OTC_TOKEN_PDA_SEED", program),
+            getSeed("MARKET_PDA_SEED", program),
             configAccount.toBuffer(),
-            toBuffer(new anchor.BN(tokenId), "be", 8),
+            toBuffer(new BN(marketId), "be", 8),
         ],
         program.programId
     )[0];
 };
 
-export const getExTokenAccountPubKey = (
-    program: anchor.Program<Otc>,
+export const getVaultExTokenAccountPda = (
+    program: Program<Otc>,
     configAccount: PublicKey,
     tokenMint: PublicKey
 ) => {
     return PublicKey.findProgramAddressSync(
         [
-            getSeed("EX_TOKEN_PDA_SEED", program),
+            getSeed("VAULT_EX_TOKEN_PDA_SEED", program),
             configAccount.toBuffer(),
             tokenMint.toBuffer(),
         ],
@@ -82,60 +66,45 @@ export const getExTokenAccountPubKey = (
     )[0];
 };
 
-export const getVaultExTokenAccountPubKey = (
-    program: anchor.Program<Otc>,
+export const getVaultTokenAccountPda = (
+    program: Program<Otc>,
     configAccount: PublicKey,
     tokenMint: PublicKey
 ) => {
     return PublicKey.findProgramAddressSync(
-        [
-            getSeed("VAULT_TOKEN_PDA_SEED", program),
-            configAccount.toBuffer(),
-            tokenMint.toBuffer(),
-        ],
+        [getSeed("VAULT_TOKEN_PDA_SEED", program), configAccount.toBuffer(), tokenMint.toBuffer()],
         program.programId
     )[0];
 };
 
-export const getVaultOtcTokenAccountPubKey = (
-    program: anchor.Program<Otc>,
+export const getOrderAccountPda = (
+    program: Program<Otc>,
     configAccount: PublicKey,
-    tokenMint: PublicKey
-) => {
-    return PublicKey.findProgramAddressSync(
-        [
-            getSeed("VAULT_OTC_TOKEN_PDA_SEED", program),
-            configAccount.toBuffer(),
-            tokenMint.toBuffer(),
-        ],
-        program.programId
-    )[0];
-};
-
-export const getOrderAccountPubKey = (
-    program: anchor.Program<Otc>,
-    configAccount: PublicKey,
-    orderId: anchor.BN
+    marketId: BN,
+    orderId: BN
 ) => {
     return PublicKey.findProgramAddressSync(
         [
             getSeed("ORDER_PDA_SEED", program),
             configAccount.toBuffer(),
+            toBuffer(marketId, "be", 8),
             toBuffer(orderId, "be", 8),
         ],
         program.programId
     )[0];
 };
-export const getTradeAccountPubKey = (
-    program: anchor.Program<Otc>,
+export const getTradeAccountPda = (
+    program: Program<Otc>,
     configAccount: PublicKey,
-    orderId: anchor.BN
+    marketId: BN,
+    tradeId: BN
 ) => {
     return PublicKey.findProgramAddressSync(
         [
             getSeed("TRADE_PDA_SEED", program),
             configAccount.toBuffer(),
-            toBuffer(orderId, "be", 8),
+            toBuffer(marketId, "be", 8),
+            toBuffer(tradeId, "be", 8),
         ],
         program.programId
     )[0];

@@ -1,9 +1,10 @@
 import * as anchor from "@coral-xyz/anchor";
 
-import { IDL } from "./idl";
+import { IDL } from "./idl/otc";
 
 export const OTC_ERRORS: Map<number, string> = new Map([
-    // TODO pre-defined custom error message
+    [0, "Initialized"],
+    // TODO
 ]);
 
 export enum NATIVE_ERROR_CODES {
@@ -79,7 +80,8 @@ export class NativeError extends Error {
     constructor(
         readonly code: number,
         readonly msg: string,
-        readonly data: Object | null = null,
+        // @ts-expect-error
+        readonly data: Object = null,
         ...params: any[]
     ) {
         super(...params);
@@ -175,4 +177,4 @@ export class NativeAnchorError extends Error {
     }
 }
 
-export const idlErrors = parseIdlErrors(IDL);
+export const idlErrors = parseIdlErrors(IDL as any);

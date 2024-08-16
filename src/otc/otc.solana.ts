@@ -1,79 +1,58 @@
-import {
-    BN,
-    Program,
-    IdlAccounts,
-    IdlTypes,
-    web3,
-    AnchorError,
-    ProgramError,
-} from "@coral-xyz/anchor";
-import {
-    Connection,
-    PublicKey,
-    Transaction,
-    Commitment,
-} from "@solana/web3.js";
-import {
-    CHAINS,
-    CHAIN_ID,
-    CONTRACTS,
-    EOrderStatus,
-    EOrderType,
-    EvmAddress,
-    WEI6,
-} from "../configs";
-import { IDL, Otc } from "./solana/idl";
-import { SolanaNetwork } from "../networks";
-import { IOrder, IOtc, IOtcConfig } from "./otc.interface";
-import {
-    getConfigAccountPubKey,
-    getExTokenAccountPubKey,
-    getOrderAccountPubKey,
-    getOtcTokenAccountPubKey,
-    getRoleAccountPubKey,
-    getTradeAccountPubKey,
-    getVaultExTokenAccountPubKey,
-    getVaultOtcTokenAccountPubKey,
-} from "./solana/accounts";
+import * as anchor from "@coral-xyz/anchor";
+import { BN, IdlTypes } from "@coral-xyz/anchor";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import {
+    getConfigAccountPda,
+    getMarketAccountPda,
+    getOrderAccountPda,
+    getRoleAccountPda,
+    getTradeAccountPda,
+    getVaultExTokenAccountPda,
+    getVaultTokenAccountPda,
+} from "./solana/accounts";
+import { IDL, Otc } from "./solana/idl/otc";
+
 import {
     NativeAnchorError,
     NativeError,
     idlErrors,
     parseCustomError,
 } from "./solana/errors";
+import { OtcEventHandlers, OtcEventType } from "./solana/types";
+import { checkOrCreateAssociatedTokenAccount } from "./solana/utils";
+import { IOtc } from "./otc.interface";
+
+// TODO wrap sol to wsol
 
 export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
     public connection: Connection;
-    public program: Program<Otc>;
+    public program: anchor.Program<Otc>;
 
     // @ts-ignore
-    public configAccountPubKey: PublicKey;
+    public configPda: PublicKey;
     // @ts-ignore
-    configAccountData: IdlAccounts<Otc>["configAccount"];
+    public configAccountData: anchor.IdlAccounts<Otc>["configAccount"];
 
-    constructor(connection: Connection, programId: string) {
+    constructor(connection: Connection, program: PublicKey) {
         this.connection = connection;
 
-        this.program = new Program(IDL, new PublicKey(programId), {
+        this.program = new anchor.Program(IDL as Otc, program, {
             connection: this.connection,
         });
     }
 
     async bootstrap(authority: PublicKey) {
-        this.configAccountPubKey = getConfigAccountPubKey(
-            this.program,
-            authority
-        );
-        await this.fetchConfigAccount(this.configAccountPubKey);
+        this.configPda = getConfigAccountPda(this.program, authority);
+        await this.fetchConfigAccount(this.configPda);
     }
 
     async fetchConfigAccount(
-        configAccountPubKey: PublicKey,
-        commitment?: web3.Commitment
-    ): Promise<IdlAccounts<Otc>["configAccount"]> {
+        configPda: PublicKey,
+        commitment?: anchor.web3.Commitment
+    ): Promise<anchor.IdlAccounts<Otc>["configAccount"]> {
         this.configAccountData = await this.program.account.configAccount.fetch(
-            configAccountPubKey,
+            configPda,
             commitment
         );
         return this.configAccountData;
@@ -81,134 +60,94 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
 
     async fetchRoleAccount(
         user: PublicKey,
-        configAccountPubKey?: PublicKey
-    ): Promise<IdlAccounts<Otc>["roleAccount"]> {
-        const configAccount = configAccountPubKey ?? this.configAccountPubKey;
+        configPda?: PublicKey
+    ): Promise<anchor.IdlAccounts<Otc>["roleAccount"]> {
+        const configAccount = configPda ?? this.configPda;
         if (!configAccount) {
             throw new Error(`Config Account not found`);
         }
-        const roleAccount = getRoleAccountPubKey(
+        const roleAccountPda = getRoleAccountPda(
             this.program,
-            this.configAccountPubKey,
+            this.configPda,
             user
         );
-        return this.program.account.roleAccount.fetch(roleAccount, "confirmed");
-    }
-
-    fetchOtcTokenAccount(
-        tokenId: BN
-    ): Promise<IdlAccounts<Otc>["otcTokenAccount"]> {
-        return this.program.account.otcTokenAccount.fetch(
-            getOtcTokenAccountPubKey(
-                this.program,
-                this.configAccountPubKey,
-                tokenId
-            )
+        return this.program.account.roleAccount.fetch(
+            roleAccountPda,
+            "confirmed"
         );
     }
 
-    fetchExTokenAccount(
-        token: PublicKey
-    ): Promise<IdlAccounts<Otc>["exTokenAccount"]> {
-        return this.program.account.exTokenAccount.fetch(
-            getExTokenAccountPubKey(
-                this.program,
-                this.configAccountPubKey,
-                token
-            )
+    fetchMarketAccount(
+        marketId: BN
+    ): Promise<anchor.IdlAccounts<Otc>["marketAccount"]> {
+        return this.program.account.marketAccount.fetch(
+            getMarketAccountPda(this.program, this.configPda, marketId)
         );
     }
 
-    fetchOrderAccount(orderId: BN): Promise<IdlAccounts<Otc>["orderAccount"]> {
+    fetchOrderAccount(
+        marketId: BN,
+        orderId: BN
+    ): Promise<anchor.IdlAccounts<Otc>["orderAccount"]> {
         return this.program.account.orderAccount.fetch(
-            getOrderAccountPubKey(
-                this.program,
-                this.configAccountPubKey,
-                orderId
-            )
+            getOrderAccountPda(this.program, this.configPda, marketId, orderId)
         );
     }
 
-    fetchTradeAccount(tradeId: BN): Promise<IdlAccounts<Otc>["tradeAccount"]> {
+    fetchTradeAccount(
+        marketId: BN,
+        tradeId: BN
+    ): Promise<anchor.IdlAccounts<Otc>["tradeAccount"]> {
         return this.program.account.tradeAccount.fetch(
-            getTradeAccountPubKey(
-                this.program,
-                this.configAccountPubKey,
-                tradeId
-            )
+            getTradeAccountPda(this.program, this.configPda, marketId, tradeId)
         );
     }
 
-    fetchLastOrderId(): Promise<BN> {
-        return this.fetchConfigAccount(this.configAccountPubKey).then(
-            (r) => r.lastOrderId
-        );
+    fetchLastOrderId(marketId: BN): Promise<BN> {
+        return this.fetchMarketAccount(marketId).then((r) => r.lastOrderId);
     }
 
-    fetchLastTradeId(): Promise<BN> {
-        return this.fetchConfigAccount(this.configAccountPubKey).then(
-            (r) => r.lastTradeId
-        );
+    fetchLastTradeId(marketId: BN): Promise<BN> {
+        return this.fetchMarketAccount(marketId).then((r) => r.lastTradeId);
     }
 
-    fetchLastCashoutId(): Promise<BN> {
-        return this.fetchConfigAccount(this.configAccountPubKey).then(
-            (r) => r.lastCashoutId
-        );
+    fetchLastCashoutId(marketId: BN): Promise<BN> {
+        return this.fetchMarketAccount(marketId).then((r) => r.lastCashoutId);
     }
 
-    createConfigAccount(
-        signer: PublicKey,
+    initialize(
+        authority: PublicKey,
         feeWallet: PublicKey
     ): Promise<Transaction> {
-        if (this.configAccountPubKey) {
-            throw new Error("Config account already exists");
-        }
-        this.configAccountPubKey = getConfigAccountPubKey(this.program, signer);
+        const configPda = getConfigAccountPda(this.program, authority);
         return this.program.methods
-            .initializeConfig()
+            .initialize()
             .accounts({
-                configAccount: this.configAccountPubKey,
-                authority: signer,
-                feeWallet: feeWallet,
-            })
-            .transaction();
-    }
-
-    setRole(
-        signer: PublicKey,
-        user: PublicKey,
-        role: IdlTypes<Otc>["Role"]
-    ): Promise<Transaction> {
-        this.configAccountPubKey = getConfigAccountPubKey(this.program, signer);
-        const roleAccount = getRoleAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            user
-        );
-        return this.program.methods
-            .setRole(role)
-            .accounts({
-                configAccount: this.configAccountPubKey,
-                roleAccount: roleAccount,
-                user: user,
-                authority: signer,
-            })
-            .transaction();
-    }
-
-    init(authority: PublicKey, feeWallet: PublicKey): Promise<Transaction> {
-        const configAccountPubKey = getConfigAccountPubKey(
-            this.program,
-            authority
-        );
-
-        return this.program.methods
-            .initializeConfig()
-            .accounts({
-                feeWallet: feeWallet,
-                configAccount: configAccountPubKey,
+                configAccount: configPda,
+                feeWallet,
                 authority,
+            })
+            .transaction();
+    }
+
+    setRole(data: {
+        authority: PublicKey;
+        user: PublicKey;
+        role: anchor.IdlTypes<Otc>["Role"];
+    }): Promise<Transaction> {
+        this.configPda = getConfigAccountPda(this.program, data.authority);
+        const rolePda = getRoleAccountPda(
+            this.program,
+            this.configPda,
+            data.user
+        );
+        return this.program.methods
+            .setRole(data.role)
+            .accounts({
+                configAccount: this.configPda,
+                roleAccount: rolePda,
+                user: data.user,
+                authority: data.authority,
             })
             .transaction();
     }
@@ -225,205 +164,245 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                 data.feeWallet ?? null
             )
             .accounts({
-                configAccount: this.configAccountPubKey,
+                configAccount: this.configPda,
                 authority: this.configAccountData.authority,
             })
             .transaction();
     }
 
-    addOtcToken(
-        operator: PublicKey,
-        tokenId: BN,
-        pledgeRate: BN
-    ): Promise<Transaction> {
-        const otcTokenAccountPubKey = getOtcTokenAccountPubKey(
+    async newMarket(data: {
+        operator: PublicKey;
+        marketId: BN;
+        exToken: PublicKey;
+        pledgeRate: BN;
+        minTrade: BN;
+    }): Promise<Transaction> {
+        const rolePda = getRoleAccountPda(
             this.program,
-            this.configAccountPubKey,
-            tokenId
+            this.configPda,
+            data.operator
         );
-        const roleAccountPubkey = getRoleAccountPubKey(
+
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            data.exToken
+        );
+        if (!exTokenInfo.value) throw new Error("Exchange token is not exits");
+
+        const marketPda = getMarketAccountPda(
             this.program,
-            this.configAccountPubKey,
-            operator
+            this.configPda,
+            data.marketId
         );
-        return this.program.methods
-            .addOtcToken(tokenId, pledgeRate)
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            data.exToken
+        );
+
+        const tx = new Transaction();
+
+        const createFeeWalletAtaTx = await checkOrCreateAssociatedTokenAccount(
+            this.connection,
+            this.configAccountData.feeWallet,
+            data.operator,
+            data.exToken
+        );
+
+        if (createFeeWalletAtaTx) tx.add(createFeeWalletAtaTx);
+
+        const newMarketTx = await this.program.methods
+            .newMarket(data.marketId, data.pledgeRate, data.minTrade)
             .accounts({
-                otcTokenAccount: otcTokenAccountPubKey,
-                configAccount: this.configAccountPubKey,
-                roleAccount: roleAccountPubkey,
-                operator: operator,
+                marketAccount: marketPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                exToken: data.exToken,
+                configAccount: this.configPda,
+                roleAccount: rolePda,
+                operator: data.operator,
                 authority: this.configAccountData.authority,
+                tokenProgram: exTokenInfo.value.owner,
             })
             .transaction();
+
+        tx.add(newMarketTx);
+
+        return tx;
     }
 
-    async settleOtcToken(
-        operator: PublicKey,
-        tokenId: BN,
-        otcToken: PublicKey,
-        settleRate: BN,
-        settleDuration: BN,
-        feeOtcTokenAccount: PublicKey,
-        tokenProgram: PublicKey
-    ): Promise<Transaction> {
-        const otcTokenAccountPubKey = getOtcTokenAccountPubKey(
+    async updateMarket(data: {
+        operator: PublicKey;
+        marketId: BN;
+        updateData: {
+            status?: anchor.IdlTypes<Otc>["MarketStatus"];
+            settleTime?: BN;
+            settleDuration?: BN;
+            settleRate?: BN;
+            pledgeRate?: BN;
+        };
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
             this.program,
-            this.configAccountPubKey,
-            tokenId
+            this.configPda,
+            data.marketId
         );
-
-        const roleAccountPubkey = getRoleAccountPubKey(
+        const rolePda = getRoleAccountPda(
             this.program,
-            this.configAccountPubKey,
-            operator
-        );
-
-        const vaultOtcTokenAccountPubKey = getVaultOtcTokenAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            otcToken
-        );
-
-        return this.program.methods
-            .settleOtcToken(tokenId, settleRate, settleDuration) // TODO
-            .accounts({
-                vaultOtcTokenAccount: vaultOtcTokenAccountPubKey,
-                otcTokenAccount: otcTokenAccountPubKey,
-                mint: otcToken,
-                feeOtcTokenAccount: feeOtcTokenAccount,
-                configAccount: this.configAccountPubKey,
-                roleAccount: roleAccountPubkey,
-                operator: operator,
-                authority: this.configAccountData.authority,
-                feeWallet: this.configAccountData.feeWallet,
-                tokenProgram,
-            })
-            .transaction();
-    }
-
-    async setExToken(
-        operator: PublicKey,
-        token: PublicKey,
-        feeExTokenAccount: PublicKey,
-        tokenProgram: PublicKey,
-        is_accepted: boolean
-    ): Promise<Transaction> {
-        const roleAccountPubkey = getRoleAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            operator
-        );
-
-        const exTokenAccountPubKey = getExTokenAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            token
-        );
-
-        const vaultTokenAccountPubKey = getVaultExTokenAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            token
+            this.configPda,
+            data.operator
         );
 
         return this.program.methods
-            .setExToken(is_accepted)
+            .updateMarket(
+                data.marketId,
+                data.updateData.status ?? null,
+                data.updateData.settleTime ?? null,
+                data.updateData.settleDuration ?? null,
+                data.updateData.settleRate ?? null,
+                data.updateData.pledgeRate ?? null
+            )
             .accounts({
-                vaultTokenAccount: vaultTokenAccountPubKey,
-                exTokenAccount: exTokenAccountPubKey,
-                feeExTokenAccount,
-                mint: token,
-                configAccount: this.configAccountPubKey,
-                feeWallet: this.configAccountData.feeWallet,
-                roleAccount: roleAccountPubkey,
-                operator,
+                marketAccount: marketPda,
+                configAccount: this.configPda,
+                roleAccount: rolePda,
+                operator: data.operator,
                 authority: this.configAccountData.authority,
-                tokenProgram,
             })
             .transaction();
     }
 
-    async createOrder(
-        orderId: BN,
-        user: PublicKey,
-        orderType: IdlTypes<Otc>["OrderType"],
-        exToken: PublicKey,
-        tokenId: BN,
-        amount: BN,
-        value: BN,
-        slippage: BN,
-        isBid: boolean
-    ): Promise<Transaction> {
-        const vaultTokenAccountPubKey = getVaultExTokenAccountPubKey(
+    async settleMarket(data: {
+        operator: PublicKey;
+        marketId: BN;
+        token: PublicKey;
+        settleTime: BN;
+        settleDuration: BN;
+        settleRate: BN;
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
             this.program,
-            this.configAccountPubKey,
-            exToken
+            this.configPda,
+            data.marketId
+        );
+        const rolePda = getRoleAccountPda(
+            this.program,
+            this.configPda,
+            data.operator
         );
 
-        const exTokenAccountPubKey = getExTokenAccountPubKey(
+        const tokenInfo = await this.connection.getParsedAccountInfo(
+            data.token
+        );
+        if (!tokenInfo.value) throw new Error("OTC token is not exits");
+
+        const vaultTokenPda = getVaultTokenAccountPda(
             this.program,
-            this.configAccountPubKey,
-            exToken
+            this.configPda,
+            data.token
         );
 
-        const exTokenInfo = await this.connection.getParsedAccountInfo(exToken);
+        const tx = new Transaction();
 
+        const createFeeWalletAtaTx = await checkOrCreateAssociatedTokenAccount(
+            this.connection,
+            this.configAccountData.feeWallet,
+            data.operator,
+            data.token
+        );
+
+        if (createFeeWalletAtaTx) tx.add(createFeeWalletAtaTx);
+
+        const settleTx = await this.program.methods
+            .settleMarket(
+                data.marketId,
+                data.settleTime,
+                data.settleDuration,
+                data.settleRate
+            )
+            .accounts({
+                marketAccount: marketPda,
+                configAccount: this.configPda,
+                vaultTokenAccount: vaultTokenPda,
+                token: data.token,
+                roleAccount: rolePda,
+                operator: data.operator,
+                authority: this.configAccountData.authority,
+                tokenProgram: tokenInfo.value.owner,
+            })
+            .transaction();
+
+        tx.add(settleTx);
+
+        return tx;
+    }
+
+    async createOrder(data: {
+        marketId: BN;
+        orderId?: BN;
+        user: PublicKey;
+        orderType: IdlTypes<Otc>["OrderType"];
+        amount: BN;
+        value: BN;
+        slippage: BN;
+        isBid: boolean;
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId
+        );
+
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            marketAccountData.exToken
+        );
         if (!exTokenInfo.value) throw new Error("Invalid ex token");
 
-        const userExTokenAccount = await getAssociatedTokenAddress(
-            exToken,
-            user,
+        const userExTokenAta = await getAssociatedTokenAddress(
+            marketAccountData.exToken,
+            data.user,
             false,
             exTokenInfo.value.owner
         );
 
-        const orderAccountPubKey = getOrderAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            orderId
-        );
+        let _orderId = data.orderId;
+        if (!_orderId) {
+            _orderId = (await this.fetchLastOrderId(data.marketId)).add(
+                new BN(1)
+            );
+        }
 
-        const otcTokenAccountPubKey = getOtcTokenAccountPubKey(
+        const orderPda = getOrderAccountPda(
             this.program,
-            this.configAccountPubKey,
-            tokenId
+            this.configPda,
+            data.marketId,
+            _orderId
         );
-
-        // let hash = [
-        // 	0xde, 0xa5, 0x66, 0xb6, 0x94, 0x3b, 0xe0, 0xe9, 0x62, 0x53, 0xc2, 0x21,
-        // 	0x5b, 0x1b, 0xac, 0x69, 0xe7, 0xa8, 0x1e, 0xdb, 0x41, 0xc5, 0x02, 0x8b,
-        // 	0x4f, 0x5c, 0x45, 0xc5, 0x3b, 0x49, 0x54, 0xd0,
-        // ];
-        // let recovery_id = 1;
-        // let signature = [
-        // 	0x97, 0xa4, 0xee, 0x31, 0xfe, 0x82, 0x65, 0x72, 0x9f, 0x4a, 0xa6, 0x7d,
-        // 	0x24, 0xd4, 0xa7, 0x27, 0xf8, 0xc3, 0x15, 0xa4, 0xc8, 0xf9, 0x80, 0xeb,
-        // 	0x4c, 0x4d, 0x4a, 0xfa, 0x6e, 0xc9, 0x42, 0x41, 0x5d, 0x10, 0xd9, 0xc2,
-        // 	0x8a, 0x90, 0xe9, 0x92, 0x9c, 0x52, 0x4b, 0x2c, 0xfb, 0x65, 0xdf, 0xbc,
-        // 	0xf6, 0x8c, 0xfd, 0x68, 0xdb, 0x17, 0xf9, 0x5d, 0x23, 0x5f, 0x96, 0xd8,
-        // 	0xf0, 0x72, 0x01, 0x2d,
-        // ];
 
         const transaction = await this.program.methods
             .createOrder(
-                orderId,
-                orderType,
-                tokenId,
-                amount,
-                value,
-                slippage,
-                isBid
+                data.marketId,
+                data.orderType,
+                data.amount,
+                data.value,
+                data.slippage,
+                data.isBid
             )
             .accounts({
-                otcTokenAccount: otcTokenAccountPubKey,
-                orderAccount: orderAccountPubKey,
-                vaultTokenAccount: vaultTokenAccountPubKey,
-                configAccount: this.configAccountPubKey,
-                exTokenAccount: exTokenAccountPubKey,
-                userTokenAccount: userExTokenAccount,
-                user: user,
-                exToken: exToken,
+                marketAccount: marketPda,
+                orderAccount: orderPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                configAccount: this.configPda,
+                userExTokenAccount: userExTokenAta,
+                user: data.user,
+                exToken: marketAccountData.exToken,
                 authority: this.configAccountData.authority,
                 tokenProgram: exTokenInfo.value.owner,
             })
@@ -432,98 +411,63 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
-    async matchOrder(
-        user: PublicKey,
-        tradeBuyId: BN,
-        tradeSellId: BN,
-        tradeId: BN
-    ): Promise<Transaction> {
-        const orderBuyAccountPubKey = getOrderAccountPubKey(
+    async cancelOrder(data: {
+        user: PublicKey;
+        marketId: BN;
+        orderId: BN;
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
             this.program,
-            this.configAccountPubKey,
-            tradeBuyId
+            this.configPda,
+            data.marketId
         );
 
-        const orderSellAccountPubKey = getOrderAccountPubKey(
+        const orderPda = getOrderAccountPda(
             this.program,
-            this.configAccountPubKey,
-            tradeSellId
+            this.configPda,
+            data.marketId,
+            data.orderId
         );
 
-        const tradeAccountPubKey = getTradeAccountPubKey(
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
             this.program,
-            this.configAccountPubKey,
-            tradeId
+            this.configPda,
+            marketAccountData.exToken
         );
 
-        const transaction = await this.program.methods
-            .matchOrder(tradeBuyId, tradeSellId, tradeId)
-            .accounts({
-                tradeAccount: tradeAccountPubKey,
-                orderBuyAccount: orderBuyAccountPubKey,
-                orderSellAccount: orderSellAccountPubKey,
-                configAccount: this.configAccountPubKey,
-                user: user,
-                authority: this.configAccountData.authority,
-            })
-            .transaction();
-
-        return transaction;
-    }
-
-    async fillOrder(
-        user: PublicKey,
-        exToken: PublicKey,
-        orderId: BN,
-        tradeId: BN,
-        amount: BN
-    ): Promise<Transaction> {
-        const vaultTokenAccountPubKey = getVaultExTokenAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            exToken
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            marketAccountData.exToken
         );
-
-        const exTokenAccountPubKey = getExTokenAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            exToken
-        );
-
-        const exTokenInfo = await this.connection.getParsedAccountInfo(exToken);
-
         if (!exTokenInfo.value) throw new Error("Invalid ex token");
 
-        const userExTokenAccount = await getAssociatedTokenAddress(
-            exToken,
-            user,
-            false,
-            exTokenInfo.value.owner
-        );
-
-        const orderAccountPubKey = getOrderAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            orderId
-        );
-
-        const tradeAccountPubKey = getTradeAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            tradeId
-        );
+        const [userExTokenAta, feeWalletExTokenAta] = await Promise.all([
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                data.user,
+                false,
+                exTokenInfo.value.owner
+            ),
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                this.configAccountData.feeWallet,
+                false,
+                exTokenInfo.value.owner
+            ),
+        ]);
 
         const transaction = await this.program.methods
-            .fillOrder(orderId, tradeId, amount)
+            .cancelOrder(data.marketId, data.orderId)
             .accounts({
-                tradeAccount: tradeAccountPubKey,
-                orderAccount: orderAccountPubKey,
-                vaultTokenAccount: vaultTokenAccountPubKey,
-                configAccount: this.configAccountPubKey,
-                exTokenAccount: exTokenAccountPubKey,
-                userTokenAccount: userExTokenAccount,
-                exToken: exToken,
-                user: user,
+                marketAccount: marketPda,
+                orderAccount: orderPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                feeExTokenAccount: feeWalletExTokenAta,
+                userTokenAccount: userExTokenAta,
+                configAccount: this.configPda,
+                exToken: marketAccountData.exToken,
+                user: data.user,
                 authority: this.configAccountData.authority,
                 tokenProgram: exTokenInfo.value.owner,
             })
@@ -532,173 +476,382 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
-    async settleFilled(
-        signer: PublicKey,
-        orderId: BN,
-        tradeId: BN
-    ): Promise<Transaction> {
-        const [orderAccountData, tradeAccountData] = await Promise.all([
-            this.fetchOrderAccount(orderId),
-            this.fetchTradeAccount(tradeId),
+    async fillOrder(data: {
+        marketId: BN;
+        orderId: BN;
+        tradeId?: BN;
+        amount: BN;
+        user: PublicKey;
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId
+        );
+
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            marketAccountData.exToken
+        );
+        if (!exTokenInfo.value) throw new Error("Invalid ex token");
+
+        const [userExTokenAta, feeWalletExTokenAta] = await Promise.all([
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                data.user,
+                false,
+                exTokenInfo.value.owner
+            ),
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                this.configAccountData.feeWallet,
+                false,
+                exTokenInfo.value.owner
+            ),
         ]);
 
-        const vaultTokenAccountPubKey = getVaultExTokenAccountPubKey(
+        const orderPda = getOrderAccountPda(
             this.program,
-            this.configAccountPubKey,
-            orderAccountData.exToken
+            this.configPda,
+            data.marketId,
+            data.orderId
         );
 
-        const otcTokenAccountData = await this.fetchOtcTokenAccount(
-            orderAccountData.tokenId
+        let _tradeId = data.tradeId;
+        if (!_tradeId) {
+            _tradeId = (await this.fetchLastTradeId(data.marketId)).add(
+                new BN(1)
+            );
+        }
+
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            _tradeId
         );
 
-        const vaultOtcTokenAccountPubKey = getVaultOtcTokenAccountPubKey(
+        const transaction = await this.program.methods
+            .fillOrder(data.marketId, data.orderId, data.amount)
+            .accounts({
+                marketAccount: marketPda,
+                tradeAccount: tradePda,
+                orderAccount: orderPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                configAccount: this.configPda,
+                userTokenAccount: userExTokenAta,
+                feeExTokenAccount: feeWalletExTokenAta,
+                exToken: marketAccountData.exToken,
+                user: data.user,
+                authority: this.configAccountData.authority,
+                tokenProgram: exTokenInfo.value.owner,
+            })
+            .transaction();
+
+        return transaction;
+    }
+
+    async matchOrder(data: {
+        user: PublicKey;
+        marketId: BN;
+        orderBuyId: BN;
+        orderSellId: BN;
+        tradeId?: BN;
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
             this.program,
-            this.configAccountPubKey,
-            otcTokenAccountData.token
+            this.configPda,
+            data.marketId
         );
 
-        const exTokenAccountPubKey = getExTokenAccountPubKey(
+        const orderBuyPda = getOrderAccountPda(
             this.program,
-            this.configAccountPubKey,
-            orderAccountData.exToken
+            this.configPda,
+            data.marketId,
+            data.orderBuyId
         );
 
-        const otcTokenAccountPubKey = getOtcTokenAccountPubKey(
+        const orderSellPda = getOrderAccountPda(
             this.program,
-            this.configAccountPubKey,
-            orderAccountData.tokenId
+            this.configPda,
+            data.marketId,
+            data.orderSellId
+        );
+
+        let _tradeId = data.tradeId;
+        if (!_tradeId) {
+            _tradeId = (await this.fetchLastTradeId(data.marketId)).add(
+                new BN(1)
+            );
+        }
+
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            _tradeId
+        );
+
+        const transaction = await this.program.methods
+            .matchOrder(data.marketId, data.orderBuyId, data.orderSellId)
+            .accounts({
+                marketAccount: marketPda,
+                orderBuyAccount: orderBuyPda,
+                orderSellAccount: orderSellPda,
+                tradeAccount: tradePda,
+                configAccount: this.configPda,
+                user: data.user,
+                authority: this.configAccountData.authority,
+            })
+            .transaction();
+
+        return transaction;
+    }
+
+    async settleFilled(data: {
+        user: PublicKey;
+        marketId: BN;
+        tradeId: BN;
+    }): Promise<Transaction> {
+        const [marketAccountData, tradeAccountData] = await Promise.all([
+            this.fetchMarketAccount(data.marketId),
+            this.fetchTradeAccount(data.marketId, data.tradeId),
+        ]);
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const vaultTokenPda = getVaultTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.token
         );
 
         const [exTokenInfo, otcTokenInfo] = await Promise.all([
-            this.connection.getParsedAccountInfo(orderAccountData.exToken),
-            this.connection.getParsedAccountInfo(otcTokenAccountData.token),
+            this.connection.getParsedAccountInfo(marketAccountData.exToken),
+            this.connection.getParsedAccountInfo(marketAccountData.token),
         ]);
-
-        if (!exTokenInfo.value) throw new Error("Invalid ex token");
+        if (!exTokenInfo.value) throw new Error("Invalid exchange token");
         if (!otcTokenInfo.value) throw new Error("Invalid OTC token");
 
         const [
-            buyerExTokenAccount,
-            sellerExTokenAccount,
-            buyerOtcTokenAccount,
-            sellerOtcTokenAccount,
-            feeExTokenAccount,
-            feeOtcTokenAccount,
+            buyerExTokenAta,
+            sellerExTokenAta,
+            buyerTokenAta,
+            sellerTokenAta,
+            feeWalletExTokenAta,
+            feeWalletTokenAta,
         ] = await Promise.all([
             getAssociatedTokenAddress(
-                orderAccountData.exToken,
+                marketAccountData.exToken,
                 tradeAccountData.buyer,
                 false,
                 exTokenInfo.value.owner
             ),
             getAssociatedTokenAddress(
-                orderAccountData.exToken,
+                marketAccountData.exToken,
                 tradeAccountData.seller,
                 false,
                 exTokenInfo.value.owner
             ),
             getAssociatedTokenAddress(
-                otcTokenAccountData.token,
+                marketAccountData.token,
                 tradeAccountData.buyer,
                 false,
                 otcTokenInfo.value.owner
             ),
             getAssociatedTokenAddress(
-                otcTokenAccountData.token,
+                marketAccountData.token,
                 tradeAccountData.seller,
                 false,
                 otcTokenInfo.value.owner
             ),
             getAssociatedTokenAddress(
-                orderAccountData.exToken,
+                marketAccountData.exToken,
                 this.configAccountData.feeWallet,
                 false,
                 exTokenInfo.value.owner
             ),
             getAssociatedTokenAddress(
-                otcTokenAccountData.token,
+                marketAccountData.token,
                 this.configAccountData.feeWallet,
                 false,
                 otcTokenInfo.value.owner
             ),
         ]);
-
-        const orderAccountPubKey = getOrderAccountPubKey(
+        const marketPda = getMarketAccountPda(
             this.program,
-            this.configAccountPubKey,
-            orderId
+            this.configPda,
+            data.marketId
+        );
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.tradeId
         );
 
-        const tradeAccountPubKey = getTradeAccountPubKey(
-            this.program,
-            this.configAccountPubKey,
-            tradeId
-        );
-
-        const transaction = await (signer.equals(tradeAccountData.buyer)
-            ? this.program.methods
-                  .buyerSettleFilled(orderId, tradeId)
-                  .accounts({
-                      tradeAccount: tradeAccountPubKey,
-                      orderAccount: orderAccountPubKey,
-                      vaultTokenAccount: vaultTokenAccountPubKey,
-                      vaultOtcTokenAccount: vaultOtcTokenAccountPubKey,
-                      otcTokenAccount: otcTokenAccountPubKey,
-                      exTokenAccount: exTokenAccountPubKey,
-                      configAccount: this.configAccountPubKey,
-                      otcToken: otcTokenAccountData.token,
-                      exToken: orderAccountData.exToken,
-                      buyerExTokenAccount,
-                      sellerExTokenAccount,
-                      buyerOtcTokenAccount,
-                      feeExTokenAccount,
-                      feeOtcTokenAccount,
-                      buyer: signer,
-                      authority: this.configAccountData.authority,
-                      exTokenProgram: exTokenInfo.value.owner,
-                      otcTokenProgram: otcTokenInfo.value.owner,
-                  })
-                  .transaction()
-            : this.program.methods
-                  .sellerSettleFilled(orderId, tradeId)
-                  .accounts({
-                      tradeAccount: tradeAccountPubKey,
-                      orderAccount: orderAccountPubKey,
-                      vaultTokenAccount: vaultTokenAccountPubKey,
-                      vaultOtcTokenAccount: vaultOtcTokenAccountPubKey,
-                      otcTokenAccount: otcTokenAccountPubKey,
-                      exTokenAccount: exTokenAccountPubKey,
-                      configAccount: this.configAccountPubKey,
-                      otcToken: otcTokenAccountData.token,
-                      exToken: orderAccountData.exToken,
-                      sellerExTokenAccount,
-                      buyerOtcTokenAccount,
-                      sellerOtcTokenAccount,
-                      feeExTokenAccount,
-                      feeOtcTokenAccount,
-                      seller: signer,
-                      authority: this.configAccountData.authority,
-                      exTokenProgram: exTokenInfo.value.owner,
-                      otcTokenProgram: otcTokenInfo.value.owner,
-                  })
-                  .transaction());
-
+        const transaction = this.program.methods
+            .settleFilled(data.marketId, data.tradeId)
+            .accounts({
+                marketAccount: marketPda,
+                tradeAccount: tradePda,
+                vaultExTokenAccount: vaultExTokenPda,
+                vaultTokenAccount: vaultTokenPda,
+                configAccount: this.configPda,
+                buyerExTokenAccount: buyerExTokenAta,
+                sellerExTokenAccount: sellerExTokenAta,
+                buyerTokenAccount: buyerTokenAta,
+                sellerTokenAccount: sellerTokenAta,
+                feeExTokenAccount: feeWalletExTokenAta,
+                feeTokenAccount: feeWalletTokenAta,
+                user: data.user,
+                token: marketAccountData.token,
+                exToken: marketAccountData.exToken,
+                authority: this.configAccountData.authority,
+                tokenProgram: otcTokenInfo.value.owner,
+                exTokenProgram: exTokenInfo.value.owner,
+            })
+            .transaction();
         return transaction;
     }
 
+    async settleCanceled(data: {
+        user: PublicKey;
+        marketId: BN;
+        tradeId: BN;
+    }): Promise<Transaction> {
+        const [marketAccountData, tradeAccountData] = await Promise.all([
+            this.fetchMarketAccount(data.marketId),
+            this.fetchTradeAccount(data.marketId, data.tradeId),
+        ]);
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const vaultTokenPda = getVaultTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.token
+        );
+
+        const [exTokenInfo, otcTokenInfo] = await Promise.all([
+            this.connection.getParsedAccountInfo(marketAccountData.exToken),
+            this.connection.getParsedAccountInfo(marketAccountData.token),
+        ]);
+        if (!exTokenInfo.value) throw new Error("Invalid exchange token");
+        if (!otcTokenInfo.value) throw new Error("Invalid OTC token");
+
+        const [
+            buyerExTokenAta,
+            sellerExTokenAta,
+            buyerTokenAta,
+            sellerTokenAta,
+            feeWalletExTokenAta,
+        ] = await Promise.all([
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                tradeAccountData.buyer,
+                false,
+                exTokenInfo.value.owner
+            ),
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                tradeAccountData.seller,
+                false,
+                exTokenInfo.value.owner
+            ),
+            getAssociatedTokenAddress(
+                marketAccountData.token,
+                tradeAccountData.buyer,
+                false,
+                otcTokenInfo.value.owner
+            ),
+            getAssociatedTokenAddress(
+                marketAccountData.token,
+                tradeAccountData.seller,
+                false,
+                otcTokenInfo.value.owner
+            ),
+            getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                this.configAccountData.feeWallet,
+                false,
+                exTokenInfo.value.owner
+            ),
+        ]);
+        const marketPda = getMarketAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId
+        );
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.tradeId
+        );
+
+        const transaction = this.program.methods
+            .settleCanceled(data.marketId, data.tradeId)
+            .accounts({
+                marketAccount: marketPda,
+                tradeAccount: tradePda,
+                vaultExTokenAccount: vaultExTokenPda,
+                vaultTokenAccount: vaultTokenPda,
+                configAccount: this.configPda,
+                buyerExTokenAccount: buyerExTokenAta,
+                sellerExTokenAccount: sellerExTokenAta,
+                buyerTokenAccount: buyerTokenAta,
+                sellerTokenAccount: sellerTokenAta,
+                feeExTokenAccount: feeWalletExTokenAta,
+                user: data.user,
+                token: marketAccountData.token,
+                exToken: marketAccountData.exToken,
+                authority: this.configAccountData.authority,
+                tokenProgram: otcTokenInfo.value.owner,
+                exTokenProgram: exTokenInfo.value.owner,
+            })
+            .transaction();
+        return transaction;
+    }
+
+    prepareTransaction(tx: Transaction) {
+        const _tx = new Transaction();
+
+        // TODO impl
+
+        // calculate compute unit limit
+
+        // set compute price
+    }
+
     parseError(err: any) {
-        const anchorError = AnchorError.parse(err.logs);
+        const anchorError = anchor.AnchorError.parse(err.logs);
         if (anchorError) {
             // Parse Anchor error into another type such that it's consistent.
             return NativeAnchorError.parse(anchorError);
         }
 
-        const programError = ProgramError.parse(err, idlErrors);
+        const programError = anchor.ProgramError.parse(err, idlErrors);
         if (typeof err == typeof 0 && idlErrors.has(err)) {
             return new NativeAnchorError(
                 parseInt(err),
-                idlErrors.get(err) ?? "Unknown Error",
+                // @ts-expect-error
+                idlErrors.get(err),
                 [],
                 []
             );
@@ -718,12 +871,72 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         }
 
         if (err.simulationResponse) {
-            let simulatedError = AnchorError.parse(err.simulationResponse.logs);
+            let simulatedError = anchor.AnchorError.parse(
+                err.simulationResponse.logs
+            );
             if (simulatedError) {
                 return NativeAnchorError.parse(simulatedError);
             }
         }
 
         return err;
+    }
+
+    // listen events
+    addEventListener<T extends OtcEventType>(
+        eventType: T,
+        callback: (
+            event: OtcEventHandlers[T],
+            slot: number,
+            signature: string
+        ) => void
+    ) {
+        return this.program.addEventListener(
+            eventType,
+            (event: any, slot: number, signature: string) => {
+                let processedEvent;
+                switch (eventType) {
+                    // case "createEvent":
+                    // 	processedEvent = toCreateEvent(event as CreateEvent);
+                    // 	callback(
+                    // 		processedEvent as PumpFunEventHandlers[T],
+                    // 		slot,
+                    // 		signature
+                    // 	);
+                    // 	break;
+                    // case "tradeEvent":
+                    // 	processedEvent = toTradeEvent(event as TradeEvent);
+                    // 	callback(
+                    // 		processedEvent as PumpFunEventHandlers[T],
+                    // 		slot,
+                    // 		signature
+                    // 	);
+                    // 	break;
+                    // case "completeEvent":
+                    // 	processedEvent = toCompleteEvent(event as CompleteEvent);
+                    // 	callback(
+                    // 		processedEvent as PumpFunEventHandlers[T],
+                    // 		slot,
+                    // 		signature
+                    // 	);
+                    // 	console.log("completeEvent", event, slot, signature);
+                    // 	break;
+                    // case "setParamsEvent":
+                    // 	processedEvent = toSetParamsEvent(event as SetParamsEvent);
+                    // 	callback(
+                    // 		processedEvent as PumpFunEventHandlers[T],
+                    // 		slot,
+                    // 		signature
+                    // 	);
+                    // 	break;
+                    default:
+                        console.error("Unhandled event type:", eventType);
+                }
+            }
+        );
+    }
+
+    removeEventListener(eventId: number) {
+        this.program.removeEventListener(eventId);
     }
 }

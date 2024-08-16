@@ -1,14 +1,13 @@
 "use client";
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
 import { ethers } from "ethers";
-import { ZeroAddress } from "ethers";
-import { Label, TextInput, Button, Dropdown, Checkbox } from "flowbite-react";
-import { OtcEvm, EvmAddress, EOrderType } from "otc-sdk";
-import { useState, useCallback } from "react";
-import { useChainId, useAccount } from "wagmi";
+import { Button, Checkbox, Dropdown, Label, TextInput } from "flowbite-react";
+import { EOrderType, OtcEvm } from "otc-sdk";
+import { useCallback, useState } from "react";
+import { useAccount, useChainId } from "wagmi";
 import { config } from "../providers";
-import { waitForTransactionReceipt, sendTransaction } from "@wagmi/core";
 
 export default function CreateOffer() {
     const chainId = useChainId();
@@ -31,9 +30,10 @@ export default function CreateOffer() {
 
             try {
                 if (submitting) return;
+
                 const otc = new OtcEvm(chainId);
 
-                setSubmitting(false);
+                setSubmitting(true);
 
                 const parsedAmount = ethers.parseUnits(amount.toString());
 
@@ -43,35 +43,35 @@ export default function CreateOffer() {
                     price
                 );
 
+                let txHash;
                 // TODO check allowance then ignore approve
                 // const approveTx = await otc.approve(marketId, collateral);
-                // let txHash = await sendTransaction(config, {
-                //     ...approveTx,
+                // let txHash = await sendTransaction(config as any, {
+                //     to: approveTx.to as `0x${string}`,
+                //     data: approveTx.data as `0x${string}`,
                 // });
 
-                // console.log("🚀 ~ file: CreateOrder.tsx:76 ~ txHash:", txHash);
-
+                // NOTE waitForTransactionReceipt not work wait too long
                 // await waitForTransactionReceipt(config, {
                 //     hash: txHash,
                 // });
 
-                const createOrderTx = await otc.createOrder(
+                const createOrderTx = await otc.createOrder({
                     offerType,
                     marketId,
-                    parsedAmount,
+                    amount: parsedAmount,
                     price,
-                    false
-                );
-                console.log(
-                    "🚀 ~ file: CreateOrder.tsx:64 ~ createOrderTx:",
-                    createOrderTx
-                );
+                    isBid: false,
+                });
 
-                await sendTransaction(config, {
-                    ...createOrderTx,
+                txHash = await sendTransaction(config as any, {
+                    to: createOrderTx.to as `0x${string}`,
+                    data: createOrderTx.data as `0x${string}`,
+                    value: createOrderTx.value ?? BigInt(0),
                 });
 
                 setSubmitting(false);
+                alert("Create order success. TxHash: " + txHash);
             } catch (error: any) {
                 setSubmitting(false);
 

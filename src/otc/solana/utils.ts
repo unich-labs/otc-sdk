@@ -1,9 +1,5 @@
-import {
-    Connection,
-    PublicKey,
-    TransactionInstruction,
-    SystemProgram,
-} from "@solana/web3.js";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import * as anchor from "@coral-xyz/anchor";
 import {
     createAssociatedTokenAccountInstruction,
     createCloseAccountInstruction,
@@ -13,7 +9,47 @@ import {
     getAccount,
     TokenAccountNotFoundError,
     TokenInvalidAccountOwnerError,
+    getAssociatedTokenAddress,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+
+export async function checkOrCreateAssociatedTokenAccount(
+    connection: Connection,
+    owner: PublicKey,
+    authority: PublicKey,
+    mintAddress: PublicKey
+): Promise<Transaction | null> {
+    const tokenInfo = await connection.getParsedAccountInfo(mintAddress);
+    if (!tokenInfo?.value) return null;
+    const tokenProgram = tokenInfo.value.owner;
+    // Create a token account for the user and mint some tokens
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+        mintAddress,
+        owner,
+        false,
+        tokenProgram,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    const accountInfo = await connection.getAccountInfo(associatedTokenAccount);
+    if (!accountInfo || !accountInfo.data) {
+        let tx = new Transaction();
+
+        tx.add(
+            createAssociatedTokenAccountInstruction(
+                authority,
+                associatedTokenAccount,
+                owner,
+                mintAddress,
+                tokenProgram,
+                ASSOCIATED_TOKEN_PROGRAM_ID
+            )
+        );
+
+        return tx;
+    }
+
+    return null;
+}
 
 export async function getNumberDecimals(
     connection: Connection,
@@ -29,7 +65,7 @@ export async function buildInstructionsWrapSol(
     user: PublicKey,
     lamports: number
 ) {
-    const instructions: TransactionInstruction[] = [];
+    const instructions: anchor.web3.TransactionInstruction[] = [];
     const associatedTokenAccount = getAssociatedTokenAddressSync(
         NATIVE_MINT,
         user
@@ -52,7 +88,7 @@ export async function buildInstructionsWrapSol(
         }
     }
     instructions.push(
-        SystemProgram.transfer({
+        anchor.web3.SystemProgram.transfer({
             fromPubkey: user,
             toPubkey: associatedTokenAccount,
             lamports: lamports,
@@ -64,7 +100,7 @@ export async function buildInstructionsWrapSol(
 }
 
 export async function buildInstructionsUnWrapSol(user: PublicKey) {
-    const instructions: TransactionInstruction[] = [];
+    const instructions: anchor.web3.TransactionInstruction[] = [];
     const associatedTokenAccount = getAssociatedTokenAddressSync(
         NATIVE_MINT,
         user

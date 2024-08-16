@@ -6,15 +6,20 @@
 
 # Enumeration: EMarketStatus
 
+Market Status
+ EMarketStatus
+
 ## Enumeration Members
 
 ### Active
 
 > **Active**: `1`
 
+Active
+
 #### Defined in
 
-configs/enums.ts:2
+configs/enums.ts:9
 
 ***
 
@@ -22,9 +27,11 @@ configs/enums.ts:2
 
 > **Inactive**: `2`
 
+Inactive
+
 #### Defined in
 
-configs/enums.ts:3
+configs/enums.ts:13
 
 ***
 
@@ -32,6 +39,8 @@ configs/enums.ts:3
 
 > **Settle**: `3`
 
+Settle
+
 #### Defined in
 
-configs/enums.ts:4
+configs/enums.ts:17

@@ -6,15 +6,20 @@
 
 # Enumeration: ETradeStatus
 
+Trade status
+ ETradeStatus
+
 ## Enumeration Members
 
 ### Canceled
 
 > **Canceled**: `4`
 
+Canceled
+
 #### Defined in
 
-configs/enums.ts:22
+configs/enums.ts:68
 
 ***
 
@@ -22,9 +27,11 @@ configs/enums.ts:22
 
 > **Open**: `1`
 
+Open
+
 #### Defined in
 
-configs/enums.ts:19
+configs/enums.ts:56
 
 ***
 
@@ -32,9 +39,11 @@ configs/enums.ts:19
 
 > **SettleCanceled**: `3`
 
+Settle Canceled
+
 #### Defined in
 
-configs/enums.ts:21
+configs/enums.ts:64
 
 ***
 
@@ -42,6 +51,8 @@ configs/enums.ts:21
 
 > **SettleFilled**: `2`
 
+Settle Filled
+
 #### Defined in
 
-configs/enums.ts:20
+configs/enums.ts:60

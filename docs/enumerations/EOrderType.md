@@ -6,6 +6,9 @@
 
 # Enumeration: EOrderType
 
+Order Type
+ EOrderType
+
 ## Enumeration Members
 
 ### Buy
@@ -14,7 +17,7 @@
 
 #### Defined in
 
-configs/enums.ts:8
+configs/enums.ts:25
 
 ***
 
@@ -24,4 +27,4 @@ configs/enums.ts:8
 
 #### Defined in
 
-configs/enums.ts:9
+configs/enums.ts:26

@@ -24,7 +24,7 @@ order amount
 
 #### Defined in
 
-otc/otc.interface.ts:95
+otc/otc.interface.ts:105
 
 ***
 
@@ -36,7 +36,7 @@ filled amount of order
 
 #### Defined in
 
-otc/otc.interface.ts:105
+otc/otc.interface.ts:115
 
 ***
 
@@ -48,7 +48,7 @@ is bid order
 
 #### Defined in
 
-otc/otc.interface.ts:90
+otc/otc.interface.ts:100
 
 ***
 
@@ -60,7 +60,7 @@ id of market
 
 #### Defined in
 
-otc/otc.interface.ts:80
+otc/otc.interface.ts:90
 
 ***
 
@@ -72,7 +72,7 @@ order owner address
 
 #### Defined in
 
-otc/otc.interface.ts:115
+otc/otc.interface.ts:125
 
 ***
 
@@ -84,7 +84,7 @@ order type (buy or sell)
 
 #### Defined in
 
-otc/otc.interface.ts:85
+otc/otc.interface.ts:95
 
 ***
 
@@ -96,7 +96,7 @@ sqrtX96 price of order
 
 #### Defined in
 
-otc/otc.interface.ts:100
+otc/otc.interface.ts:110
 
 ***
 
@@ -108,4 +108,4 @@ order status
 
 #### Defined in
 
-otc/otc.interface.ts:110
+otc/otc.interface.ts:120

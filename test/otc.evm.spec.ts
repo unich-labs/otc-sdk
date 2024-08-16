@@ -11,8 +11,6 @@ import {
     WEI6,
 } from "../src";
 import { ZeroAddress, ethers } from "ethers";
-import { Wallet } from "ethers";
-import { JsonRpcProvider } from "ethers";
 
 chai.use(chaiAsPromised);
 
@@ -21,6 +19,9 @@ const otcAddress = CONTRACTS[chainId].OTC.address;
 
 describe("OTC EVM testing", () => {
     let otc: OtcEvm;
+
+    const marketId =
+        "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
 
     beforeEach(function () {
         otc = new OtcEvm(chainId);
@@ -36,24 +37,35 @@ describe("OTC EVM testing", () => {
     });
 
     it("Create new market", async () => {
-        const marketId =
-            "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
         const exToken = ZeroAddress as `0x${string}`;
-        const pledgeRate = BigInt(WEI6) / BigInt(5); // 20%
+        const pledgeRate = BigInt(WEI6) / BigInt(2); // 50%
         const minTrade = BigInt(WEI6) * BigInt(WEI6) * BigInt(WEI6); // 1e18
         assert.deepEqual(
             {
                 to: otcAddress,
-                data: "0x0fbfe9ecd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f2800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400000000000000000000000000000000000000000000000000de0b6b3a7640000",
+                data: "0x0fbfe9ecd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f280000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007a1200000000000000000000000000000000000000000000000000de0b6b3a7640000",
             },
-            await otc.newMarket(marketId, exToken, pledgeRate, minTrade)
+            await otc.newMarket({
+                marketId,
+                exToken,
+                pledgeRate,
+                minTrade,
+            })
+        );
+    });
+
+    it("Get order collateral", async () => {
+        const amount = 10n * BigInt(WEI6) * BigInt(WEI6) * BigInt(WEI6); // 1e18
+        const price = 1;
+
+        assert.deepEqual(
+            5000000000n,
+            await otc.getOrderCollateral(marketId, amount, price)
         );
     });
 
     it("Create Sell offer without Native coin", async () => {
         const offerType = EOrderType.Sell;
-        const marketId =
-            "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
         const amount = 100n * BigInt(WEI6) * BigInt(WEI6) * BigInt(WEI6);
         const price = 0.1;
         const isBid = false;
@@ -65,32 +77,10 @@ describe("OTC EVM testing", () => {
         //     },
         //     await otc.createOrder(offerType, marketId, amount, price, isBid)
         // );
-
-        const order = await otc.createOrder(
-            offerType,
-            marketId,
-            amount,
-            price,
-            isBid
-        );
-        console.log("🚀 ~ file: otc.evm.spec.ts:55 ~ it ~ order:", order);
-
-        const wallet = new Wallet(
-            "9ef539c5cca4cfb42cca026e99215996debdc364b76875b48db36755dad55558",
-            new JsonRpcProvider("https://eth-sepolia.public.blastapi.io")
-        );
-
-        try {
-            await wallet.estimateGas(order);
-        } catch (error) {
-            console.log(error);
-        }
     });
 
     // it("Create Sell offer with Native coin", async () => {
     //     const offerType = EOrderType.Sell;
-    //     const marketId =
-    //         "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"; // keccak256("MOCK_MARKET")
     //     const amount = BigInt(1000) * BigInt(WEI6);
     //     const price = 0.1;
     //     const isBid = false;

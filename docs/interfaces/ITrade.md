@@ -24,7 +24,7 @@ amount of trade order
 
 #### Defined in
 
-otc/otc.interface.ts:130
+otc/otc.interface.ts:140
 
 ***
 
@@ -36,7 +36,7 @@ buyer address
 
 #### Defined in
 
-otc/otc.interface.ts:169
+otc/otc.interface.ts:179
 
 ***
 
@@ -48,7 +48,7 @@ amount that buyer cash out
 
 #### Defined in
 
-otc/otc.interface.ts:154
+otc/otc.interface.ts:164
 
 ***
 
@@ -60,7 +60,7 @@ sqrtX96 price of buyer
 
 #### Defined in
 
-otc/otc.interface.ts:135
+otc/otc.interface.ts:145
 
 ***
 
@@ -72,7 +72,7 @@ id of market
 
 #### Defined in
 
-otc/otc.interface.ts:125
+otc/otc.interface.ts:135
 
 ***
 
@@ -84,7 +84,7 @@ seller address
 
 #### Defined in
 
-otc/otc.interface.ts:164
+otc/otc.interface.ts:174
 
 ***
 
@@ -96,7 +96,7 @@ amount that seller cash out
 
 #### Defined in
 
-otc/otc.interface.ts:159
+otc/otc.interface.ts:169
 
 ***
 
@@ -108,7 +108,7 @@ sqrtX96 price of seller
 
 #### Defined in
 
-otc/otc.interface.ts:140
+otc/otc.interface.ts:150
 
 ***
 
@@ -124,7 +124,7 @@ both buyer and seller settle: 6
 
 #### Defined in
 
-otc/otc.interface.ts:149
+otc/otc.interface.ts:159
 
 ***
 
@@ -136,4 +136,4 @@ trade order status
 
 #### Defined in
 
-otc/otc.interface.ts:174
+otc/otc.interface.ts:184

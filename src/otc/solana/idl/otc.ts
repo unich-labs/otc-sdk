@@ -3,34 +3,14 @@ export type Otc = {
     name: "otc";
     constants: [
         {
-            name: "CONFIG_PDA_SEED";
-            type: "bytes";
-            value: "[99, 111, 110, 102, 105, 103]";
+            name: "BUYER";
+            type: "u8";
+            value: "2";
         },
         {
-            name: "ROLE_PDA_SEED";
-            type: "bytes";
-            value: "[114, 111, 108, 101]";
-        },
-        {
-            name: "USER_PDA_SEED";
-            type: "bytes";
-            value: "[117, 115, 101, 114]";
-        },
-        {
-            name: "OTC_TOKEN_PDA_SEED";
-            type: "bytes";
-            value: "[111, 116, 99, 95, 116, 111, 107, 101, 110]";
-        },
-        {
-            name: "ORDER_PDA_SEED";
-            type: "bytes";
-            value: "[111, 114, 100, 101, 114]";
-        },
-        {
-            name: "TRADE_PDA_SEED";
-            type: "bytes";
-            value: "[116, 114, 97, 100, 101]";
+            name: "BUYER_SETTLED";
+            type: "u8";
+            value: "2";
         },
         {
             name: "CASHOUT_PDA_SEED";
@@ -38,9 +18,59 @@ export type Otc = {
             value: "[99, 97, 115, 104, 111, 117, 116]";
         },
         {
+            name: "CONFIG_PDA_SEED";
+            type: "bytes";
+            value: "[99, 111, 110, 102, 105, 103]";
+        },
+        {
             name: "EX_TOKEN_PDA_SEED";
             type: "bytes";
             value: "[101, 120, 95, 116, 111, 107, 101, 110]";
+        },
+        {
+            name: "MARKET_PDA_SEED";
+            type: "bytes";
+            value: "[109, 97, 114, 107, 101, 116]";
+        },
+        {
+            name: "ORDER_PDA_SEED";
+            type: "bytes";
+            value: "[111, 114, 100, 101, 114]";
+        },
+        {
+            name: "OTC_TOKEN_PDA_SEED";
+            type: "bytes";
+            value: "[111, 116, 99, 95, 116, 111, 107, 101, 110]";
+        },
+        {
+            name: "ROLE_PDA_SEED";
+            type: "bytes";
+            value: "[114, 111, 108, 101]";
+        },
+        {
+            name: "SELLER";
+            type: "u8";
+            value: "3";
+        },
+        {
+            name: "SELLER_SETTLED";
+            type: "u8";
+            value: "3";
+        },
+        {
+            name: "TRADE_PDA_SEED";
+            type: "bytes";
+            value: "[116, 114, 97, 100, 101]";
+        },
+        {
+            name: "USER_PDA_SEED";
+            type: "bytes";
+            value: "[117, 115, 101, 114]";
+        },
+        {
+            name: "VAULT_EX_TOKEN_PDA_SEED";
+            type: "bytes";
+            value: "[118, 97, 117, 108, 116, 95, 101, 120, 95, 116, 111, 107, 101, 110]";
         },
         {
             name: "VAULT_TOKEN_PDA_SEED";
@@ -48,29 +78,14 @@ export type Otc = {
             value: "[118, 97, 117, 108, 116, 95, 116, 111, 107, 101, 110]";
         },
         {
-            name: "VAULT_OTC_TOKEN_PDA_SEED";
-            type: "bytes";
-            value: "[118, 97, 117, 108, 116, 95, 111, 116, 99, 95, 116, 111, 107, 101, 110]";
-        },
-        {
             name: "WEI6";
             type: "u64";
-            value: "1_000_000";
-        },
-        {
-            name: "BUYER";
-            type: "u8";
-            value: "2";
-        },
-        {
-            name: "SELLER";
-            type: "u8";
-            value: "3";
+            value: "1000000";
         }
     ];
     instructions: [
         {
-            name: "initializeConfig";
+            name: "initialize";
             accounts: [
                 {
                     name: "configAccount";
@@ -179,70 +194,20 @@ export type Otc = {
             ];
         },
         {
-            name: "addOtcToken";
+            name: "newMarket";
             accounts: [
                 {
-                    name: "otcTokenAccount";
+                    name: "marketAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
-                    name: "configAccount";
+                    name: "vaultExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
-                    name: "roleAccount";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "operator";
-                    isMut: true;
-                    isSigner: true;
-                },
-                {
-                    name: "authority";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "systemProgram";
-                    isMut: false;
-                    isSigner: false;
-                }
-            ];
-            args: [
-                {
-                    name: "tokenId";
-                    type: "u64";
-                },
-                {
-                    name: "pledgeRate";
-                    type: "u64";
-                }
-            ];
-        },
-        {
-            name: "settleOtcToken";
-            accounts: [
-                {
-                    name: "vaultOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "otcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "feeOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "mint";
+                    name: "exToken";
                     isMut: false;
                     isSigner: false;
                 },
@@ -260,11 +225,6 @@ export type Otc = {
                     name: "operator";
                     isMut: true;
                     isSigner: true;
-                },
-                {
-                    name: "feeWallet";
-                    isMut: false;
-                    isSigner: false;
                 },
                 {
                     name: "authority";
@@ -280,17 +240,153 @@ export type Otc = {
                     name: "tokenProgram";
                     isMut: false;
                     isSigner: false;
+                }
+            ];
+            args: [
+                {
+                    name: "marketId";
+                    type: "u64";
                 },
                 {
-                    name: "associatedTokenProgram";
+                    name: "pledgeRate";
+                    type: "u64";
+                },
+                {
+                    name: "minTrade";
+                    type: "u64";
+                }
+            ];
+        },
+        {
+            name: "updateMarket";
+            accounts: [
+                {
+                    name: "marketAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "configAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "roleAccount";
+                    isMut: false;
+                    isSigner: false;
+                },
+                {
+                    name: "operator";
+                    isMut: true;
+                    isSigner: true;
+                },
+                {
+                    name: "authority";
+                    isMut: false;
+                    isSigner: false;
+                },
+                {
+                    name: "systemProgram";
                     isMut: false;
                     isSigner: false;
                 }
             ];
             args: [
                 {
-                    name: "tokenId";
+                    name: "marketId";
                     type: "u64";
+                },
+                {
+                    name: "status";
+                    type: {
+                        option: {
+                            defined: "MarketStatus";
+                        };
+                    };
+                },
+                {
+                    name: "settleTime";
+                    type: {
+                        option: "i64";
+                    };
+                },
+                {
+                    name: "settleDuration";
+                    type: {
+                        option: "i64";
+                    };
+                },
+                {
+                    name: "settleRate";
+                    type: {
+                        option: "u64";
+                    };
+                },
+                {
+                    name: "pledgeRate";
+                    type: {
+                        option: "u64";
+                    };
+                }
+            ];
+        },
+        {
+            name: "settleMarket";
+            accounts: [
+                {
+                    name: "marketAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "vaultTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "token";
+                    isMut: false;
+                    isSigner: false;
+                },
+                {
+                    name: "configAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "roleAccount";
+                    isMut: false;
+                    isSigner: false;
+                },
+                {
+                    name: "operator";
+                    isMut: true;
+                    isSigner: true;
+                },
+                {
+                    name: "authority";
+                    isMut: false;
+                    isSigner: false;
+                },
+                {
+                    name: "systemProgram";
+                    isMut: false;
+                    isSigner: false;
+                },
+                {
+                    name: "tokenProgram";
+                    isMut: false;
+                    isSigner: false;
+                }
+            ];
+            args: [
+                {
+                    name: "marketId";
+                    type: "u64";
+                },
+                {
+                    name: "settleTime";
+                    type: "i64";
                 },
                 {
                     name: "settleDuration";
@@ -303,81 +399,10 @@ export type Otc = {
             ];
         },
         {
-            name: "setExToken";
-            accounts: [
-                {
-                    name: "vaultTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "feeExTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "mint";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "configAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "roleAccount";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "operator";
-                    isMut: true;
-                    isSigner: true;
-                },
-                {
-                    name: "feeWallet";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "authority";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "systemProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "tokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "associatedTokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                }
-            ];
-            args: [
-                {
-                    name: "isAccepted";
-                    type: "bool";
-                }
-            ];
-        },
-        {
             name: "createOrder";
             accounts: [
                 {
-                    name: "otcTokenAccount";
+                    name: "marketAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -387,7 +412,7 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "vaultTokenAccount";
+                    name: "vaultExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -397,12 +422,7 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "exTokenAccount";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "userTokenAccount";
+                    name: "userExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -434,7 +454,7 @@ export type Otc = {
             ];
             args: [
                 {
-                    name: "orderId";
+                    name: "marketId";
                     type: "u64";
                 },
                 {
@@ -442,10 +462,6 @@ export type Otc = {
                     type: {
                         defined: "OrderType";
                     };
-                },
-                {
-                    name: "tokenId";
-                    type: "u64";
                 },
                 {
                     name: "amount";
@@ -466,143 +482,15 @@ export type Otc = {
             ];
         },
         {
-            name: "fillOrder";
-            accounts: [
-                {
-                    name: "tradeAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "orderAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "vaultTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "configAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "userTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exToken";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "user";
-                    isMut: true;
-                    isSigner: true;
-                },
-                {
-                    name: "authority";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "systemProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "rent";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "tokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                }
-            ];
-            args: [
-                {
-                    name: "orderId";
-                    type: "u64";
-                },
-                {
-                    name: "tradeId";
-                    type: "u64";
-                },
-                {
-                    name: "amount";
-                    type: "u64";
-                }
-            ];
-        },
-        {
-            name: "cashoutTrade";
-            accounts: [
-                {
-                    name: "cashoutOrderAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "tradeAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "configAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "user";
-                    isMut: true;
-                    isSigner: true;
-                },
-                {
-                    name: "authority";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "systemProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "rent";
-                    isMut: false;
-                    isSigner: false;
-                }
-            ];
-            args: [
-                {
-                    name: "cashoutId";
-                    type: "u64";
-                },
-                {
-                    name: "tradeId";
-                    type: "u64";
-                },
-                {
-                    name: "value";
-                    type: "u64";
-                }
-            ];
-        },
-        {
             name: "matchOrder";
             accounts: [
                 {
                     name: "tradeAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "marketAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -639,15 +527,15 @@ export type Otc = {
             ];
             args: [
                 {
+                    name: "marketId";
+                    type: "u64";
+                },
+                {
                     name: "orderBuyId";
                     type: "u64";
                 },
                 {
                     name: "orderSellId";
-                    type: "u64";
-                },
-                {
-                    name: "tradeId";
                     type: "u64";
                 }
             ];
@@ -656,27 +544,32 @@ export type Otc = {
             name: "cancelOrder";
             accounts: [
                 {
+                    name: "marketAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
                     name: "orderAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
-                    name: "vaultTokenAccount";
+                    name: "vaultExTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "userTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "feeExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
                     name: "configAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "userTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -689,11 +582,6 @@ export type Otc = {
                     name: "user";
                     isMut: true;
                     isSigner: true;
-                },
-                {
-                    name: "feeWallet";
-                    isMut: false;
-                    isSigner: false;
                 },
                 {
                     name: "authority";
@@ -713,16 +601,25 @@ export type Otc = {
             ];
             args: [
                 {
+                    name: "marketId";
+                    type: "u64";
+                },
+                {
                     name: "orderId";
                     type: "u64";
                 }
             ];
         },
         {
-            name: "buyerSettleFilled";
+            name: "fillOrder";
             accounts: [
                 {
                     name: "tradeAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "marketAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -732,47 +629,7 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "otcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "vaultTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "vaultOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "configAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "buyerExTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "sellerExTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "buyerOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "feeOtcTokenAccount";
+                    name: "vaultExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -782,8 +639,13 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "otcToken";
-                    isMut: false;
+                    name: "configAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "userTokenAccount";
+                    isMut: true;
                     isSigner: false;
                 },
                 {
@@ -792,7 +654,7 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "buyer";
+                    name: "user";
                     isMut: true;
                     isSigner: true;
                 },
@@ -812,167 +674,41 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "exTokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "otcTokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "associatedTokenProgram";
+                    name: "tokenProgram";
                     isMut: false;
                     isSigner: false;
                 }
             ];
             args: [
                 {
+                    name: "marketId";
+                    type: "u64";
+                },
+                {
                     name: "orderId";
                     type: "u64";
                 },
                 {
-                    name: "tradeId";
+                    name: "amount";
                     type: "u64";
                 }
             ];
         },
         {
-            name: "sellerSettleFilled";
+            name: "settleFilled";
             accounts: [
+                {
+                    name: "marketAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
                 {
                     name: "tradeAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
-                    name: "orderAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "otcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "vaultTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "vaultOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "configAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "sellerExTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "buyerOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "sellerOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "feeOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "feeExTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "otcToken";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "exToken";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "seller";
-                    isMut: true;
-                    isSigner: true;
-                },
-                {
-                    name: "authority";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "systemProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "rent";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "otcTokenProgram";
-                    isMut: false;
-                    isSigner: false;
-                }
-            ];
-            args: [
-                {
-                    name: "orderId";
-                    type: "u64";
-                },
-                {
-                    name: "tradeId";
-                    type: "u64";
-                }
-            ];
-        },
-        {
-            name: "buyerSettleCanceled";
-            accounts: [
-                {
-                    name: "tradeAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "orderAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "otcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
+                    name: "vaultExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -992,8 +728,33 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
+                    name: "sellerExTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "buyerTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "sellerTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
                     name: "feeExTokenAccount";
                     isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "feeTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "token";
+                    isMut: false;
                     isSigner: false;
                 },
                 {
@@ -1002,12 +763,7 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "otcToken";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "buyer";
+                    name: "user";
                     isMut: true;
                     isSigner: true;
                 },
@@ -1027,19 +783,19 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "exTokenProgram";
+                    name: "tokenProgram";
                     isMut: false;
                     isSigner: false;
                 },
                 {
-                    name: "otcTokenProgram";
+                    name: "exTokenProgram";
                     isMut: false;
                     isSigner: false;
                 }
             ];
             args: [
                 {
-                    name: "orderId";
+                    name: "marketId";
                     type: "u64";
                 },
                 {
@@ -1049,25 +805,20 @@ export type Otc = {
             ];
         },
         {
-            name: "sellerSettleCanceled";
+            name: "settleCanceled";
             accounts: [
+                {
+                    name: "marketAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
                 {
                     name: "tradeAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
-                    name: "orderAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "otcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
-                    name: "exTokenAccount";
+                    name: "vaultExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -1077,17 +828,12 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "vaultOtcTokenAccount";
-                    isMut: true;
-                    isSigner: false;
-                },
-                {
                     name: "configAccount";
                     isMut: true;
                     isSigner: false;
                 },
                 {
-                    name: "sellerOtcTokenAccount";
+                    name: "buyerExTokenAccount";
                     isMut: true;
                     isSigner: false;
                 },
@@ -1097,8 +843,23 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
+                    name: "buyerTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "sellerTokenAccount";
+                    isMut: true;
+                    isSigner: false;
+                },
+                {
                     name: "feeExTokenAccount";
                     isMut: true;
+                    isSigner: false;
+                },
+                {
+                    name: "token";
+                    isMut: false;
                     isSigner: false;
                 },
                 {
@@ -1107,12 +868,7 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "otcToken";
-                    isMut: false;
-                    isSigner: false;
-                },
-                {
-                    name: "seller";
+                    name: "user";
                     isMut: true;
                     isSigner: true;
                 },
@@ -1132,19 +888,19 @@ export type Otc = {
                     isSigner: false;
                 },
                 {
-                    name: "exTokenProgram";
+                    name: "tokenProgram";
                     isMut: false;
                     isSigner: false;
                 },
                 {
-                    name: "otcTokenProgram";
+                    name: "exTokenProgram";
                     isMut: false;
                     isSigner: false;
                 }
             ];
             args: [
                 {
-                    name: "orderId";
+                    name: "marketId";
                     type: "u64";
                 },
                 {
@@ -1155,34 +911,6 @@ export type Otc = {
         }
     ];
     accounts: [
-        {
-            name: "cashoutAccount";
-            type: {
-                kind: "struct";
-                fields: [
-                    {
-                        name: "tradeId";
-                        type: "u64";
-                    },
-                    {
-                        name: "amount";
-                        type: "u64";
-                    },
-                    {
-                        name: "value";
-                        type: "u64";
-                    },
-                    {
-                        name: "cashoutBy";
-                        type: "publicKey";
-                    },
-                    {
-                        name: "bump";
-                        type: "u8";
-                    }
-                ];
-            };
-        },
         {
             name: "configAccount";
             type: {
@@ -1209,6 +937,52 @@ export type Otc = {
                         type: "publicKey";
                     },
                     {
+                        name: "payRentFee";
+                        type: "bool";
+                    }
+                ];
+            };
+        },
+        {
+            name: "marketAccount";
+            type: {
+                kind: "struct";
+                fields: [
+                    {
+                        name: "token";
+                        type: "publicKey";
+                    },
+                    {
+                        name: "exToken";
+                        type: "publicKey";
+                    },
+                    {
+                        name: "pledgeRate";
+                        type: "u64";
+                    },
+                    {
+                        name: "settleTime";
+                        type: "i64";
+                    },
+                    {
+                        name: "settleDuration";
+                        type: "i64";
+                    },
+                    {
+                        name: "settleRate";
+                        type: "u64";
+                    },
+                    {
+                        name: "minTrade";
+                        type: "u64";
+                    },
+                    {
+                        name: "status";
+                        type: {
+                            defined: "MarketStatus";
+                        };
+                    },
+                    {
                         name: "lastOrderId";
                         type: "u64";
                     },
@@ -1219,34 +993,14 @@ export type Otc = {
                     {
                         name: "lastCashoutId";
                         type: "u64";
-                    }
-                ];
-            };
-        },
-        {
-            name: "exTokenAccount";
-            type: {
-                kind: "struct";
-                fields: [
-                    {
-                        name: "token";
-                        type: "publicKey";
-                    },
-                    {
-                        name: "vaultToken";
-                        type: "publicKey";
-                    },
-                    {
-                        name: "isAccepted";
-                        type: "bool";
                     },
                     {
                         name: "bump";
                         type: "u8";
                     },
                     {
-                        name: "vaultBump";
-                        type: "u8";
+                        name: "configAccount";
+                        type: "publicKey";
                     }
                 ];
             };
@@ -1257,12 +1011,8 @@ export type Otc = {
                 kind: "struct";
                 fields: [
                     {
-                        name: "tokenId";
+                        name: "marketId";
                         type: "u64";
-                    },
-                    {
-                        name: "exToken";
-                        type: "publicKey";
                     },
                     {
                         name: "orderType";
@@ -1287,17 +1037,13 @@ export type Otc = {
                         type: "u64";
                     },
                     {
-                        name: "collateral";
-                        type: "u64";
-                    },
-                    {
                         name: "filledAmount";
                         type: "u64";
                     },
                     {
                         name: "status";
                         type: {
-                            defined: "OfferStatus";
+                            defined: "OrderStatus";
                         };
                     },
                     {
@@ -1310,48 +1056,6 @@ export type Otc = {
                     },
                     {
                         name: "bump";
-                        type: "u8";
-                    }
-                ];
-            };
-        },
-        {
-            name: "otcTokenAccount";
-            type: {
-                kind: "struct";
-                fields: [
-                    {
-                        name: "token";
-                        type: "publicKey";
-                    },
-                    {
-                        name: "settleDuration";
-                        type: "i64";
-                    },
-                    {
-                        name: "settleTime";
-                        type: "i64";
-                    },
-                    {
-                        name: "settleRate";
-                        type: "u64";
-                    },
-                    {
-                        name: "pledgeRate";
-                        type: "u64";
-                    },
-                    {
-                        name: "status";
-                        type: {
-                            defined: "OtcTokenStatus";
-                        };
-                    },
-                    {
-                        name: "bump";
-                        type: "u8";
-                    },
-                    {
-                        name: "vaultBump";
                         type: "u8";
                     }
                 ];
@@ -1385,7 +1089,7 @@ export type Otc = {
                 kind: "struct";
                 fields: [
                     {
-                        name: "orderId";
+                        name: "marketId";
                         type: "u64";
                     },
                     {
@@ -1393,21 +1097,17 @@ export type Otc = {
                         type: "u64";
                     },
                     {
-                        name: "value";
-                        type: "u64";
-                    },
-                    {
                         name: "status";
                         type: {
-                            defined: "OrderStatus";
+                            defined: "TradeStatus";
                         };
                     },
                     {
-                        name: "sellerValue";
+                        name: "buyerValue";
                         type: "u64";
                     },
                     {
-                        name: "buyerValue";
+                        name: "sellerValue";
                         type: "u64";
                     },
                     {
@@ -1423,32 +1123,12 @@ export type Otc = {
                         type: "u64";
                     },
                     {
-                        name: "seller";
-                        type: "publicKey";
-                    },
-                    {
                         name: "buyer";
                         type: "publicKey";
                     },
                     {
-                        name: "bump";
-                        type: "u8";
-                    }
-                ];
-            };
-        },
-        {
-            name: "userAccount";
-            type: {
-                kind: "struct";
-                fields: [
-                    {
-                        name: "feeRefund";
-                        type: "u64";
-                    },
-                    {
-                        name: "feeSettle";
-                        type: "u64";
+                        name: "seller";
+                        type: "publicKey";
                     },
                     {
                         name: "bump";
@@ -1460,21 +1140,24 @@ export type Otc = {
     ];
     types: [
         {
-            name: "OrderType";
+            name: "MarketStatus";
             type: {
                 kind: "enum";
                 variants: [
                     {
-                        name: "Buy";
+                        name: "Active";
                     },
                     {
-                        name: "Sell";
+                        name: "Inactive";
+                    },
+                    {
+                        name: "Settled";
                     }
                 ];
             };
         },
         {
-            name: "OfferStatus";
+            name: "OrderStatus";
             type: {
                 kind: "enum";
                 variants: [
@@ -1491,18 +1174,15 @@ export type Otc = {
             };
         },
         {
-            name: "OtcTokenStatus";
+            name: "OrderType";
             type: {
                 kind: "enum";
                 variants: [
                     {
-                        name: "Active";
+                        name: "Buy";
                     },
                     {
-                        name: "Inactive";
-                    },
-                    {
-                        name: "Settle";
+                        name: "Sell";
                     }
                 ];
             };
@@ -1522,7 +1202,7 @@ export type Otc = {
             };
         },
         {
-            name: "OrderStatus";
+            name: "TradeStatus";
             type: {
                 kind: "enum";
                 variants: [
@@ -1544,271 +1224,7 @@ export type Otc = {
     ];
     events: [
         {
-            name: "InitializedEvent";
-            fields: [
-                {
-                    name: "authority";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "feeWallet";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "feeRefund";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "feeSettle";
-                    type: "u64";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "SetRoleEvent";
-            fields: [
-                {
-                    name: "configAccount";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "user";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "role";
-                    type: {
-                        defined: "Role";
-                    };
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "NewTokenEvent";
-            fields: [
-                {
-                    name: "tokenId";
-                    type: "u64";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "SettledTokenEvent";
-            fields: [
-                {
-                    name: "tokenId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "token";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "settleRate";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "settleTime";
-                    type: "i64";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "SetExTokenEvent";
-            fields: [
-                {
-                    name: "exToken";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "config";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "isAccepted";
-                    type: "bool";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "NewOrderEvent";
-            fields: [
-                {
-                    name: "orderId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "orderType";
-                    type: {
-                        defined: "OrderType";
-                    };
-                    index: false;
-                },
-                {
-                    name: "tokenId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "exToken";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "amount";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "value";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "collateral";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "slippage";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "orderBy";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "isBid";
-                    type: "bool";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "NewTradeEvent";
-            fields: [
-                {
-                    name: "orderId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "tradeId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "amount";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "value";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "buyer";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "seller";
-                    type: "publicKey";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "ClosedOfferEvent";
-            fields: [
-                {
-                    name: "orderId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "refund";
-                    type: "u64";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "CanceledOfferEvent";
-            fields: [
-                {
-                    name: "orderId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "refund";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "refundFee";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "from";
-                    type: "publicKey";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "SettleFilledEvent";
-            fields: [
-                {
-                    name: "tradeId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "from";
-                    type: "publicKey";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "SettleCanceledEvent";
-            fields: [
-                {
-                    name: "tradeId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "from";
-                    type: "publicKey";
-                    index: false;
-                }
-            ];
-        },
-        {
-            name: "SettledOfferEvent";
+            name: "CancelFilledOfferEvent";
             fields: [
                 {
                     name: "offer";
@@ -1826,12 +1242,12 @@ export type Otc = {
                     index: false;
                 },
                 {
-                    name: "totalLiquidValue";
+                    name: "feeCancel";
                     type: "u64";
                     index: false;
                 },
                 {
-                    name: "feeValue";
+                    name: "refundValue";
                     type: "u64";
                     index: false;
                 }
@@ -1868,38 +1284,13 @@ export type Otc = {
             ];
         },
         {
-            name: "CancelFilledOfferEvent";
-            fields: [
-                {
-                    name: "offer";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "orderId";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "config";
-                    type: "publicKey";
-                    index: false;
-                },
-                {
-                    name: "feeCancel";
-                    type: "u64";
-                    index: false;
-                },
-                {
-                    name: "refundValue";
-                    type: "u64";
-                    index: false;
-                }
-            ];
-        },
-        {
             name: "CashoutEvent";
             fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
                 {
                     name: "cashoutId";
                     type: "u64";
@@ -1921,208 +1312,654 @@ export type Otc = {
                     index: false;
                 }
             ];
+        },
+        {
+            name: "ClosedOrderEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "orderId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "refund";
+                    type: "u64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "InitializedEvent";
+            fields: [
+                {
+                    name: "authority";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "feeWallet";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "feeRefund";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "feeSettle";
+                    type: "u64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "NewMarketEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "exToken";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "pledgeRate";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "minTrade";
+                    type: "u64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "NewOrderEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "orderId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "orderType";
+                    type: {
+                        defined: "OrderType";
+                    };
+                    index: false;
+                },
+                {
+                    name: "amount";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "value";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "collateral";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "slippage";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "orderBy";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "isBid";
+                    type: "bool";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "NewTokenEvent";
+            fields: [
+                {
+                    name: "tokenId";
+                    type: "u64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "NewTradeEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "tradeId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "orderId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "matchedOrderId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "amount";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "buyerValue";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "sellerValue";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "buyer";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "seller";
+                    type: "publicKey";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SetExTokenEvent";
+            fields: [
+                {
+                    name: "exToken";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "config";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "isAccepted";
+                    type: "bool";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SetRoleEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "user";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "role";
+                    type: {
+                        defined: "Role";
+                    };
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SettleCanceledEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "tradeId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "doer";
+                    type: "publicKey";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SettleFilledEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "tradeId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "doer";
+                    type: "publicKey";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SettleMarketEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "settleTime";
+                    type: "i64";
+                    index: false;
+                },
+                {
+                    name: "settleDuration";
+                    type: "i64";
+                    index: false;
+                },
+                {
+                    name: "settleRate";
+                    type: "u64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SettledOfferEvent";
+            fields: [
+                {
+                    name: "offer";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "orderId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "config";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "totalLiquidValue";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "feeValue";
+                    type: "u64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "SettledTokenEvent";
+            fields: [
+                {
+                    name: "tokenId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "token";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "settleRate";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "settleTime";
+                    type: "i64";
+                    index: false;
+                }
+            ];
+        },
+        {
+            name: "UpdateMarketEvent";
+            fields: [
+                {
+                    name: "configAccount";
+                    type: "publicKey";
+                    index: false;
+                },
+                {
+                    name: "marketId";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "status";
+                    type: {
+                        defined: "MarketStatus";
+                    };
+                    index: false;
+                },
+                {
+                    name: "settleTime";
+                    type: "i64";
+                    index: false;
+                },
+                {
+                    name: "settleDuration";
+                    type: "i64";
+                    index: false;
+                },
+                {
+                    name: "settleRate";
+                    type: "u64";
+                    index: false;
+                },
+                {
+                    name: "pledgeRate";
+                    type: "u64";
+                    index: false;
+                }
+            ];
         }
     ];
     errors: [
         {
             code: 6000;
-            name: "Initialized";
-            msg: "Initialized";
-        },
-        {
-            code: 6001;
             name: "Unauthorized";
             msg: "Unauthorized";
         },
         {
-            code: 6002;
+            code: 6001;
             name: "InvalidConfigAccount";
             msg: "Invalid Config Account";
         },
         {
-            code: 6003;
+            code: 6002;
             name: "InsufficientFunds";
             msg: "Insufficient Funds";
         },
         {
-            code: 6004;
+            code: 6003;
             name: "FeeRefundTooHigh";
             msg: "Fee Refund <= 10%";
         },
         {
-            code: 6005;
+            code: 6004;
             name: "FeeSettleTooHigh";
             msg: "Settle Fee <= 10%";
         },
         {
-            code: 6006;
+            code: 6005;
             name: "MintIsNotOwnedByTokenProgram";
             msg: "Mint is not owned by token program";
         },
         {
-            code: 6007;
+            code: 6006;
             name: "EXTokenNotAccepted";
             msg: "Exchange Token Not Accepted";
         },
         {
-            code: 6008;
+            code: 6007;
             name: "PriceInvalid";
             msg: "Price Invalid";
         },
         {
-            code: 6009;
+            code: 6008;
             name: "OfferStatusInvalid";
             msg: "Offer Status Invalid";
         },
         {
-            code: 6010;
+            code: 6009;
             name: "InvalidAmount";
             msg: "Invalid Amount";
         },
         {
-            code: 6011;
+            code: 6010;
             name: "EXTokenMismatch";
             msg: "Invalid Offer Token";
         },
         {
-            code: 6012;
+            code: 6011;
             name: "ConfigMismatch";
             msg: "Config Mismatch";
         },
         {
-            code: 6013;
+            code: 6012;
             name: "FeeWalletMismatch";
             msg: "Fee Wallet Mismatch";
         },
         {
-            code: 6014;
+            code: 6013;
             name: "InvalidRole";
             msg: "Invalid Role";
         },
         {
-            code: 6015;
+            code: 6014;
             name: "InvalidToken";
             msg: "Invalid Token";
         },
         {
-            code: 6016;
+            code: 6015;
             name: "InvalidOfferToken";
             msg: "Invalid Offer Token";
         },
         {
-            code: 6017;
+            code: 6016;
             name: "InvalidOfferStatus";
             msg: "Invalid Offer Status";
         },
         {
-            code: 6018;
+            code: 6017;
             name: "InvalidTokenStatus";
             msg: "Invalid Token Status";
         },
         {
-            code: 6019;
+            code: 6018;
             name: "FullMatchRequired";
             msg: "FullMatch Required";
         },
         {
-            code: 6020;
+            code: 6019;
             name: "InsufficientAllocations";
             msg: "Insufficient Allocations";
         },
         {
-            code: 6021;
+            code: 6020;
             name: "OfferOwnerOnly";
             msg: "Offer Owner Only";
         },
         {
-            code: 6022;
+            code: 6021;
             name: "SellerOnly";
             msg: "Seller Only";
         },
         {
-            code: 6023;
-            name: "InvalidFeeWallet";
-            msg: "Invalid Fee Wallet";
-        },
-        {
-            code: 6024;
+            code: 6022;
             name: "InvalidBuyer";
             msg: "Invalid Buyer";
         },
         {
-            code: 6025;
+            code: 6023;
             name: "InvalidSeller";
             msg: "Invalid Seller";
         },
         {
-            code: 6026;
+            code: 6024;
             name: "InvalidBuyerOrSeller";
             msg: "Invalid Buyer or Seller";
         },
         {
-            code: 6027;
+            code: 6025;
             name: "TokenNotSet";
             msg: "Token Not Set";
         },
         {
+            code: 6026;
+            name: "Initialized";
+            msg: "Initialized";
+        },
+        {
+            code: 6027;
+            name: "InvalidFeeWallet";
+            msg: "Invalid Fee Wallet";
+        },
+        {
             code: 6028;
-            name: "InvalidOrderStatus";
-            msg: "Invalid Order Status";
-        },
-        {
-            code: 6029;
-            name: "Settled";
-            msg: "Settled";
-        },
-        {
-            code: 6030;
-            name: "OnlyForSettled";
-            msg: "Only For Settled";
-        },
-        {
-            code: 6031;
             name: "InvalidSettleTime";
             msg: "Invalid Settle Time";
         },
         {
-            code: 6032;
+            code: 6029;
             name: "OnlySettledCanCancel";
             msg: "Only Settled Can Cancel";
         },
         {
-            code: 6033;
+            code: 6030;
             name: "InvalidOffer";
             msg: "Invalid Offer";
         },
         {
-            code: 6034;
+            code: 6031;
             name: "InvalidMatchingPrice";
             msg: "Invalid Matching Price";
         },
         {
-            code: 6035;
+            code: 6032;
             name: "InvalidOrderId";
             msg: "Invalid Order ID";
         },
         {
-            code: 6036;
+            code: 6033;
             name: "InvalidShareId";
             msg: "Invalid Share ID";
         },
         {
-            code: 6037;
+            code: 6034;
             name: "InvalidPDASigner";
             msg: "Invalid PDA signer";
         },
         {
-            code: 6038;
+            code: 6035;
             name: "NumericalOverflow";
             msg: "Numerical Overflow";
         },
         {
-            code: 6039;
+            code: 6036;
             name: "SigVerificationFailed";
             msg: "Signature Verification Failed";
+        },
+        {
+            code: 6037;
+            name: "InvalidMarket";
+            msg: "Invalid Market";
+        },
+        {
+            code: 6038;
+            name: "InvalidMarketStatus";
+            msg: "Invalid Market Status";
+        },
+        {
+            code: 6039;
+            name: "InvalidExToken";
+            msg: "Invalid Exchange Token";
+        },
+        {
+            code: 6040;
+            name: "InvalidOtcToken";
+            msg: "Invalid OTC Token";
+        },
+        {
+            code: 6041;
+            name: "InvalidOrderStatus";
+            msg: "Invalid Order Status";
+        },
+        {
+            code: 6042;
+            name: "Settled";
+            msg: "Settled";
+        },
+        {
+            code: 6043;
+            name: "OnlyForSettled";
+            msg: "Only For Settled";
+        },
+        {
+            code: 6044;
+            name: "InvalidOrder";
+            msg: "Invalid Order";
         }
     ];
 };
@@ -2132,34 +1969,14 @@ export const IDL: Otc = {
     name: "otc",
     constants: [
         {
-            name: "CONFIG_PDA_SEED",
-            type: "bytes",
-            value: "[99, 111, 110, 102, 105, 103]",
+            name: "BUYER",
+            type: "u8",
+            value: "2",
         },
         {
-            name: "ROLE_PDA_SEED",
-            type: "bytes",
-            value: "[114, 111, 108, 101]",
-        },
-        {
-            name: "USER_PDA_SEED",
-            type: "bytes",
-            value: "[117, 115, 101, 114]",
-        },
-        {
-            name: "OTC_TOKEN_PDA_SEED",
-            type: "bytes",
-            value: "[111, 116, 99, 95, 116, 111, 107, 101, 110]",
-        },
-        {
-            name: "ORDER_PDA_SEED",
-            type: "bytes",
-            value: "[111, 114, 100, 101, 114]",
-        },
-        {
-            name: "TRADE_PDA_SEED",
-            type: "bytes",
-            value: "[116, 114, 97, 100, 101]",
+            name: "BUYER_SETTLED",
+            type: "u8",
+            value: "2",
         },
         {
             name: "CASHOUT_PDA_SEED",
@@ -2167,9 +1984,59 @@ export const IDL: Otc = {
             value: "[99, 97, 115, 104, 111, 117, 116]",
         },
         {
+            name: "CONFIG_PDA_SEED",
+            type: "bytes",
+            value: "[99, 111, 110, 102, 105, 103]",
+        },
+        {
             name: "EX_TOKEN_PDA_SEED",
             type: "bytes",
             value: "[101, 120, 95, 116, 111, 107, 101, 110]",
+        },
+        {
+            name: "MARKET_PDA_SEED",
+            type: "bytes",
+            value: "[109, 97, 114, 107, 101, 116]",
+        },
+        {
+            name: "ORDER_PDA_SEED",
+            type: "bytes",
+            value: "[111, 114, 100, 101, 114]",
+        },
+        {
+            name: "OTC_TOKEN_PDA_SEED",
+            type: "bytes",
+            value: "[111, 116, 99, 95, 116, 111, 107, 101, 110]",
+        },
+        {
+            name: "ROLE_PDA_SEED",
+            type: "bytes",
+            value: "[114, 111, 108, 101]",
+        },
+        {
+            name: "SELLER",
+            type: "u8",
+            value: "3",
+        },
+        {
+            name: "SELLER_SETTLED",
+            type: "u8",
+            value: "3",
+        },
+        {
+            name: "TRADE_PDA_SEED",
+            type: "bytes",
+            value: "[116, 114, 97, 100, 101]",
+        },
+        {
+            name: "USER_PDA_SEED",
+            type: "bytes",
+            value: "[117, 115, 101, 114]",
+        },
+        {
+            name: "VAULT_EX_TOKEN_PDA_SEED",
+            type: "bytes",
+            value: "[118, 97, 117, 108, 116, 95, 101, 120, 95, 116, 111, 107, 101, 110]",
         },
         {
             name: "VAULT_TOKEN_PDA_SEED",
@@ -2177,29 +2044,14 @@ export const IDL: Otc = {
             value: "[118, 97, 117, 108, 116, 95, 116, 111, 107, 101, 110]",
         },
         {
-            name: "VAULT_OTC_TOKEN_PDA_SEED",
-            type: "bytes",
-            value: "[118, 97, 117, 108, 116, 95, 111, 116, 99, 95, 116, 111, 107, 101, 110]",
-        },
-        {
             name: "WEI6",
             type: "u64",
-            value: "1_000_000",
-        },
-        {
-            name: "BUYER",
-            type: "u8",
-            value: "2",
-        },
-        {
-            name: "SELLER",
-            type: "u8",
-            value: "3",
+            value: "1000000",
         },
     ],
     instructions: [
         {
-            name: "initializeConfig",
+            name: "initialize",
             accounts: [
                 {
                     name: "configAccount",
@@ -2308,70 +2160,20 @@ export const IDL: Otc = {
             ],
         },
         {
-            name: "addOtcToken",
+            name: "newMarket",
             accounts: [
                 {
-                    name: "otcTokenAccount",
+                    name: "marketAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "configAccount",
+                    name: "vaultExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "roleAccount",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "operator",
-                    isMut: true,
-                    isSigner: true,
-                },
-                {
-                    name: "authority",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "systemProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-            ],
-            args: [
-                {
-                    name: "tokenId",
-                    type: "u64",
-                },
-                {
-                    name: "pledgeRate",
-                    type: "u64",
-                },
-            ],
-        },
-        {
-            name: "settleOtcToken",
-            accounts: [
-                {
-                    name: "vaultOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "otcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "feeOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "mint",
+                    name: "exToken",
                     isMut: false,
                     isSigner: false,
                 },
@@ -2389,11 +2191,6 @@ export const IDL: Otc = {
                     name: "operator",
                     isMut: true,
                     isSigner: true,
-                },
-                {
-                    name: "feeWallet",
-                    isMut: false,
-                    isSigner: false,
                 },
                 {
                     name: "authority",
@@ -2410,16 +2207,152 @@ export const IDL: Otc = {
                     isMut: false,
                     isSigner: false,
                 },
+            ],
+            args: [
                 {
-                    name: "associatedTokenProgram",
+                    name: "marketId",
+                    type: "u64",
+                },
+                {
+                    name: "pledgeRate",
+                    type: "u64",
+                },
+                {
+                    name: "minTrade",
+                    type: "u64",
+                },
+            ],
+        },
+        {
+            name: "updateMarket",
+            accounts: [
+                {
+                    name: "marketAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "configAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "roleAccount",
+                    isMut: false,
+                    isSigner: false,
+                },
+                {
+                    name: "operator",
+                    isMut: true,
+                    isSigner: true,
+                },
+                {
+                    name: "authority",
+                    isMut: false,
+                    isSigner: false,
+                },
+                {
+                    name: "systemProgram",
                     isMut: false,
                     isSigner: false,
                 },
             ],
             args: [
                 {
-                    name: "tokenId",
+                    name: "marketId",
                     type: "u64",
+                },
+                {
+                    name: "status",
+                    type: {
+                        option: {
+                            defined: "MarketStatus",
+                        },
+                    },
+                },
+                {
+                    name: "settleTime",
+                    type: {
+                        option: "i64",
+                    },
+                },
+                {
+                    name: "settleDuration",
+                    type: {
+                        option: "i64",
+                    },
+                },
+                {
+                    name: "settleRate",
+                    type: {
+                        option: "u64",
+                    },
+                },
+                {
+                    name: "pledgeRate",
+                    type: {
+                        option: "u64",
+                    },
+                },
+            ],
+        },
+        {
+            name: "settleMarket",
+            accounts: [
+                {
+                    name: "marketAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "vaultTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "token",
+                    isMut: false,
+                    isSigner: false,
+                },
+                {
+                    name: "configAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "roleAccount",
+                    isMut: false,
+                    isSigner: false,
+                },
+                {
+                    name: "operator",
+                    isMut: true,
+                    isSigner: true,
+                },
+                {
+                    name: "authority",
+                    isMut: false,
+                    isSigner: false,
+                },
+                {
+                    name: "systemProgram",
+                    isMut: false,
+                    isSigner: false,
+                },
+                {
+                    name: "tokenProgram",
+                    isMut: false,
+                    isSigner: false,
+                },
+            ],
+            args: [
+                {
+                    name: "marketId",
+                    type: "u64",
+                },
+                {
+                    name: "settleTime",
+                    type: "i64",
                 },
                 {
                     name: "settleDuration",
@@ -2432,81 +2365,10 @@ export const IDL: Otc = {
             ],
         },
         {
-            name: "setExToken",
-            accounts: [
-                {
-                    name: "vaultTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "feeExTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "mint",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "configAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "roleAccount",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "operator",
-                    isMut: true,
-                    isSigner: true,
-                },
-                {
-                    name: "feeWallet",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "authority",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "systemProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "tokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "associatedTokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-            ],
-            args: [
-                {
-                    name: "isAccepted",
-                    type: "bool",
-                },
-            ],
-        },
-        {
             name: "createOrder",
             accounts: [
                 {
-                    name: "otcTokenAccount",
+                    name: "marketAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2516,7 +2378,7 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "vaultTokenAccount",
+                    name: "vaultExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2526,12 +2388,7 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "exTokenAccount",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "userTokenAccount",
+                    name: "userExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2563,7 +2420,7 @@ export const IDL: Otc = {
             ],
             args: [
                 {
-                    name: "orderId",
+                    name: "marketId",
                     type: "u64",
                 },
                 {
@@ -2571,10 +2428,6 @@ export const IDL: Otc = {
                     type: {
                         defined: "OrderType",
                     },
-                },
-                {
-                    name: "tokenId",
-                    type: "u64",
                 },
                 {
                     name: "amount",
@@ -2595,143 +2448,15 @@ export const IDL: Otc = {
             ],
         },
         {
-            name: "fillOrder",
-            accounts: [
-                {
-                    name: "tradeAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "orderAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "vaultTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "configAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "userTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exToken",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "user",
-                    isMut: true,
-                    isSigner: true,
-                },
-                {
-                    name: "authority",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "systemProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "rent",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "tokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-            ],
-            args: [
-                {
-                    name: "orderId",
-                    type: "u64",
-                },
-                {
-                    name: "tradeId",
-                    type: "u64",
-                },
-                {
-                    name: "amount",
-                    type: "u64",
-                },
-            ],
-        },
-        {
-            name: "cashoutTrade",
-            accounts: [
-                {
-                    name: "cashoutOrderAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "tradeAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "configAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "user",
-                    isMut: true,
-                    isSigner: true,
-                },
-                {
-                    name: "authority",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "systemProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "rent",
-                    isMut: false,
-                    isSigner: false,
-                },
-            ],
-            args: [
-                {
-                    name: "cashoutId",
-                    type: "u64",
-                },
-                {
-                    name: "tradeId",
-                    type: "u64",
-                },
-                {
-                    name: "value",
-                    type: "u64",
-                },
-            ],
-        },
-        {
             name: "matchOrder",
             accounts: [
                 {
                     name: "tradeAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "marketAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2768,15 +2493,15 @@ export const IDL: Otc = {
             ],
             args: [
                 {
+                    name: "marketId",
+                    type: "u64",
+                },
+                {
                     name: "orderBuyId",
                     type: "u64",
                 },
                 {
                     name: "orderSellId",
-                    type: "u64",
-                },
-                {
-                    name: "tradeId",
                     type: "u64",
                 },
             ],
@@ -2785,27 +2510,32 @@ export const IDL: Otc = {
             name: "cancelOrder",
             accounts: [
                 {
+                    name: "marketAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
                     name: "orderAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "vaultTokenAccount",
+                    name: "vaultExTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "userTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "feeExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
                     name: "configAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "userTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2818,11 +2548,6 @@ export const IDL: Otc = {
                     name: "user",
                     isMut: true,
                     isSigner: true,
-                },
-                {
-                    name: "feeWallet",
-                    isMut: false,
-                    isSigner: false,
                 },
                 {
                     name: "authority",
@@ -2842,16 +2567,25 @@ export const IDL: Otc = {
             ],
             args: [
                 {
+                    name: "marketId",
+                    type: "u64",
+                },
+                {
                     name: "orderId",
                     type: "u64",
                 },
             ],
         },
         {
-            name: "buyerSettleFilled",
+            name: "fillOrder",
             accounts: [
                 {
                     name: "tradeAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "marketAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2861,47 +2595,7 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "otcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "vaultTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "vaultOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "configAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "buyerExTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "sellerExTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "buyerOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "feeOtcTokenAccount",
+                    name: "vaultExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -2911,8 +2605,13 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "otcToken",
-                    isMut: false,
+                    name: "configAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "userTokenAccount",
+                    isMut: true,
                     isSigner: false,
                 },
                 {
@@ -2921,7 +2620,7 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "buyer",
+                    name: "user",
                     isMut: true,
                     isSigner: true,
                 },
@@ -2941,167 +2640,41 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "exTokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "otcTokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "associatedTokenProgram",
+                    name: "tokenProgram",
                     isMut: false,
                     isSigner: false,
                 },
             ],
             args: [
                 {
+                    name: "marketId",
+                    type: "u64",
+                },
+                {
                     name: "orderId",
                     type: "u64",
                 },
                 {
-                    name: "tradeId",
+                    name: "amount",
                     type: "u64",
                 },
             ],
         },
         {
-            name: "sellerSettleFilled",
+            name: "settleFilled",
             accounts: [
+                {
+                    name: "marketAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
                 {
                     name: "tradeAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "orderAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "otcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "vaultTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "vaultOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "configAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "sellerExTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "buyerOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "sellerOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "feeOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "feeExTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "otcToken",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "exToken",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "seller",
-                    isMut: true,
-                    isSigner: true,
-                },
-                {
-                    name: "authority",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "systemProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "rent",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "otcTokenProgram",
-                    isMut: false,
-                    isSigner: false,
-                },
-            ],
-            args: [
-                {
-                    name: "orderId",
-                    type: "u64",
-                },
-                {
-                    name: "tradeId",
-                    type: "u64",
-                },
-            ],
-        },
-        {
-            name: "buyerSettleCanceled",
-            accounts: [
-                {
-                    name: "tradeAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "orderAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "otcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
+                    name: "vaultExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -3121,8 +2694,33 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
+                    name: "sellerExTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "buyerTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "sellerTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
                     name: "feeExTokenAccount",
                     isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "feeTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "token",
+                    isMut: false,
                     isSigner: false,
                 },
                 {
@@ -3131,12 +2729,7 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "otcToken",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "buyer",
+                    name: "user",
                     isMut: true,
                     isSigner: true,
                 },
@@ -3156,19 +2749,19 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "exTokenProgram",
+                    name: "tokenProgram",
                     isMut: false,
                     isSigner: false,
                 },
                 {
-                    name: "otcTokenProgram",
+                    name: "exTokenProgram",
                     isMut: false,
                     isSigner: false,
                 },
             ],
             args: [
                 {
-                    name: "orderId",
+                    name: "marketId",
                     type: "u64",
                 },
                 {
@@ -3178,25 +2771,20 @@ export const IDL: Otc = {
             ],
         },
         {
-            name: "sellerSettleCanceled",
+            name: "settleCanceled",
             accounts: [
+                {
+                    name: "marketAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
                 {
                     name: "tradeAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "orderAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "otcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
-                    name: "exTokenAccount",
+                    name: "vaultExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -3206,17 +2794,12 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "vaultOtcTokenAccount",
-                    isMut: true,
-                    isSigner: false,
-                },
-                {
                     name: "configAccount",
                     isMut: true,
                     isSigner: false,
                 },
                 {
-                    name: "sellerOtcTokenAccount",
+                    name: "buyerExTokenAccount",
                     isMut: true,
                     isSigner: false,
                 },
@@ -3226,8 +2809,23 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
+                    name: "buyerTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "sellerTokenAccount",
+                    isMut: true,
+                    isSigner: false,
+                },
+                {
                     name: "feeExTokenAccount",
                     isMut: true,
+                    isSigner: false,
+                },
+                {
+                    name: "token",
+                    isMut: false,
                     isSigner: false,
                 },
                 {
@@ -3236,12 +2834,7 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "otcToken",
-                    isMut: false,
-                    isSigner: false,
-                },
-                {
-                    name: "seller",
+                    name: "user",
                     isMut: true,
                     isSigner: true,
                 },
@@ -3261,19 +2854,19 @@ export const IDL: Otc = {
                     isSigner: false,
                 },
                 {
-                    name: "exTokenProgram",
+                    name: "tokenProgram",
                     isMut: false,
                     isSigner: false,
                 },
                 {
-                    name: "otcTokenProgram",
+                    name: "exTokenProgram",
                     isMut: false,
                     isSigner: false,
                 },
             ],
             args: [
                 {
-                    name: "orderId",
+                    name: "marketId",
                     type: "u64",
                 },
                 {
@@ -3284,34 +2877,6 @@ export const IDL: Otc = {
         },
     ],
     accounts: [
-        {
-            name: "cashoutAccount",
-            type: {
-                kind: "struct",
-                fields: [
-                    {
-                        name: "tradeId",
-                        type: "u64",
-                    },
-                    {
-                        name: "amount",
-                        type: "u64",
-                    },
-                    {
-                        name: "value",
-                        type: "u64",
-                    },
-                    {
-                        name: "cashoutBy",
-                        type: "publicKey",
-                    },
-                    {
-                        name: "bump",
-                        type: "u8",
-                    },
-                ],
-            },
-        },
         {
             name: "configAccount",
             type: {
@@ -3338,6 +2903,52 @@ export const IDL: Otc = {
                         type: "publicKey",
                     },
                     {
+                        name: "payRentFee",
+                        type: "bool",
+                    },
+                ],
+            },
+        },
+        {
+            name: "marketAccount",
+            type: {
+                kind: "struct",
+                fields: [
+                    {
+                        name: "token",
+                        type: "publicKey",
+                    },
+                    {
+                        name: "exToken",
+                        type: "publicKey",
+                    },
+                    {
+                        name: "pledgeRate",
+                        type: "u64",
+                    },
+                    {
+                        name: "settleTime",
+                        type: "i64",
+                    },
+                    {
+                        name: "settleDuration",
+                        type: "i64",
+                    },
+                    {
+                        name: "settleRate",
+                        type: "u64",
+                    },
+                    {
+                        name: "minTrade",
+                        type: "u64",
+                    },
+                    {
+                        name: "status",
+                        type: {
+                            defined: "MarketStatus",
+                        },
+                    },
+                    {
                         name: "lastOrderId",
                         type: "u64",
                     },
@@ -3349,33 +2960,13 @@ export const IDL: Otc = {
                         name: "lastCashoutId",
                         type: "u64",
                     },
-                ],
-            },
-        },
-        {
-            name: "exTokenAccount",
-            type: {
-                kind: "struct",
-                fields: [
-                    {
-                        name: "token",
-                        type: "publicKey",
-                    },
-                    {
-                        name: "vaultToken",
-                        type: "publicKey",
-                    },
-                    {
-                        name: "isAccepted",
-                        type: "bool",
-                    },
                     {
                         name: "bump",
                         type: "u8",
                     },
                     {
-                        name: "vaultBump",
-                        type: "u8",
+                        name: "configAccount",
+                        type: "publicKey",
                     },
                 ],
             },
@@ -3386,12 +2977,8 @@ export const IDL: Otc = {
                 kind: "struct",
                 fields: [
                     {
-                        name: "tokenId",
+                        name: "marketId",
                         type: "u64",
-                    },
-                    {
-                        name: "exToken",
-                        type: "publicKey",
                     },
                     {
                         name: "orderType",
@@ -3416,17 +3003,13 @@ export const IDL: Otc = {
                         type: "u64",
                     },
                     {
-                        name: "collateral",
-                        type: "u64",
-                    },
-                    {
                         name: "filledAmount",
                         type: "u64",
                     },
                     {
                         name: "status",
                         type: {
-                            defined: "OfferStatus",
+                            defined: "OrderStatus",
                         },
                     },
                     {
@@ -3439,48 +3022,6 @@ export const IDL: Otc = {
                     },
                     {
                         name: "bump",
-                        type: "u8",
-                    },
-                ],
-            },
-        },
-        {
-            name: "otcTokenAccount",
-            type: {
-                kind: "struct",
-                fields: [
-                    {
-                        name: "token",
-                        type: "publicKey",
-                    },
-                    {
-                        name: "settleDuration",
-                        type: "i64",
-                    },
-                    {
-                        name: "settleTime",
-                        type: "i64",
-                    },
-                    {
-                        name: "settleRate",
-                        type: "u64",
-                    },
-                    {
-                        name: "pledgeRate",
-                        type: "u64",
-                    },
-                    {
-                        name: "status",
-                        type: {
-                            defined: "OtcTokenStatus",
-                        },
-                    },
-                    {
-                        name: "bump",
-                        type: "u8",
-                    },
-                    {
-                        name: "vaultBump",
                         type: "u8",
                     },
                 ],
@@ -3514,7 +3055,7 @@ export const IDL: Otc = {
                 kind: "struct",
                 fields: [
                     {
-                        name: "orderId",
+                        name: "marketId",
                         type: "u64",
                     },
                     {
@@ -3522,21 +3063,17 @@ export const IDL: Otc = {
                         type: "u64",
                     },
                     {
-                        name: "value",
-                        type: "u64",
-                    },
-                    {
                         name: "status",
                         type: {
-                            defined: "OrderStatus",
+                            defined: "TradeStatus",
                         },
                     },
                     {
-                        name: "sellerValue",
+                        name: "buyerValue",
                         type: "u64",
                     },
                     {
-                        name: "buyerValue",
+                        name: "sellerValue",
                         type: "u64",
                     },
                     {
@@ -3552,32 +3089,12 @@ export const IDL: Otc = {
                         type: "u64",
                     },
                     {
-                        name: "seller",
-                        type: "publicKey",
-                    },
-                    {
                         name: "buyer",
                         type: "publicKey",
                     },
                     {
-                        name: "bump",
-                        type: "u8",
-                    },
-                ],
-            },
-        },
-        {
-            name: "userAccount",
-            type: {
-                kind: "struct",
-                fields: [
-                    {
-                        name: "feeRefund",
-                        type: "u64",
-                    },
-                    {
-                        name: "feeSettle",
-                        type: "u64",
+                        name: "seller",
+                        type: "publicKey",
                     },
                     {
                         name: "bump",
@@ -3589,21 +3106,24 @@ export const IDL: Otc = {
     ],
     types: [
         {
-            name: "OrderType",
+            name: "MarketStatus",
             type: {
                 kind: "enum",
                 variants: [
                     {
-                        name: "Buy",
+                        name: "Active",
                     },
                     {
-                        name: "Sell",
+                        name: "Inactive",
+                    },
+                    {
+                        name: "Settled",
                     },
                 ],
             },
         },
         {
-            name: "OfferStatus",
+            name: "OrderStatus",
             type: {
                 kind: "enum",
                 variants: [
@@ -3620,18 +3140,15 @@ export const IDL: Otc = {
             },
         },
         {
-            name: "OtcTokenStatus",
+            name: "OrderType",
             type: {
                 kind: "enum",
                 variants: [
                     {
-                        name: "Active",
+                        name: "Buy",
                     },
                     {
-                        name: "Inactive",
-                    },
-                    {
-                        name: "Settle",
+                        name: "Sell",
                     },
                 ],
             },
@@ -3651,7 +3168,7 @@ export const IDL: Otc = {
             },
         },
         {
-            name: "OrderStatus",
+            name: "TradeStatus",
             type: {
                 kind: "enum",
                 variants: [
@@ -3673,271 +3190,7 @@ export const IDL: Otc = {
     ],
     events: [
         {
-            name: "InitializedEvent",
-            fields: [
-                {
-                    name: "authority",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "feeWallet",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "feeRefund",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "feeSettle",
-                    type: "u64",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "SetRoleEvent",
-            fields: [
-                {
-                    name: "configAccount",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "user",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "role",
-                    type: {
-                        defined: "Role",
-                    },
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "NewTokenEvent",
-            fields: [
-                {
-                    name: "tokenId",
-                    type: "u64",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "SettledTokenEvent",
-            fields: [
-                {
-                    name: "tokenId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "token",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "settleRate",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "settleTime",
-                    type: "i64",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "SetExTokenEvent",
-            fields: [
-                {
-                    name: "exToken",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "config",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "isAccepted",
-                    type: "bool",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "NewOrderEvent",
-            fields: [
-                {
-                    name: "orderId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "orderType",
-                    type: {
-                        defined: "OrderType",
-                    },
-                    index: false,
-                },
-                {
-                    name: "tokenId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "exToken",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "amount",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "value",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "collateral",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "slippage",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "orderBy",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "isBid",
-                    type: "bool",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "NewTradeEvent",
-            fields: [
-                {
-                    name: "orderId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "tradeId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "amount",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "value",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "buyer",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "seller",
-                    type: "publicKey",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "ClosedOfferEvent",
-            fields: [
-                {
-                    name: "orderId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "refund",
-                    type: "u64",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "CanceledOfferEvent",
-            fields: [
-                {
-                    name: "orderId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "refund",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "refundFee",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "from",
-                    type: "publicKey",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "SettleFilledEvent",
-            fields: [
-                {
-                    name: "tradeId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "from",
-                    type: "publicKey",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "SettleCanceledEvent",
-            fields: [
-                {
-                    name: "tradeId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "from",
-                    type: "publicKey",
-                    index: false,
-                },
-            ],
-        },
-        {
-            name: "SettledOfferEvent",
+            name: "CancelFilledOfferEvent",
             fields: [
                 {
                     name: "offer",
@@ -3955,12 +3208,12 @@ export const IDL: Otc = {
                     index: false,
                 },
                 {
-                    name: "totalLiquidValue",
+                    name: "feeCancel",
                     type: "u64",
                     index: false,
                 },
                 {
-                    name: "feeValue",
+                    name: "refundValue",
                     type: "u64",
                     index: false,
                 },
@@ -3997,38 +3250,13 @@ export const IDL: Otc = {
             ],
         },
         {
-            name: "CancelFilledOfferEvent",
-            fields: [
-                {
-                    name: "offer",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "orderId",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "config",
-                    type: "publicKey",
-                    index: false,
-                },
-                {
-                    name: "feeCancel",
-                    type: "u64",
-                    index: false,
-                },
-                {
-                    name: "refundValue",
-                    type: "u64",
-                    index: false,
-                },
-            ],
-        },
-        {
             name: "CashoutEvent",
             fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
                 {
                     name: "cashoutId",
                     type: "u64",
@@ -4051,207 +3279,653 @@ export const IDL: Otc = {
                 },
             ],
         },
+        {
+            name: "ClosedOrderEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "orderId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "refund",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "InitializedEvent",
+            fields: [
+                {
+                    name: "authority",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "feeWallet",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "feeRefund",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "feeSettle",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "NewMarketEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "exToken",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "pledgeRate",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "minTrade",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "NewOrderEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "orderId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "orderType",
+                    type: {
+                        defined: "OrderType",
+                    },
+                    index: false,
+                },
+                {
+                    name: "amount",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "value",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "collateral",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "slippage",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "orderBy",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "isBid",
+                    type: "bool",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "NewTokenEvent",
+            fields: [
+                {
+                    name: "tokenId",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "NewTradeEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "tradeId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "orderId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "matchedOrderId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "amount",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "buyerValue",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "sellerValue",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "buyer",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "seller",
+                    type: "publicKey",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SetExTokenEvent",
+            fields: [
+                {
+                    name: "exToken",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "config",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "isAccepted",
+                    type: "bool",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SetRoleEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "user",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "role",
+                    type: {
+                        defined: "Role",
+                    },
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SettleCanceledEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "tradeId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "doer",
+                    type: "publicKey",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SettleFilledEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "tradeId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "doer",
+                    type: "publicKey",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SettleMarketEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "settleTime",
+                    type: "i64",
+                    index: false,
+                },
+                {
+                    name: "settleDuration",
+                    type: "i64",
+                    index: false,
+                },
+                {
+                    name: "settleRate",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SettledOfferEvent",
+            fields: [
+                {
+                    name: "offer",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "orderId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "config",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "totalLiquidValue",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "feeValue",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "SettledTokenEvent",
+            fields: [
+                {
+                    name: "tokenId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "token",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "settleRate",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "settleTime",
+                    type: "i64",
+                    index: false,
+                },
+            ],
+        },
+        {
+            name: "UpdateMarketEvent",
+            fields: [
+                {
+                    name: "configAccount",
+                    type: "publicKey",
+                    index: false,
+                },
+                {
+                    name: "marketId",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "status",
+                    type: {
+                        defined: "MarketStatus",
+                    },
+                    index: false,
+                },
+                {
+                    name: "settleTime",
+                    type: "i64",
+                    index: false,
+                },
+                {
+                    name: "settleDuration",
+                    type: "i64",
+                    index: false,
+                },
+                {
+                    name: "settleRate",
+                    type: "u64",
+                    index: false,
+                },
+                {
+                    name: "pledgeRate",
+                    type: "u64",
+                    index: false,
+                },
+            ],
+        },
     ],
     errors: [
         {
             code: 6000,
-            name: "Initialized",
-            msg: "Initialized",
-        },
-        {
-            code: 6001,
             name: "Unauthorized",
             msg: "Unauthorized",
         },
         {
-            code: 6002,
+            code: 6001,
             name: "InvalidConfigAccount",
             msg: "Invalid Config Account",
         },
         {
-            code: 6003,
+            code: 6002,
             name: "InsufficientFunds",
             msg: "Insufficient Funds",
         },
         {
-            code: 6004,
+            code: 6003,
             name: "FeeRefundTooHigh",
             msg: "Fee Refund <= 10%",
         },
         {
-            code: 6005,
+            code: 6004,
             name: "FeeSettleTooHigh",
             msg: "Settle Fee <= 10%",
         },
         {
-            code: 6006,
+            code: 6005,
             name: "MintIsNotOwnedByTokenProgram",
             msg: "Mint is not owned by token program",
         },
         {
-            code: 6007,
+            code: 6006,
             name: "EXTokenNotAccepted",
             msg: "Exchange Token Not Accepted",
         },
         {
-            code: 6008,
+            code: 6007,
             name: "PriceInvalid",
             msg: "Price Invalid",
         },
         {
-            code: 6009,
+            code: 6008,
             name: "OfferStatusInvalid",
             msg: "Offer Status Invalid",
         },
         {
-            code: 6010,
+            code: 6009,
             name: "InvalidAmount",
             msg: "Invalid Amount",
         },
         {
-            code: 6011,
+            code: 6010,
             name: "EXTokenMismatch",
             msg: "Invalid Offer Token",
         },
         {
-            code: 6012,
+            code: 6011,
             name: "ConfigMismatch",
             msg: "Config Mismatch",
         },
         {
-            code: 6013,
+            code: 6012,
             name: "FeeWalletMismatch",
             msg: "Fee Wallet Mismatch",
         },
         {
-            code: 6014,
+            code: 6013,
             name: "InvalidRole",
             msg: "Invalid Role",
         },
         {
-            code: 6015,
+            code: 6014,
             name: "InvalidToken",
             msg: "Invalid Token",
         },
         {
-            code: 6016,
+            code: 6015,
             name: "InvalidOfferToken",
             msg: "Invalid Offer Token",
         },
         {
-            code: 6017,
+            code: 6016,
             name: "InvalidOfferStatus",
             msg: "Invalid Offer Status",
         },
         {
-            code: 6018,
+            code: 6017,
             name: "InvalidTokenStatus",
             msg: "Invalid Token Status",
         },
         {
-            code: 6019,
+            code: 6018,
             name: "FullMatchRequired",
             msg: "FullMatch Required",
         },
         {
-            code: 6020,
+            code: 6019,
             name: "InsufficientAllocations",
             msg: "Insufficient Allocations",
         },
         {
-            code: 6021,
+            code: 6020,
             name: "OfferOwnerOnly",
             msg: "Offer Owner Only",
         },
         {
-            code: 6022,
+            code: 6021,
             name: "SellerOnly",
             msg: "Seller Only",
         },
         {
-            code: 6023,
-            name: "InvalidFeeWallet",
-            msg: "Invalid Fee Wallet",
-        },
-        {
-            code: 6024,
+            code: 6022,
             name: "InvalidBuyer",
             msg: "Invalid Buyer",
         },
         {
-            code: 6025,
+            code: 6023,
             name: "InvalidSeller",
             msg: "Invalid Seller",
         },
         {
-            code: 6026,
+            code: 6024,
             name: "InvalidBuyerOrSeller",
             msg: "Invalid Buyer or Seller",
         },
         {
-            code: 6027,
+            code: 6025,
             name: "TokenNotSet",
             msg: "Token Not Set",
         },
         {
+            code: 6026,
+            name: "Initialized",
+            msg: "Initialized",
+        },
+        {
+            code: 6027,
+            name: "InvalidFeeWallet",
+            msg: "Invalid Fee Wallet",
+        },
+        {
             code: 6028,
-            name: "InvalidOrderStatus",
-            msg: "Invalid Order Status",
-        },
-        {
-            code: 6029,
-            name: "Settled",
-            msg: "Settled",
-        },
-        {
-            code: 6030,
-            name: "OnlyForSettled",
-            msg: "Only For Settled",
-        },
-        {
-            code: 6031,
             name: "InvalidSettleTime",
             msg: "Invalid Settle Time",
         },
         {
-            code: 6032,
+            code: 6029,
             name: "OnlySettledCanCancel",
             msg: "Only Settled Can Cancel",
         },
         {
-            code: 6033,
+            code: 6030,
             name: "InvalidOffer",
             msg: "Invalid Offer",
         },
         {
-            code: 6034,
+            code: 6031,
             name: "InvalidMatchingPrice",
             msg: "Invalid Matching Price",
         },
         {
-            code: 6035,
+            code: 6032,
             name: "InvalidOrderId",
             msg: "Invalid Order ID",
         },
         {
-            code: 6036,
+            code: 6033,
             name: "InvalidShareId",
             msg: "Invalid Share ID",
         },
         {
-            code: 6037,
+            code: 6034,
             name: "InvalidPDASigner",
             msg: "Invalid PDA signer",
         },
         {
-            code: 6038,
+            code: 6035,
             name: "NumericalOverflow",
             msg: "Numerical Overflow",
         },
         {
-            code: 6039,
+            code: 6036,
             name: "SigVerificationFailed",
             msg: "Signature Verification Failed",
+        },
+        {
+            code: 6037,
+            name: "InvalidMarket",
+            msg: "Invalid Market",
+        },
+        {
+            code: 6038,
+            name: "InvalidMarketStatus",
+            msg: "Invalid Market Status",
+        },
+        {
+            code: 6039,
+            name: "InvalidExToken",
+            msg: "Invalid Exchange Token",
+        },
+        {
+            code: 6040,
+            name: "InvalidOtcToken",
+            msg: "Invalid OTC Token",
+        },
+        {
+            code: 6041,
+            name: "InvalidOrderStatus",
+            msg: "Invalid Order Status",
+        },
+        {
+            code: 6042,
+            name: "Settled",
+            msg: "Settled",
+        },
+        {
+            code: 6043,
+            name: "OnlyForSettled",
+            msg: "Only For Settled",
+        },
+        {
+            code: 6044,
+            name: "InvalidOrder",
+            msg: "Invalid Order",
         },
     ],
 };

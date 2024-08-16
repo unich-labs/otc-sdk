@@ -87,6 +87,8 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
             settleRate: token[5],
             status: token[6],
             minTrade: token[7],
+            tokenDecimals: token[8],
+            exTokenDecimals: token[9],
         };
     }
 
@@ -165,7 +167,11 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         const market = await this.getMarket(order.marketId);
         if (order.amount === BigInt(0)) throw new Error("Invalid Order");
         if (market.exToken !== ZeroAddress) return BigInt(0);
-        return this.getValueFromSqrtPriceX96(amount, order.amount); // TODO
+        const value = await this.getValueFromSqrtPriceX96(
+            amount,
+            order.sqrtPriceX96
+        );
+        return (value * BigInt(market.pledgeRate)) / BigInt(WEI6);
     }
 
     async getOrderCollateral(
@@ -173,14 +179,12 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         amount: bigint,
         price: number
     ): Promise<bigint> {
-        const value = this.getValueFromPrice(amount, price);
-        const market = await this.getMarket(marketId);
-        const collateral = BigInt(WEI6); // TODO
-        // (value * BigInt(market.pledgeRate)) / BigInt(WEI6);
-
-        return collateral;
+        const [value, market] = await Promise.all([
+            this.getValueFromPrice(amount, price),
+            this.getMarket(marketId),
+        ]);
+        return (value * BigInt(market.pledgeRate)) / BigInt(WEI6);
     }
-
     // MARK: Operator functions
 
     /**
@@ -189,31 +193,33 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param pledgeRate pledge rate of OTC token
      * @returns Promise<ContractTransaction>
      */
-    newMarket(
-        marketId: string,
-        exToken: EvmAddress,
-        pledgeRate: bigint,
-        minTrade: bigint
-    ): Promise<ContractTransaction> {
+    newMarket(data: {
+        marketId: string;
+        exToken: EvmAddress;
+        pledgeRate: bigint;
+        minTrade: bigint;
+    }): Promise<ContractTransaction> {
         return this.contract.newMarket.populateTransaction(
-            marketId,
-            exToken,
-            pledgeRate,
-            minTrade
+            data.marketId,
+            data.exToken,
+            data.pledgeRate,
+            data.minTrade
         );
     }
 
-    marketToSettlePhase(
-        marketId: string,
-        tokenAddress: EvmAddress,
-        settleRate: bigint,
-        settleDuration: bigint
-    ): Promise<ContractTransaction> {
-        return this.contract.marketToSettlePhase.populateTransaction(
-            marketId,
-            tokenAddress,
-            settleRate,
-            settleDuration
+    settleMarket(data: {
+        marketId: string;
+        tokenAddress: EvmAddress;
+        settleTime: bigint;
+        settleDuration: bigint;
+        settleRate: bigint;
+    }): Promise<ContractTransaction> {
+        return this.contract.settleMarket.populateTransaction(
+            data.marketId,
+            data.tokenAddress,
+            data.settleTime,
+            data.settleDuration,
+            data.settleRate
         );
     }
 
@@ -291,31 +297,30 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param isBid is bid order
      * @returns Promise<ContractTransaction>
      */
-    async createOrder(
-        offerType: EOrderType,
-        marketId: string,
-        amount: bigint,
-        price: number,
-        isBid: boolean
-    ): Promise<ContractTransaction> {
+    async createOrder(data: {
+        offerType: EOrderType;
+        marketId: string;
+        amount: bigint;
+        price: number;
+        isBid: boolean;
+    }): Promise<ContractTransaction> {
         let methodName = "createOrder";
-        const sqrtPriceX96 = BigInt(Math.sqrt(price) * 2 ** 96);
-        let payload = [offerType, marketId, amount, sqrtPriceX96, isBid];
-        console.log(
-            "🚀 ~ file: otc.evm.ts:304 ~ OtcEvm ~ offerType, marketId, amount, sqrtPriceX96, isBid:",
-            offerType,
-            marketId,
-            amount,
+        const sqrtPriceX96 = BigInt(Math.sqrt(data.price) * 2 ** 96);
+        let payload = [
+            data.offerType,
+            data.marketId,
+            data.amount,
             sqrtPriceX96,
-            isBid
-        );
+            data.isBid,
+        ];
+
         let overrides = {};
-        const market = await this.getMarket(marketId);
+        const market = await this.getMarket(data.marketId);
         if (market.exToken == ZeroAddress) {
             const collateral = await this.getOrderCollateral(
-                marketId,
-                amount,
-                price
+                data.marketId,
+                data.amount,
+                data.price
             );
             methodName = "createOrderETH";
             overrides = {
@@ -334,13 +339,13 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param orderId id of matched order
      * @returns Promise<ContractTransaction>
      */
-    async matchBidOrder(
-        bidOrderId: bigint,
-        orderId: bigint
-    ): Promise<ContractTransaction> {
+    async matchBidOrder(data: {
+        bidOrderId: bigint;
+        orderId: bigint;
+    }): Promise<ContractTransaction> {
         return this.contract.matchBidOrder.populateTransaction(
-            bidOrderId,
-            orderId
+            data.bidOrderId,
+            data.orderId
         );
     }
 
@@ -351,15 +356,15 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param price updated price
      * @returns Promise<ContractTransaction>
      */
-    async changeOrder(
-        orderId: bigint,
-        amount: bigint,
-        price: number
-    ): Promise<ContractTransaction> {
+    async changeOrder(data: {
+        orderId: bigint;
+        amount: bigint;
+        price: number;
+    }): Promise<ContractTransaction> {
         return this.contract.changeOrder.populateTransaction(
-            orderId,
-            amount,
-            this.getSqrtX96(price)
+            data.orderId,
+            data.amount,
+            this.getSqrtX96(data.price)
         );
     }
 
@@ -369,14 +374,17 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param amount fill amount
      * @returns Promise<ContractTransaction>
      */
-    async fillOffer(
-        orderId: bigint,
-        amount: bigint
-    ): Promise<ContractTransaction> {
+    async fillOffer(data: {
+        orderId: bigint;
+        amount: bigint;
+    }): Promise<ContractTransaction> {
         let methodName = "fillOffer";
-        let payload = [orderId, amount];
+        let payload = [data.orderId, data.amount];
         let overrides = {};
-        const collateral = await this.getFillOrderCollateral(orderId, amount);
+        const collateral = await this.getFillOrderCollateral(
+            data.orderId,
+            data.amount
+        );
         if (collateral == BigInt(0)) {
             methodName = "fillOfferETH";
             overrides = {
@@ -404,7 +412,6 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @returns
      */
     async settleFilled(tradeId: bigint): Promise<ContractTransaction> {
-        // TODO impl
         return this.contract.settleFilled.populateTransaction(tradeId);
     }
 
@@ -424,15 +431,15 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param price cash out price
      * @returns Promise<ContractTransaction>
      */
-    async cashOutTrades(
-        tradeIds: bigint[],
-        amount: bigint,
-        price: number
-    ): Promise<ContractTransaction> {
+    async cashOutTrades(data: {
+        tradeId: bigint;
+        amount: bigint;
+        price: number;
+    }): Promise<ContractTransaction> {
         return this.contract.cashOutTrades.populateTransaction(
-            tradeIds,
-            amount,
-            this.getSqrtX96(price)
+            data.tradeId,
+            data.amount,
+            this.getSqrtX96(data.price)
         );
     }
 
@@ -456,8 +463,8 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
                         event = "NewMarket";
                         break;
 
-                    case OTC_TOPIC0.MarketToSettlePhase:
-                        event = "MarketToSettlePhase";
+                    case OTC_TOPIC0.SettledMarket:
+                        event = "SettledMarket";
                         break;
 
                     case OTC_TOPIC0.UpdateMarketStatus:
@@ -470,10 +477,6 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
 
                     case OTC_TOPIC0.UpdateMarketSettleDuration:
                         event = "UpdateMarketSettleDuration";
-                        break;
-
-                    case OTC_TOPIC0.Settle2Steps:
-                        event = "Settle2Steps";
                         break;
 
                     case OTC_TOPIC0.NewOrder:

@@ -21,6 +21,7 @@
 
 ## Interfaces
 
+- [ICashOut](interfaces/ICashOut.md)
 - [IMarket](interfaces/IMarket.md)
 - [IOrder](interfaces/IOrder.md)
 - [IOtc](interfaces/IOtc.md)

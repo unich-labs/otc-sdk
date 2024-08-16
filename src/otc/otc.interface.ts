@@ -68,6 +68,16 @@ export interface IMarket<BN, Address> {
      * min exchange token amount to trade on market
      */
     minTrade: BN;
+
+    /**
+     * OTC token decimals
+     */
+    tokenDecimals: number;
+
+    /**
+     * exchange token decimals
+     */
+    exTokenDecimals: number;
 }
 
 /**
@@ -172,6 +182,36 @@ export interface ITrade<BN, Address> {
      * trade order status
      */
     status: ETradeStatus;
+}
+
+/**
+ * Cash out interface
+ */
+export interface ICashOut<BN, Address> {
+    /**
+     * id of trade that is cash out
+     */
+    tradeId: BN;
+
+    /**
+     * address whose cash out trade
+     */
+    cashOutBy: BN;
+
+    /**
+     * cash out amount
+     */
+    amount: BN;
+
+    /**
+     * cash out sqrtX96 price
+     */
+    sqrtPriceX96: BN;
+
+    /**
+     * filled amount of cash out
+     */
+    filledAmount: number;
 }
 
 export interface IOtc<Address, BN, Transaction> {

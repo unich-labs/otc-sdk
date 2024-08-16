@@ -28,6 +28,18 @@ otc/otc.interface.ts:40
 
 ***
 
+### exTokenDecimals
+
+> **exTokenDecimals**: `number`
+
+exchange token decimals
+
+#### Defined in
+
+otc/otc.interface.ts:80
+
+***
+
 ### minTrade
 
 > **minTrade**: `BN`
@@ -109,3 +121,15 @@ OTC token address
 #### Defined in
 
 otc/otc.interface.ts:35
+
+***
+
+### tokenDecimals
+
+> **tokenDecimals**: `number`
+
+OTC token decimals
+
+#### Defined in
+
+otc/otc.interface.ts:75

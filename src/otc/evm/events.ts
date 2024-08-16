@@ -1,28 +1,26 @@
 export const OTC_TOPIC0 = {
     NewMarket:
-        "0x338490d0c1cf92878463a5ca2c353d6aaacaf8496203e0e966eb0783193ec247",
-    MarketToSettlePhase:
-        "0x2d3adea3f91b66be626060b251d24ea7fdadcfea9bb41151bd39d1a8eb6abc0e",
+        "0xe92b748def95176eb7bec007b1338d8f390a349a725ab0fc1a31fd59c54f2764",
+    SettledMarket:
+        "0x1f4d9975ddd9b25376c1c3cf1c72c6e608e973180476ef0e82b7916b1f505b35",
     UpdateMarketStatus:
         "0x2d27075cd2fbf7a0ed5357db698d631702553e269d6ab3ef93c45eecf7f12707",
     MarketForceCancelSettlePhase:
         "0x3131853836d34767b2b6b5b883d9358cb87a5cfe0d409b177bfe9794b01db42a",
     UpdateMarketSettleDuration:
         "0xfed50438fab426e7279f9b4abda502aba7e52371572e819e763e8d76d9d638b1",
-    Settle2Steps:
-        "0xbac7c71779ccc41f8c859e9d622536f76f0375a85b23e1b3d4134f613a9fff54",
     NewOrder:
-        "0x1f8e24732c962c7cd0dace9a5bcc805d4e54a18799e663135496038861b5c7cf",
+        "0xb92ff2d3dde86d241e0288238e1edd1b623da37771aa6e08fd156c3d1a853b2a",
     OrderUpdated:
         "0x295cad0cb03b45662b0a7dbef1725bc0b4b87729d89720d845231770efdaf806",
     OrderClosed:
         "0x68db3e3a9682b20faa87adff9b67d7dc808800a5625dc8e53d8ba912f9698a18",
     NewTrade:
-        "0xcd20c1bd310c41c19e6fb6fc015ec1596c9f767bd0045156e37450057c1fa41f",
+        "0x8af62cd0b8110eb31bf83f05ff5ad34a3852412d6ee85031045c65aa94659b7b",
     TradeSettleFilled:
-        "0x76a249e38cc52f1df82a5c3d62b143a5451b9360f8afd56ab8be35fc5bb71fee",
+        "0x3097921e7c8c5014b80ac9de4e97135330ed907f1eb5b4fdbda013d5de0b6807",
     TradeSettleCancelled:
-        "0x14216c73b150bc8b0d51341f414a5b96f63daf19d1c468186e223123753a5de6",
+        "0x1cda7c31596c3a725d18093b978ca61dfa315fd10f92377ce9b674e1d3fe5afa",
     TradeCashOuted:
-        "0x20bcd46a663bacd273aa20067d5fc6bdb2294a27597d9ef404f0beef5155ac12",
+        "0xa0e33b4c976edaab2fbf93a323b5c89f3c625093478cd0cdfc1c42c0364f863c",
 };

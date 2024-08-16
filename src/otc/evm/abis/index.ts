@@ -121,43 +121,6 @@ export const OtcAbi = [
             {
                 indexed: false,
                 internalType: "address",
-                name: "token",
-                type: "address",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "settleRate",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "uint48",
-                name: "settleTime",
-                type: "uint48",
-            },
-            {
-                indexed: false,
-                internalType: "uint48",
-                name: "settleDuration",
-                type: "uint48",
-            },
-        ],
-        name: "MarketToSettlePhase",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: "bytes32",
-                name: "marketId",
-                type: "bytes32",
-            },
-            {
-                indexed: false,
-                internalType: "address",
                 name: "exToken",
                 type: "address",
             },
@@ -165,6 +128,12 @@ export const OtcAbi = [
                 indexed: false,
                 internalType: "uint256",
                 name: "pledgeRate",
+                type: "uint256",
+            },
+            {
+                indexed: false,
+                internalType: "uint256",
+                name: "minTrade",
                 type: "uint256",
             },
         ],
@@ -436,15 +405,52 @@ export const OtcAbi = [
         inputs: [
             {
                 indexed: false,
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+            {
+                indexed: false,
+                internalType: "address",
+                name: "token",
+                type: "address",
+            },
+            {
+                indexed: false,
+                internalType: "uint256",
+                name: "settleRate",
+                type: "uint256",
+            },
+            {
+                indexed: false,
+                internalType: "uint48",
+                name: "settleTime",
+                type: "uint48",
+            },
+            {
+                indexed: false,
+                internalType: "uint48",
+                name: "settleDuration",
+                type: "uint48",
+            },
+        ],
+        name: "SettledMarket",
+        type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
                 internalType: "uint256",
                 name: "id",
                 type: "uint256",
             },
             {
                 indexed: false,
-                internalType: "uint256[]",
-                name: "tradeIds",
-                type: "uint256[]",
+                internalType: "uint256",
+                name: "tradeId",
+                type: "uint256",
             },
             {
                 indexed: false,
@@ -479,18 +485,6 @@ export const OtcAbi = [
             },
             {
                 indexed: false,
-                internalType: "uint256",
-                name: "value",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "fee",
-                type: "uint256",
-            },
-            {
-                indexed: false,
                 internalType: "address",
                 name: "doer",
                 type: "address",
@@ -506,18 +500,6 @@ export const OtcAbi = [
                 indexed: false,
                 internalType: "uint256",
                 name: "orderId",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "value",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "uint256",
-                name: "fee",
                 type: "uint256",
             },
             {
@@ -669,6 +651,11 @@ export const OtcAbi = [
                 name: "cashOutId",
                 type: "uint256",
             },
+            {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+            },
         ],
         name: "buyCashOut",
         outputs: [],
@@ -691,9 +678,9 @@ export const OtcAbi = [
     {
         inputs: [
             {
-                internalType: "uint256[]",
-                name: "tradeIds",
-                type: "uint256[]",
+                internalType: "uint256",
+                name: "tradeId",
+                type: "uint256",
             },
             {
                 internalType: "uint256",
@@ -706,7 +693,7 @@ export const OtcAbi = [
                 type: "uint160",
             },
         ],
-        name: "cashOutTrades",
+        name: "cashOutTrade",
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",
@@ -723,7 +710,7 @@ export const OtcAbi = [
         outputs: [
             {
                 internalType: "uint256",
-                name: "orderId",
+                name: "tradeId",
                 type: "uint256",
             },
             {
@@ -843,6 +830,19 @@ export const OtcAbi = [
             },
         ],
         name: "fillOrder",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "uint256",
+                name: "orderId",
+                type: "uint256",
+            },
+        ],
+        name: "forceCancelOrder",
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",
@@ -1016,34 +1016,6 @@ export const OtcAbi = [
                 name: "marketId",
                 type: "bytes32",
             },
-            {
-                internalType: "address",
-                name: "tokenAddress",
-                type: "address",
-            },
-            {
-                internalType: "uint152",
-                name: "settleRate",
-                type: "uint152",
-            },
-            {
-                internalType: "uint48",
-                name: "settleDuration",
-                type: "uint48",
-            },
-        ],
-        name: "marketToSettlePhase",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "bytes32",
-                name: "marketId",
-                type: "bytes32",
-            },
         ],
         name: "marketToggleActivation",
         outputs: [],
@@ -1086,9 +1058,9 @@ export const OtcAbi = [
                 type: "uint48",
             },
             {
-                internalType: "uint152",
+                internalType: "uint256",
                 name: "settleRate",
-                type: "uint152",
+                type: "uint256",
             },
             {
                 internalType: "uint8",
@@ -1099,6 +1071,11 @@ export const OtcAbi = [
                 internalType: "uint256",
                 name: "minTrade",
                 type: "uint256",
+            },
+            {
+                internalType: "uint8",
+                name: "tokenDecimals",
+                type: "uint8",
             },
             {
                 internalType: "uint8",
@@ -1249,24 +1226,6 @@ export const OtcAbi = [
         inputs: [
             {
                 internalType: "uint256",
-                name: "orderId",
-                type: "uint256",
-            },
-            {
-                internalType: "bytes32",
-                name: "hash",
-                type: "bytes32",
-            },
-        ],
-        name: "settle2Steps",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
                 name: "tradeId",
                 type: "uint256",
             },
@@ -1285,6 +1244,39 @@ export const OtcAbi = [
             },
         ],
         name: "settleFilled",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "bytes32",
+                name: "marketId",
+                type: "bytes32",
+            },
+            {
+                internalType: "address",
+                name: "tokenAddress",
+                type: "address",
+            },
+            {
+                internalType: "uint48",
+                name: "settleTime",
+                type: "uint48",
+            },
+            {
+                internalType: "uint48",
+                name: "settleDuration",
+                type: "uint48",
+            },
+            {
+                internalType: "uint256",
+                name: "settleRate",
+                type: "uint256",
+            },
+        ],
+        name: "settleMarket",
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",
@@ -1376,17 +1368,17 @@ export const OtcAbi = [
         inputs: [
             {
                 internalType: "address",
-                name: "feeWallet_",
+                name: "feeWallet",
                 type: "address",
             },
             {
                 internalType: "uint256",
-                name: "feeSettle_",
+                name: "feeSettle",
                 type: "uint256",
             },
             {
                 internalType: "uint256",
-                name: "feeRefund_",
+                name: "feeRefund",
                 type: "uint256",
             },
         ],

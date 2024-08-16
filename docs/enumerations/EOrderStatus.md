@@ -6,15 +6,20 @@
 
 # Enumeration: EOrderStatus
 
+Order Status
+ EOrderStatus
+
 ## Enumeration Members
 
 ### Canceled
 
 > **Canceled**: `3`
 
+Canceled
+
 #### Defined in
 
-configs/enums.ts:15
+configs/enums.ts:45
 
 ***
 
@@ -22,9 +27,11 @@ configs/enums.ts:15
 
 > **Filled**: `2`
 
+Filled
+
 #### Defined in
 
-configs/enums.ts:14
+configs/enums.ts:41
 
 ***
 
@@ -32,6 +39,8 @@ configs/enums.ts:14
 
 > **Open**: `1`
 
+Open
+
 #### Defined in
 
-configs/enums.ts:13
+configs/enums.ts:37
