@@ -80,7 +80,7 @@ export class NativeError extends Error {
     constructor(
         readonly code: number,
         readonly msg: string,
-        // @ts-expect-error
+        // @ts-ignore
         readonly data: Object = null,
         ...params: any[]
     ) {
