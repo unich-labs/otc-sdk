@@ -850,7 +850,7 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         if (typeof err == typeof 0 && idlErrors.has(err)) {
             return new NativeAnchorError(
                 parseInt(err),
-                // @ts-expect-error
+                // @ts-ignore
                 idlErrors.get(err),
                 [],
                 []
