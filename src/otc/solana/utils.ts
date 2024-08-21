@@ -18,26 +18,28 @@ export async function checkOrCreateAssociatedTokenAccount(
     owner: PublicKey,
     authority: PublicKey,
     mintAddress: PublicKey
-): Promise<Transaction | null> {
+): Promise<{ ata: PublicKey; tx: Transaction | null }> {
     const tokenInfo = await connection.getParsedAccountInfo(mintAddress);
-    if (!tokenInfo?.value) return null;
+    if (!tokenInfo.value) throw new Error("Invalid token");
+
     const tokenProgram = tokenInfo.value.owner;
     // Create a token account for the user and mint some tokens
-    const associatedTokenAccount = await getAssociatedTokenAddress(
+    const ata = await getAssociatedTokenAddress(
         mintAddress,
         owner,
         false,
         tokenProgram,
         ASSOCIATED_TOKEN_PROGRAM_ID
     );
-    const accountInfo = await connection.getAccountInfo(associatedTokenAccount);
+    const accountInfo = await connection.getAccountInfo(ata);
+
     if (!accountInfo || !accountInfo.data) {
         let tx = new Transaction();
 
         tx.add(
             createAssociatedTokenAccountInstruction(
                 authority,
-                associatedTokenAccount,
+                ata,
                 owner,
                 mintAddress,
                 tokenProgram,
@@ -45,10 +47,10 @@ export async function checkOrCreateAssociatedTokenAccount(
             )
         );
 
-        return tx;
+        return { ata, tx };
     }
 
-    return null;
+    return { ata, tx: null };
 }
 
 export async function getNumberDecimals(

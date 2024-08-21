@@ -4,15 +4,28 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
 import { ethers } from "ethers";
 import { Button, Checkbox, Dropdown, Label, TextInput } from "flowbite-react";
-import { EOrderType, OtcEvm } from "otc-sdk";
+import { EOrderType, OtcEvm, OtcSolana, CHAIN_ID } from "otc-sdk";
 import { useCallback, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { config } from "../providers";
+import { PublicKey, Transaction } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
+
+const WSOL = new PublicKey("So11111111111111111111111111111111111111112");
 
 export default function CreateOffer() {
-    const chainId = useChainId();
+    // evm
     const { address } = useAccount();
     const { openConnectModal } = useConnectModal();
+
+    // solana
+    const { connection } = useConnection();
+    const {
+        wallet,
+        publicKey: usePublicKey,
+        sendTransaction: sendTransactionSolana,
+    } = useWallet();
 
     const [marketId, setMarketId] = useState<string>(
         "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"
@@ -31,7 +44,7 @@ export default function CreateOffer() {
             try {
                 if (submitting) return;
 
-                const otc = new OtcEvm(chainId);
+                const otc = new OtcEvm(CHAIN_ID.SEPOLIA);
 
                 setSubmitting(true);
 
@@ -71,7 +84,12 @@ export default function CreateOffer() {
                 });
 
                 setSubmitting(false);
-                alert("Create order success. TxHash: " + txHash);
+                console.log(
+                    `Create order tx https://sepolia.etherscan.io/tx/${txHash}`
+                );
+                alert(
+                    `Create order tx https://sepolia.etherscan.io/tx/${txHash}`
+                );
             } catch (error: any) {
                 setSubmitting(false);
 
@@ -84,7 +102,66 @@ export default function CreateOffer() {
                 );
             }
         },
-        [chainId, address, offerType, marketId, amount, price]
+        [address, offerType, marketId, amount, price]
+    );
+
+    const handleCreateSolana = useCallback(
+        async (e: any) => {
+            e.preventDefault();
+            if (!usePublicKey) return alert("connect wallet first");
+            if (submitting) return;
+
+            const otc = new OtcSolana(connection, CHAIN_ID.SOLANA_DEVNET);
+            await otc.bootstrap();
+            try {
+                // default 9 decimals
+                const parsedAmount = new BN(
+                    ethers.parseUnits(amount.toString(), 9)
+                );
+
+                // TODO format by exToken decimals
+                const value = new BN(
+                    ethers.parseUnits((amount * price).toString(), 9)
+                );
+                const slippage = new BN(0);
+
+                // create order buy
+                const createOrderTx = await otc.createOrder({
+                    marketId: new BN(marketId),
+                    // orderId, // optional
+                    user: usePublicKey,
+                    orderType:
+                        offerType == EOrderType.Sell
+                            ? { sell: {} }
+                            : { buy: {} },
+                    amount: parsedAmount,
+                    value,
+                    slippage,
+                    isBid,
+                });
+
+                const txHash = await sendTransactionSolana(
+                    createOrderTx,
+                    connection,
+                    {
+                        maxRetries: 10,
+                    }
+                );
+
+                setSubmitting(false);
+                console.log(
+                    `Create order tx https://explorer.solana.com/tx/${txHash}?cluster=devnet`
+                );
+                alert(
+                    `Create order tx https://explorer.solana.com/tx/${txHash}?cluster=devnet`
+                );
+            } catch (error: any) {
+                setSubmitting(false);
+                const err = otc.parseError(error);
+                alert(err);
+            }
+        },
+        [connection, usePublicKey, offerType, marketId, amount, price]
     );
 
     return (
@@ -106,8 +183,9 @@ export default function CreateOffer() {
                         className="text-black"
                     >
                         <option value="0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28">
-                            TEST/USDC
+                            TEST/USDC (EVM only)
                         </option>
+                        <option value="1">TEST/SOL (Solana only)</option>
                     </select>
                 </div>
                 <div>
@@ -150,7 +228,7 @@ export default function CreateOffer() {
                         id="amount"
                         type="number"
                         value={amount}
-                        onChange={(e) => setAmount(+e.target.value)}
+                        onChange={(e: any) => setAmount(+e.target.value)}
                     />
                 </div>
                 <div>
@@ -163,9 +241,8 @@ export default function CreateOffer() {
                     </div>
                     <TextInput
                         id="price"
-                        type="number"
                         value={price}
-                        onChange={(e) => setPrice(+e.target.value)}
+                        onChange={(e: any) => setPrice(e.target.value)}
                     />
                 </div>
 
@@ -181,7 +258,11 @@ export default function CreateOffer() {
                 </div>
 
                 <Button onClick={handleCreate}>
-                    {!submitting ? "Create" : "Submitting"}
+                    {!submitting ? "Create EVM" : "Submitting EVM"}
+                </Button>
+
+                <Button onClick={handleCreateSolana}>
+                    {!submitting ? "Create Solana" : "Submitting Solana"}
                 </Button>
             </form>
         </div>

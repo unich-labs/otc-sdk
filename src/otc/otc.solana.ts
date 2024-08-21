@@ -1,7 +1,16 @@
 import * as anchor from "@coral-xyz/anchor";
 import { BN, IdlTypes } from "@coral-xyz/anchor";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import {
+    getAssociatedTokenAddress,
+    createSyncNativeInstruction,
+    createCloseAccountInstruction,
+} from "@solana/spl-token";
+import {
+    Connection,
+    PublicKey,
+    Transaction,
+    SystemProgram,
+} from "@solana/web3.js";
 import {
     getConfigAccountPda,
     getMarketAccountPda,
@@ -22,28 +31,41 @@ import {
 import { OtcEventHandlers, OtcEventType } from "./solana/types";
 import { checkOrCreateAssociatedTokenAccount } from "./solana/utils";
 import { IOtc } from "./otc.interface";
+import { CHAIN_ID, CONTRACTS } from "../configs";
 
-// TODO wrap sol to wsol
+const WSOL = new PublicKey("So11111111111111111111111111111111111111112");
 
 export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
     public connection: Connection;
     public program: anchor.Program<Otc>;
+    private chainId: CHAIN_ID;
 
     // @ts-ignore
     public configPda: PublicKey;
     // @ts-ignore
     public configAccountData: anchor.IdlAccounts<Otc>["configAccount"];
 
-    constructor(connection: Connection, program: PublicKey) {
+    constructor(
+        connection: Connection,
+        chainId: CHAIN_ID = CHAIN_ID.SOLANA_DEVNET
+    ) {
         this.connection = connection;
-
-        this.program = new anchor.Program(IDL as Otc, program, {
-            connection: this.connection,
-        });
+        this.chainId = chainId;
+        this.program = new anchor.Program(
+            IDL as Otc,
+            new PublicKey(CONTRACTS[chainId].OTC.address),
+            {
+                connection: this.connection,
+            }
+        );
     }
 
-    async bootstrap(authority: PublicKey) {
-        this.configPda = getConfigAccountPda(this.program, authority);
+    async bootstrap(authority?: PublicKey) {
+        this.configPda = getConfigAccountPda(
+            this.program,
+            authority ??
+                new PublicKey(CONTRACTS[this.chainId].OTC?.authority ?? "")
+        );
         await this.fetchConfigAccount(this.configPda);
     }
 
@@ -202,12 +224,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
 
         const tx = new Transaction();
 
-        const createFeeWalletAtaTx = await checkOrCreateAssociatedTokenAccount(
-            this.connection,
-            this.configAccountData.feeWallet,
-            data.operator,
-            data.exToken
-        );
+        const { tx: createFeeWalletAtaTx } =
+            await checkOrCreateAssociatedTokenAccount(
+                this.connection,
+                this.configAccountData.feeWallet,
+                data.operator,
+                data.exToken
+            );
 
         if (createFeeWalletAtaTx) tx.add(createFeeWalletAtaTx);
 
@@ -303,12 +326,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
 
         const tx = new Transaction();
 
-        const createFeeWalletAtaTx = await checkOrCreateAssociatedTokenAccount(
-            this.connection,
-            this.configAccountData.feeWallet,
-            data.operator,
-            data.token
-        );
+        const { tx: createFeeWalletAtaTx } =
+            await checkOrCreateAssociatedTokenAccount(
+                this.connection,
+                this.configAccountData.feeWallet,
+                data.operator,
+                data.token
+            );
 
         if (createFeeWalletAtaTx) tx.add(createFeeWalletAtaTx);
 
@@ -365,13 +389,6 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
         if (!exTokenInfo.value) throw new Error("Invalid ex token");
 
-        const userExTokenAta = await getAssociatedTokenAddress(
-            marketAccountData.exToken,
-            data.user,
-            false,
-            exTokenInfo.value.owner
-        );
-
         let _orderId = data.orderId;
         if (!_orderId) {
             _orderId = (await this.fetchLastOrderId(data.marketId)).add(
@@ -386,7 +403,41 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             _orderId
         );
 
-        const transaction = await this.program.methods
+        const tx = new Transaction();
+
+        const { ata: userExTokenAta, tx: createFeeWalletAtaTx } =
+            await checkOrCreateAssociatedTokenAccount(
+                this.connection,
+                data.user,
+                data.user,
+                marketAccountData.exToken
+            );
+
+        // check and wrap sol to wsol
+        if (marketAccountData.exToken.equals(WSOL)) {
+            if (createFeeWalletAtaTx) tx.add(createFeeWalletAtaTx);
+
+            tx.add(
+                SystemProgram.transfer({
+                    fromPubkey: data.user,
+                    toPubkey: userExTokenAta,
+                    lamports: BigInt(data.value.toString()),
+                })
+            );
+
+            tx.add(createSyncNativeInstruction(userExTokenAta));
+
+            if (createFeeWalletAtaTx)
+                tx.add(
+                    createCloseAccountInstruction(
+                        userExTokenAta,
+                        data.user,
+                        data.user
+                    )
+                );
+        }
+
+        const createOrderTx = await this.program.methods
             .createOrder(
                 data.marketId,
                 data.orderType,
@@ -408,7 +459,9 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             })
             .transaction();
 
-        return transaction;
+        tx.add(createOrderTx);
+
+        return tx;
     }
 
     async cancelOrder(data: {
@@ -829,15 +882,40 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
-    prepareTransaction(tx: Transaction) {
-        const _tx = new Transaction();
+    // TODO impl
+    // async prepareTransaction(tx: Transaction): Promise<VersionedTransaction> {
+    //     const instructions = tx.instructions;
 
-        // TODO impl
+    //     const [microLamports, units, recentBlockhash] = await Promise.all([
+    //         100 /* Get optimal priority fees - https://solana.com/developers/guides/advanced/how-to-use-priority-fees*/,
+    //         getSimulationComputeUnits(
+    //             this.connection,
+    //             tx.instructions,
+    //             tx.feePayer!,
+    //             []
+    //         ),
+    //         this.connection.getLatestBlockhash(),
+    //     ]);
 
-        // calculate compute unit limit
+    //     instructions.unshift(
+    //         ComputeBudgetProgram.setComputeUnitPrice({ microLamports })
+    //     );
 
-        // set compute price
-    }
+    //     if (units) {
+    //         // probably should add some margin of error to units
+    //         instructions.unshift(
+    //             ComputeBudgetProgram.setComputeUnitLimit({ units })
+    //         );
+    //     }
+
+    //     return new VersionedTransaction(
+    //         new TransactionMessage({
+    //             instructions,
+    //             recentBlockhash: recentBlockhash.blockhash,
+    //             payerKey: tx.feePayer!,
+    //         }).compileToV0Message()
+    //     );
+    // }
 
     parseError(err: any) {
         const anchorError = anchor.AnchorError.parse(err.logs);
@@ -896,39 +974,6 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             (event: any, slot: number, signature: string) => {
                 let processedEvent;
                 switch (eventType) {
-                    // case "createEvent":
-                    // 	processedEvent = toCreateEvent(event as CreateEvent);
-                    // 	callback(
-                    // 		processedEvent as PumpFunEventHandlers[T],
-                    // 		slot,
-                    // 		signature
-                    // 	);
-                    // 	break;
-                    // case "tradeEvent":
-                    // 	processedEvent = toTradeEvent(event as TradeEvent);
-                    // 	callback(
-                    // 		processedEvent as PumpFunEventHandlers[T],
-                    // 		slot,
-                    // 		signature
-                    // 	);
-                    // 	break;
-                    // case "completeEvent":
-                    // 	processedEvent = toCompleteEvent(event as CompleteEvent);
-                    // 	callback(
-                    // 		processedEvent as PumpFunEventHandlers[T],
-                    // 		slot,
-                    // 		signature
-                    // 	);
-                    // 	console.log("completeEvent", event, slot, signature);
-                    // 	break;
-                    // case "setParamsEvent":
-                    // 	processedEvent = toSetParamsEvent(event as SetParamsEvent);
-                    // 	callback(
-                    // 		processedEvent as PumpFunEventHandlers[T],
-                    // 		slot,
-                    // 		signature
-                    // 	);
-                    // 	break;
                     default:
                         console.error("Unhandled event type:", eventType);
                 }
