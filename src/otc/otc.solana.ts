@@ -60,6 +60,10 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
     }
 
+    /**
+     * bootstrap sdk
+     * @param authority address of authority
+     */
     async bootstrap(authority?: PublicKey) {
         this.configPda = getConfigAccountPda(
             this.program,
@@ -69,6 +73,12 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         await this.fetchConfigAccount(this.configPda);
     }
 
+    /**
+     * fetch config account data
+     * @param configPda config account PDA
+     * @param commitment connection commitment
+     * @returns configAccount
+     */
     async fetchConfigAccount(
         configPda: PublicKey,
         commitment?: anchor.web3.Commitment
@@ -80,6 +90,12 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return this.configAccountData;
     }
 
+    /**
+     * fetch role account data
+     * @param user user address
+     * @param configPda config account PDA
+     * @returns roleAccount
+     */
     async fetchRoleAccount(
         user: PublicKey,
         configPda?: PublicKey
@@ -99,6 +115,11 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
     }
 
+    /**
+     * fetch market account data
+     * @param marketId id of market
+     * @returns marketAccount
+     */
     fetchMarketAccount(
         marketId: BN
     ): Promise<anchor.IdlAccounts<Otc>["marketAccount"]> {
@@ -107,6 +128,12 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
     }
 
+    /**
+     * fetch order account data
+     * @param marketId id of market
+     * @param orderId id of order
+     * @returns orderAccount
+     */
     fetchOrderAccount(
         marketId: BN,
         orderId: BN
@@ -116,6 +143,12 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
     }
 
+    /**
+     * fetch trade account data
+     * @param marketId id of market
+     * @param tradeId id of trade
+     * @returns trade account
+     */
     fetchTradeAccount(
         marketId: BN,
         tradeId: BN
@@ -125,18 +158,39 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
     }
 
-    fetchLastOrderId(marketId: BN): Promise<BN> {
+    /**
+     * fetch last order id
+     * @param marketId id of market
+     * @returns lastOrderId
+     */
+    async fetchLastOrderId(marketId: BN): Promise<BN> {
         return this.fetchMarketAccount(marketId).then((r) => r.lastOrderId);
     }
 
-    fetchLastTradeId(marketId: BN): Promise<BN> {
+    /**
+     * fetch last trade id
+     * @param marketId id of market
+     * @returns lastTradeId
+     */
+    async fetchLastTradeId(marketId: BN): Promise<BN> {
         return this.fetchMarketAccount(marketId).then((r) => r.lastTradeId);
     }
 
-    fetchLastCashoutId(marketId: BN): Promise<BN> {
+    /**
+     * fetch last cashout id
+     * @param marketId
+     * @returns lastCashoutId
+     */
+    async fetchLastCashoutId(marketId: BN): Promise<BN> {
         return this.fetchMarketAccount(marketId).then((r) => r.lastCashoutId);
     }
 
+    /**
+     * initialize program with authority
+     * @param authority authority address
+     * @param feeWallet fee wallet address
+     * @returns Promise<Transaction>
+     */
     initialize(
         authority: PublicKey,
         feeWallet: PublicKey
@@ -152,6 +206,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             .transaction();
     }
 
+    /**
+     * set role for user account by operator only
+     * @param authority authority address
+     * @param user user address
+     * @param role user role
+     * @returns
+     */
     setRole(data: {
         authority: PublicKey;
         user: PublicKey;
@@ -174,6 +235,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             .transaction();
     }
 
+    /**
+     * update program config by operator only
+     * @param feeRefund fee refund
+     * @param feeSettle fee settle
+     * @param feeWallet fee wallet address
+     * @returns
+     */
     updateConfigAccount(data: {
         feeRefund?: BN;
         feeSettle?: BN;
@@ -192,6 +260,15 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             .transaction();
     }
 
+    /**
+     * create new market by operator only
+     * @param operator operator address
+     * @param marketId id of market
+     * @param exToken exchange token of market
+     * @param pledgeRate pledge rate of market
+     * @param minTrade min exchange token amount to trade on market
+     * @returns Promise<Transaction>
+     */
     async newMarket(data: {
         operator: PublicKey;
         marketId: BN;
@@ -253,6 +330,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return tx;
     }
 
+    /**
+     * update market data by operator only
+     * @param operator operator address
+     * @param marketId id of market
+     * @param updateData data that will been updated of market
+     * @returns
+     */
     async updateMarket(data: {
         operator: PublicKey;
         marketId: BN;
@@ -294,6 +378,16 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             .transaction();
     }
 
+    /**
+     * settle market by operator only
+     * @param operator operator address
+     * @param marketId id of market
+     * @param token OTC token address of market
+     * @param settleTime settle time of market
+     * @param settleDuration settle duration of market
+     * @param settleRate settle rate of market
+     * @returns Promise<Transaction>
+     */
     async settleMarket(data: {
         operator: PublicKey;
         marketId: BN;
@@ -360,6 +454,18 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return tx;
     }
 
+    /**
+     * create a new order
+     * @param marketId id of market
+     * @param orderId id of order (optional)
+     * @param user user address who create order
+     * @param orderType order type (buy/sell)
+     * @param amount OTC token amount of order
+     * @param value exchange token value of order
+     * @param slippage order slippage
+     * @param isBid bid order?
+     * @returns Promise<Transaction>
+     */
     async createOrder(data: {
         marketId: BN;
         orderId?: BN;
@@ -464,6 +570,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return tx;
     }
 
+    /**
+     * cancel order
+     * @param user user address who created order
+     * @param marketId id of market
+     * @param orderId id of open order
+     * @returns Promise<Transaction>
+     */
     async cancelOrder(data: {
         user: PublicKey;
         marketId: BN;
@@ -529,6 +642,14 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
+    /**
+     * fill open order
+     * @param marketId id of market
+     * @param orderId id of open order
+     * @param tradeId id of trade (optional)
+     * @param user user address who fill order
+     * @returns Promise<Transaction>
+     */
     async fillOrder(data: {
         marketId: BN;
         orderId: BN;
@@ -611,6 +732,15 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
+    /**
+     * match two open order
+     * @param user user address who match order
+     * @param marketId id of market
+     * @param orderBuyId id of order buy
+     * @param orderSellId id of order sell
+     * @param tradeId id of trade (optional)
+     * @returns
+     */
     async matchOrder(data: {
         user: PublicKey;
         marketId: BN;
@@ -668,6 +798,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
+    /**
+     * settle filled trade
+     * @param user user address who is one of buyer seller or seller of trade
+     * @param marketId id of market
+     * @param tradeId id of trade
+     * @returns
+     */
     async settleFilled(data: {
         user: PublicKey;
         marketId: BN;
@@ -779,6 +916,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         return transaction;
     }
 
+    /**
+     * settle canceled trade
+     * @param user user address who is one of buyer seller or seller of trade
+     * @param marketId id of market
+     * @param tradeId id of trade
+     * @returns
+     */
     async settleCanceled(data: {
         user: PublicKey;
         marketId: BN;
