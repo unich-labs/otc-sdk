@@ -14,13 +14,13 @@
 
 ### new OtcSolana()
 
-> **new OtcSolana**(`connection`, `program`): [`OtcSolana`](OtcSolana.md)
+> **new OtcSolana**(`connection`, `chainId`): [`OtcSolana`](OtcSolana.md)
 
 #### Parameters
 
 • **connection**: `Connection`
 
-• **program**: `PublicKey`
+• **chainId**: [`CHAIN_ID`](../enumerations/CHAIN_ID.md) = `CHAIN_ID.SOLANA_DEVNET`
 
 #### Returns
 
@@ -28,7 +28,7 @@
 
 #### Defined in
 
-otc/otc.solana.ts:37
+otc/otc.solana.ts:48
 
 ## Properties
 
@@ -48,7 +48,7 @@ otc/otc.solana.ts:37
 
 #### Defined in
 
-otc/otc.solana.ts:35
+otc/otc.solana.ts:46
 
 ***
 
@@ -58,7 +58,7 @@ otc/otc.solana.ts:35
 
 #### Defined in
 
-otc/otc.solana.ts:33
+otc/otc.solana.ts:44
 
 ***
 
@@ -68,7 +68,7 @@ otc/otc.solana.ts:33
 
 #### Defined in
 
-otc/otc.solana.ts:29
+otc/otc.solana.ts:39
 
 ***
 
@@ -78,7 +78,7 @@ otc/otc.solana.ts:29
 
 #### Defined in
 
-otc/otc.solana.ts:30
+otc/otc.solana.ts:40
 
 ## Methods
 
@@ -102,17 +102,21 @@ otc/otc.solana.ts:30
 
 #### Defined in
 
-otc/otc.solana.ts:886
+otc/otc.solana.ts:1108
 
 ***
 
 ### bootstrap()
 
-> **bootstrap**(`authority`): `Promise`\<`void`\>
+> **bootstrap**(`authority`?): `Promise`\<`void`\>
+
+bootstrap sdk
 
 #### Parameters
 
-• **authority**: `PublicKey`
+• **authority?**: `PublicKey`
+
+address of authority
 
 #### Returns
 
@@ -120,13 +124,15 @@ otc/otc.solana.ts:886
 
 #### Defined in
 
-otc/otc.solana.ts:45
+otc/otc.solana.ts:67
 
 ***
 
 ### cancelOrder()
 
 > **cancelOrder**(`data`): `Promise`\<`Transaction`\>
+
+cancel order
 
 #### Parameters
 
@@ -142,15 +148,19 @@ otc/otc.solana.ts:45
 
 `Promise`\<`Transaction`\>
 
+Promise<Transaction>
+
 #### Defined in
 
-otc/otc.solana.ts:414
+otc/otc.solana.ts:580
 
 ***
 
 ### createOrder()
 
 > **createOrder**(`data`): `Promise`\<`Transaction`\>
+
+create a new order
 
 #### Parameters
 
@@ -176,9 +186,11 @@ otc/otc.solana.ts:414
 
 `Promise`\<`Transaction`\>
 
+Promise<Transaction>
+
 #### Defined in
 
-otc/otc.solana.ts:339
+otc/otc.solana.ts:469
 
 ***
 
@@ -186,19 +198,27 @@ otc/otc.solana.ts:339
 
 > **fetchConfigAccount**(`configPda`, `commitment`?): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+fetch config account data
+
 #### Parameters
 
 • **configPda**: `PublicKey`
 
+config account PDA
+
 • **commitment?**: `Commitment`
+
+connection commitment
 
 #### Returns
 
 `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+configAccount
+
 #### Defined in
 
-otc/otc.solana.ts:50
+otc/otc.solana.ts:82
 
 ***
 
@@ -206,6 +226,8 @@ otc/otc.solana.ts:50
 
 > **fetchLastCashoutId**(`marketId`): `Promise`\<`BN`\>
 
+fetch last cashout id
+
 #### Parameters
 
 • **marketId**: `BN`
@@ -214,9 +236,11 @@ otc/otc.solana.ts:50
 
 `Promise`\<`BN`\>
 
+lastCashoutId
+
 #### Defined in
 
-otc/otc.solana.ts:114
+otc/otc.solana.ts:184
 
 ***
 
@@ -224,17 +248,23 @@ otc/otc.solana.ts:114
 
 > **fetchLastOrderId**(`marketId`): `Promise`\<`BN`\>
 
+fetch last order id
+
 #### Parameters
 
 • **marketId**: `BN`
+
+id of market
 
 #### Returns
 
 `Promise`\<`BN`\>
 
+lastOrderId
+
 #### Defined in
 
-otc/otc.solana.ts:106
+otc/otc.solana.ts:166
 
 ***
 
@@ -242,17 +272,23 @@ otc/otc.solana.ts:106
 
 > **fetchLastTradeId**(`marketId`): `Promise`\<`BN`\>
 
+fetch last trade id
+
 #### Parameters
 
 • **marketId**: `BN`
+
+id of market
 
 #### Returns
 
 `Promise`\<`BN`\>
 
+lastTradeId
+
 #### Defined in
 
-otc/otc.solana.ts:110
+otc/otc.solana.ts:175
 
 ***
 
@@ -260,17 +296,23 @@ otc/otc.solana.ts:110
 
 > **fetchMarketAccount**(`marketId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+fetch market account data
+
 #### Parameters
 
 • **marketId**: `BN`
+
+id of market
 
 #### Returns
 
 `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+marketAccount
+
 #### Defined in
 
-otc/otc.solana.ts:80
+otc/otc.solana.ts:123
 
 ***
 
@@ -278,19 +320,27 @@ otc/otc.solana.ts:80
 
 > **fetchOrderAccount**(`marketId`, `orderId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+fetch order account data
+
 #### Parameters
 
 • **marketId**: `BN`
 
+id of market
+
 • **orderId**: `BN`
+
+id of order
 
 #### Returns
 
 `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+orderAccount
+
 #### Defined in
 
-otc/otc.solana.ts:88
+otc/otc.solana.ts:137
 
 ***
 
@@ -298,19 +348,27 @@ otc/otc.solana.ts:88
 
 > **fetchRoleAccount**(`user`, `configPda`?): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+fetch role account data
+
 #### Parameters
 
 • **user**: `PublicKey`
 
+user address
+
 • **configPda?**: `PublicKey`
+
+config account PDA
 
 #### Returns
 
 `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+roleAccount
+
 #### Defined in
 
-otc/otc.solana.ts:61
+otc/otc.solana.ts:99
 
 ***
 
@@ -318,25 +376,35 @@ otc/otc.solana.ts:61
 
 > **fetchTradeAccount**(`marketId`, `tradeId`): `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+fetch trade account data
+
 #### Parameters
 
 • **marketId**: `BN`
 
+id of market
+
 • **tradeId**: `BN`
+
+id of trade
 
 #### Returns
 
 `Promise`\<`DecodeStruct`\<`object`, `DecodedHelper`\<[`object`, `object`, `object`, `object`, `object`], `EmptyDefined`\>\>\>
 
+trade account
+
 #### Defined in
 
-otc/otc.solana.ts:97
+otc/otc.solana.ts:152
 
 ***
 
 ### fillOrder()
 
 > **fillOrder**(`data`): `Promise`\<`Transaction`\>
+
+fill open order
 
 #### Parameters
 
@@ -356,9 +424,11 @@ otc/otc.solana.ts:97
 
 `Promise`\<`Transaction`\>
 
+Promise<Transaction>
+
 #### Defined in
 
-otc/otc.solana.ts:479
+otc/otc.solana.ts:653
 
 ***
 
@@ -366,25 +436,35 @@ otc/otc.solana.ts:479
 
 > **initialize**(`authority`, `feeWallet`): `Promise`\<`Transaction`\>
 
+initialize program with authority
+
 #### Parameters
 
 • **authority**: `PublicKey`
 
+authority address
+
 • **feeWallet**: `PublicKey`
+
+fee wallet address
 
 #### Returns
 
 `Promise`\<`Transaction`\>
 
+Promise<Transaction>
+
 #### Defined in
 
-otc/otc.solana.ts:118
+otc/otc.solana.ts:194
 
 ***
 
 ### matchOrder()
 
 > **matchOrder**(`data`): `Promise`\<`Transaction`\>
+
+match two open order
 
 #### Parameters
 
@@ -406,13 +486,15 @@ otc/otc.solana.ts:118
 
 #### Defined in
 
-otc/otc.solana.ts:561
+otc/otc.solana.ts:744
 
 ***
 
 ### newMarket()
 
 > **newMarket**(`data`): `Promise`\<`Transaction`\>
+
+create new market by operator only
 
 #### Parameters
 
@@ -432,9 +514,11 @@ otc/otc.solana.ts:561
 
 `Promise`\<`Transaction`\>
 
+Promise<Transaction>
+
 #### Defined in
 
-otc/otc.solana.ts:173
+otc/otc.solana.ts:272
 
 ***
 
@@ -452,25 +536,7 @@ otc/otc.solana.ts:173
 
 #### Defined in
 
-otc/otc.solana.ts:842
-
-***
-
-### prepareTransaction()
-
-> **prepareTransaction**(`tx`): `void`
-
-#### Parameters
-
-• **tx**: `Transaction`
-
-#### Returns
-
-`void`
-
-#### Defined in
-
-otc/otc.solana.ts:832
+otc/otc.solana.ts:1064
 
 ***
 
@@ -488,13 +554,15 @@ otc/otc.solana.ts:832
 
 #### Defined in
 
-otc/otc.solana.ts:939
+otc/otc.solana.ts:1128
 
 ***
 
 ### setRole()
 
 > **setRole**(`data`): `Promise`\<`Transaction`\>
+
+set role for user account by operator only
 
 #### Parameters
 
@@ -512,7 +580,7 @@ otc/otc.solana.ts:939
 
 #### Defined in
 
-otc/otc.solana.ts:133
+otc/otc.solana.ts:216
 
 ***
 
@@ -520,6 +588,8 @@ otc/otc.solana.ts:133
 
 > **settleCanceled**(`data`): `Promise`\<`Transaction`\>
 
+settle canceled trade
+
 #### Parameters
 
 • **data**
@@ -536,7 +606,7 @@ otc/otc.solana.ts:133
 
 #### Defined in
 
-otc/otc.solana.ts:729
+otc/otc.solana.ts:926
 
 ***
 
@@ -544,6 +614,8 @@ otc/otc.solana.ts:729
 
 > **settleFilled**(`data`): `Promise`\<`Transaction`\>
 
+settle filled trade
+
 #### Parameters
 
 • **data**
@@ -560,13 +632,15 @@ otc/otc.solana.ts:729
 
 #### Defined in
 
-otc/otc.solana.ts:618
+otc/otc.solana.ts:808
 
 ***
 
 ### settleMarket()
 
 > **settleMarket**(`data`): `Promise`\<`Transaction`\>
+
+settle market by operator only
 
 #### Parameters
 
@@ -588,15 +662,19 @@ otc/otc.solana.ts:618
 
 `Promise`\<`Transaction`\>
 
+Promise<Transaction>
+
 #### Defined in
 
-otc/otc.solana.ts:274
+otc/otc.solana.ts:391
 
 ***
 
 ### updateConfigAccount()
 
 > **updateConfigAccount**(`data`): `Promise`\<`Transaction`\>
+
+update program config by operator only
 
 #### Parameters
 
@@ -614,13 +692,15 @@ otc/otc.solana.ts:274
 
 #### Defined in
 
-otc/otc.solana.ts:155
+otc/otc.solana.ts:245
 
 ***
 
 ### updateMarket()
 
 > **updateMarket**(`data`): `Promise`\<`Transaction`\>
+
+update market data by operator only
 
 #### Parameters
 
@@ -648,4 +728,4 @@ otc/otc.solana.ts:155
 
 #### Defined in
 
-otc/otc.solana.ts:233
+otc/otc.solana.ts:340
