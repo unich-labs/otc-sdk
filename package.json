@@ -10,7 +10,7 @@
     "scripts": {
         "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
         "build": "yarn clean && tsc -p tsconfig.cjs.json && rollup --config --bundleConfigAsCjs",
-        "build:doc": "rimraf docs && typedoc --plugin typedoc-plugin-markdown --out docs src/index.ts --readme none",
+        "build:doc": "rimraf docs && typedoc --out docs src/index.ts --readme none",
         "test": "ts-mocha -r ts-node/register test/*.spec.ts --timeout 200000"
     },
     "publishConfig": {
