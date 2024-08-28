@@ -289,11 +289,9 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     /**
      * Create a new order
      * @param offerType order type
-     * @param tokenId id of otc token
+     * @param marketId id of market
      * @param amount order amount
      * @param price order price
-     * @param exToken exchange token contract address, if exToken == 0x0000000000000000000000000000000000000000 => createOrderETH, else createOrder
-     * @param slippage slippage of order
      * @param isBid is bid order
      * @returns Promise<ContractTransaction>
      */

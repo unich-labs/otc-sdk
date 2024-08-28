@@ -12,8 +12,6 @@ import { config } from "../providers";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 
-const WSOL = new PublicKey("So11111111111111111111111111111111111111112");
-
 export default function CreateOffer() {
     // evm
     const { address } = useAccount();
@@ -123,11 +121,14 @@ export default function CreateOffer() {
                 const value = new BN(
                     ethers.parseUnits((amount * price).toString(), 9)
                 );
-                const slippage = new BN(0);
+
+                const marketId = new BN(3); // in example marketId is 3, pledge rate is 50%
+
+                const matchOrderIds = [1].map((e) => new BN(e)); // list order id that is matched with order, 1 is order sell 500 with price is 0.01
 
                 // create order buy
                 const createOrderTx = await otc.createOrder({
-                    marketId: new BN(marketId),
+                    marketId,
                     // orderId, // optional
                     user: usePublicKey,
                     orderType:
@@ -135,29 +136,94 @@ export default function CreateOffer() {
                             ? { sell: {} }
                             : { buy: {} },
                     amount: parsedAmount,
-                    value,
-                    slippage,
+                    value: value,
                     isBid,
+                    // only work if this order is order buy or comment matchOrderIds
+                    matchOrderIds:
+                        offerType == EOrderType.Sell ? [] : matchOrderIds,
                 });
 
-                const txHash = await sendTransactionSolana(
+                const signature = await sendTransactionSolana(
                     createOrderTx,
-                    connection,
-                    {
-                        maxRetries: 10,
-                    }
+                    connection
+                );
+                console.log(
+                    `Create order tx https://explorer.solana.com/tx/${signature}?cluster=devnet`
                 );
 
+                await connection.confirmTransaction(signature, "processed");
+
                 setSubmitting(false);
-                console.log(
-                    `Create order tx https://explorer.solana.com/tx/${txHash}?cluster=devnet`
-                );
+
                 alert(
-                    `Create order tx https://explorer.solana.com/tx/${txHash}?cluster=devnet`
+                    `Create order tx https://explorer.solana.com/tx/${signature}?cluster=devnet`
                 );
             } catch (error: any) {
                 setSubmitting(false);
                 const err = otc.parseError(error);
+                console.log("🚀 ~ file: CreateOrder.tsx:160 ~ err:", err);
+                alert(err);
+            }
+        },
+        [connection, usePublicKey, offerType, marketId, amount, price]
+    );
+
+    const handleCashoutSolana = useCallback(
+        async (e: any) => {
+            e.preventDefault();
+            if (!usePublicKey) return alert("connect wallet first");
+            if (submitting) return;
+
+            const otc = new OtcSolana(connection, CHAIN_ID.SOLANA_DEVNET);
+            await otc.bootstrap();
+            try {
+                // TODO impl
+                // THIS IS EXAMPLE
+                const marketId = new BN(3); // in example marketId is 3, pledge rate is 50%
+
+                const tradeId = new BN(1); // NOTE change that
+
+                const tradeAccountData = await otc.fetchTradeAccount(
+                    marketId,
+                    tradeId
+                );
+
+                if (
+                    !(
+                        usePublicKey.equals(tradeAccountData.buyer) ||
+                        usePublicKey.equals(tradeAccountData.seller)
+                    )
+                )
+                    return alert("Only buyer or seller can cashout");
+
+                const createOrderTx = await otc.cashoutTrade({
+                    marketId,
+                    tradeId,
+                    amount: tradeAccountData.amount,
+                    value: tradeAccountData.buyerValue,
+                    user: usePublicKey,
+                    matchOrderIds: [], // pass order
+                });
+
+                const signature = await sendTransactionSolana(
+                    createOrderTx,
+                    connection
+                );
+                console.log(
+                    `Create order tx https://explorer.solana.com/tx/${signature}?cluster=devnet`
+                );
+
+                await connection.confirmTransaction(signature, "processed");
+
+                setSubmitting(false);
+
+                alert(
+                    `Create order tx https://explorer.solana.com/tx/${signature}?cluster=devnet`
+                );
+            } catch (error: any) {
+                setSubmitting(false);
+                const err = otc.parseError(error);
+                console.log("🚀 ~ file: CreateOrder.tsx:160 ~ err:", err);
                 alert(err);
             }
         },
@@ -263,6 +329,10 @@ export default function CreateOffer() {
 
                 <Button onClick={handleCreateSolana}>
                     {!submitting ? "Create Solana" : "Submitting Solana"}
+                </Button>
+
+                <Button onClick={handleCashoutSolana}>
+                    {!submitting ? "Cashout Solana" : "Submitting Solana"}
                 </Button>
             </form>
         </div>

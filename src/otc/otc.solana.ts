@@ -12,6 +12,7 @@ import {
     SystemProgram,
 } from "@solana/web3.js";
 import {
+    getCashoutAccountPda,
     getConfigAccountPda,
     getMarketAccountPda,
     getOrderAccountPda,
@@ -31,7 +32,7 @@ import {
 import { OtcEventHandlers, OtcEventType } from "./solana/types";
 import { checkOrCreateAssociatedTokenAccount } from "./solana/utils";
 import { IOtc } from "./otc.interface";
-import { CHAIN_ID, CONTRACTS } from "../configs";
+import { CHAIN_ID, CONTRACTS, WEI6 } from "../configs";
 
 const WSOL = new PublicKey("So11111111111111111111111111111111111111112");
 
@@ -155,6 +156,26 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
     ): Promise<anchor.IdlAccounts<Otc>["tradeAccount"]> {
         return this.program.account.tradeAccount.fetch(
             getTradeAccountPda(this.program, this.configPda, marketId, tradeId)
+        );
+    }
+
+    /**
+     * fetch cashout account data
+     * @param marketId id of market
+     * @param cashoutId id of cashout
+     * @returns trade account
+     */
+    fetchCashoutccount(
+        marketId: BN,
+        cashoutId: BN
+    ): Promise<anchor.IdlAccounts<Otc>["cashoutAccount"]> {
+        return this.program.account.cashoutAccount.fetch(
+            getCashoutAccountPda(
+                this.program,
+                this.configPda,
+                marketId,
+                cashoutId
+            )
         );
     }
 
@@ -462,8 +483,8 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
      * @param orderType order type (buy/sell)
      * @param amount OTC token amount of order
      * @param value exchange token value of order
-     * @param slippage order slippage
      * @param isBid bid order?
+     * @param matchOrderIds list order id that matched with new order
      * @returns Promise<Transaction>
      */
     async createOrder(data: {
@@ -473,8 +494,8 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         orderType: IdlTypes<Otc>["OrderType"];
         amount: BN;
         value: BN;
-        slippage: BN;
         isBid: boolean;
+        matchOrderIds?: BN[];
     }): Promise<Transaction> {
         const marketPda = getMarketAccountPda(
             this.program,
@@ -527,20 +548,16 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                 SystemProgram.transfer({
                     fromPubkey: data.user,
                     toPubkey: userExTokenAta,
-                    lamports: BigInt(data.value.toString()),
+                    lamports: BigInt(
+                        data.value
+                            .mul(marketAccountData.pledgeRate)
+                            .div(new BN(WEI6))
+                            .toString()
+                    ),
                 })
             );
 
             tx.add(createSyncNativeInstruction(userExTokenAta));
-
-            if (createFeeWalletAtaTx)
-                tx.add(
-                    createCloseAccountInstruction(
-                        userExTokenAta,
-                        data.user,
-                        data.user
-                    )
-                );
         }
 
         const createOrderTx = await this.program.methods
@@ -549,7 +566,6 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                 data.orderType,
                 data.amount,
                 data.value,
-                data.slippage,
                 data.isBid
             )
             .accounts({
@@ -566,6 +582,70 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             .transaction();
 
         tx.add(createOrderTx);
+
+        if (data.matchOrderIds?.length) {
+            const vaultExTokenPda = getVaultExTokenAccountPda(
+                this.program,
+                this.configPda,
+                marketAccountData.exToken
+            );
+
+            const feeWalletExTokenAta = await getAssociatedTokenAddress(
+                marketAccountData.exToken,
+                this.configAccountData.feeWallet,
+                false,
+                exTokenInfo.value.owner
+            );
+
+            const isBuy = Object.keys(data.orderType).includes("buy");
+
+            let length = data.matchOrderIds.length;
+            for (let i = 0; i < length; i++) {
+                let orderBuyId = isBuy ? _orderId : data.matchOrderIds[i];
+                let orderSellId = !isBuy ? _orderId : data.matchOrderIds[i];
+                const orderBuyPda = getOrderAccountPda(
+                    this.program,
+                    this.configPda,
+                    data.marketId,
+                    orderBuyId
+                );
+                const orderSellPda = getOrderAccountPda(
+                    this.program,
+                    this.configPda,
+                    data.marketId,
+                    orderSellId
+                );
+
+                let tradeId = (await this.fetchLastTradeId(data.marketId)).add(
+                    new BN(i + 1)
+                );
+                const tradePda = getTradeAccountPda(
+                    this.program,
+                    this.configPda,
+                    data.marketId,
+                    tradeId
+                );
+
+                const matchOrderTx = await this.program.methods
+                    .matchOrder(data.marketId, orderBuyId, orderSellId)
+                    .accounts({
+                        marketAccount: marketPda,
+                        orderBuyAccount: orderBuyPda,
+                        orderSellAccount: orderSellPda,
+                        tradeAccount: tradePda,
+                        configAccount: this.configPda,
+                        vaultExTokenAccount: vaultExTokenPda,
+                        feeExTokenAccount: feeWalletExTokenAta,
+                        exToken: marketAccountData.exToken,
+                        user: data.user,
+                        authority: this.configAccountData.authority,
+                        tokenProgram: exTokenInfo.value.owner,
+                    })
+                    .transaction();
+
+                tx.add(matchOrderTx);
+            }
+        }
 
         return tx;
     }
@@ -792,6 +872,249 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                 configAccount: this.configPda,
                 user: data.user,
                 authority: this.configAccountData.authority,
+            })
+            .transaction();
+
+        return transaction;
+    }
+
+    /**
+     * cashout an trade
+     * @param user user address who is one of buyer seller or seller of trade
+     * @param marketId id of market
+     * @param tradeId id of trade
+     * @param amount cashout amount
+     * @param value cashout value
+     * @param cashoutId id of new cashout (optional)
+     * @param matchOrderIds list order id that match with new cashout (optional)
+     * @returns
+     */
+    async cashoutTrade(data: {
+        user: PublicKey;
+        marketId: BN;
+        tradeId: BN;
+        amount: BN;
+        value: BN;
+        cashoutId?: BN;
+        matchOrderIds?: BN[];
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId
+        );
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        let _cashoutId = data.cashoutId;
+        if (!_cashoutId) {
+            _cashoutId = (await this.fetchLastCashoutId(data.marketId)).add(
+                new BN(1)
+            );
+        }
+
+        const cashoutPda = getCashoutAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            _cashoutId
+        );
+
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.tradeId
+        );
+
+        const cashoutTx = await this.program.methods
+            .cashoutTrade(data.marketId, data.tradeId, data.amount, data.value)
+            .accounts({
+                marketAccount: marketPda,
+                cashoutAccount: cashoutPda,
+                tradeAccount: tradePda,
+                configAccount: this.configPda,
+                user: data.user,
+                authority: this.configAccountData.authority,
+            })
+            .transaction();
+
+        const tx = new Transaction();
+
+        tx.add(cashoutTx);
+
+        if (data.matchOrderIds?.length) {
+            const exTokenInfo = await this.connection.getParsedAccountInfo(
+                marketAccountData.exToken
+            );
+            if (!exTokenInfo.value) throw new Error("Invalid ex token");
+
+            const vaultExTokenPda = getVaultExTokenAccountPda(
+                this.program,
+                this.configPda,
+                marketAccountData.exToken
+            );
+
+            const [cashoutByExTokenAta, feeWalletExTokenAta] =
+                await Promise.all([
+                    getAssociatedTokenAddress(
+                        marketAccountData.exToken,
+                        data.user,
+                        false,
+                        exTokenInfo.value.owner
+                    ),
+                    getAssociatedTokenAddress(
+                        marketAccountData.exToken,
+                        this.configAccountData.feeWallet,
+                        false,
+                        exTokenInfo.value.owner
+                    ),
+                ]);
+
+            let length = data.matchOrderIds.length;
+            for (let i = 0; i < length; i++) {
+                let _tradeId = (await this.fetchLastTradeId(data.marketId)).add(
+                    new BN(i + 1)
+                );
+                const _tradePda = getTradeAccountPda(
+                    this.program,
+                    this.configPda,
+                    data.marketId,
+                    _tradeId
+                );
+
+                const orderPda = getOrderAccountPda(
+                    this.program,
+                    this.configPda,
+                    data.marketId,
+                    data.matchOrderIds[i]
+                );
+
+                const matchCashoutOrderTx = await this.program.methods
+                    .matchCashoutOrder(
+                        data.marketId,
+                        _cashoutId,
+                        data.matchOrderIds[i]
+                    )
+                    .accounts({
+                        marketAccount: marketPda,
+                        cashoutAccount: cashoutPda,
+                        orderAccount: orderPda,
+                        tradeCashoutAccount: tradePda,
+                        tradeAccount: _tradePda,
+                        configAccount: this.configPda,
+                        vaultExTokenAccount: vaultExTokenPda,
+                        cashoutByExTokenAccount: cashoutByExTokenAta,
+                        feeExTokenAccount: feeWalletExTokenAta,
+                        exToken: marketAccountData.exToken,
+                        user: data.user,
+                        authority: this.configAccountData.authority,
+                        tokenProgram: exTokenInfo.value.owner,
+                    })
+                    .transaction();
+
+                tx.add(matchCashoutOrderTx);
+            }
+        }
+
+        return tx;
+    }
+
+    /**
+     * match cashout with open order
+     * @param user user address who is one of buyer seller or seller of trade
+     * @param marketId id of market
+     * @param cashoutId id of cashout
+     * @param orderId id of cashout
+     * @param tradeId id of new trade (optional)
+     * @returns
+     */
+    async matchCashoutOrder(data: {
+        user: PublicKey;
+        marketId: BN;
+        cashoutId: BN;
+        orderId: BN;
+        tradeId?: BN;
+    }): Promise<Transaction> {
+        const marketPda = getMarketAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId
+        );
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            marketAccountData.exToken
+        );
+        if (!exTokenInfo.value) throw new Error("Invalid ex token");
+
+        const cashoutPda = getCashoutAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.orderId
+        );
+
+        const orderPda = getOrderAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.orderId
+        );
+
+        let _tradeId = data.tradeId;
+        if (!_tradeId) {
+            _tradeId = (await this.fetchLastTradeId(data.marketId)).add(
+                new BN(1)
+            );
+        }
+
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            _tradeId
+        );
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const feeWalletExTokenAta = await getAssociatedTokenAddress(
+            marketAccountData.exToken,
+            this.configAccountData.feeWallet,
+            false,
+            exTokenInfo.value.owner
+        );
+
+        const cashoutAccountData = await this.fetchCashoutccount(
+            data.marketId,
+            data.cashoutId
+        );
+
+        const tradeCashoutPda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            cashoutAccountData.tradeId
+        );
+
+        const transaction = await this.program.methods
+            .matchCashoutOrder(data.marketId, data.cashoutId, data.orderId)
+            .accounts({
+                marketAccount: marketPda,
+                cashoutAccount: cashoutPda,
+                orderAccount: orderPda,
+                tradeCashoutAccount: tradeCashoutPda,
+                tradeAccount: tradePda,
+                configAccount: this.configPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                feeExTokenAccount: feeWalletExTokenAta,
+                exToken: marketAccountData.exToken,
+                user: data.user,
+                authority: this.configAccountData.authority,
+                tokenProgram: exTokenInfo.value.owner,
             })
             .transaction();
 
