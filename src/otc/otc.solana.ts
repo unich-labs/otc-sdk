@@ -12,7 +12,6 @@ import {
     SystemProgram,
 } from "@solana/web3.js";
 import {
-    getCashoutAccountPda,
     getConfigAccountPda,
     getMarketAccountPda,
     getOrderAccountPda,
@@ -29,7 +28,12 @@ import {
     idlErrors,
     parseCustomError,
 } from "./solana/errors";
-import { OtcEventHandlers, OtcEventType } from "./solana/types";
+import {
+    NewOrderEvent,
+    NewTradeEvent,
+    OtcEventHandlers,
+    OtcEventType,
+} from "./solana/types";
 import { checkOrCreateAssociatedTokenAccount } from "./solana/utils";
 import { IOtc } from "./otc.interface";
 import { CHAIN_ID, CONTRACTS, WEI6 } from "../configs";
@@ -160,26 +164,6 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
     }
 
     /**
-     * fetch cashout account data
-     * @param marketId id of market
-     * @param cashoutId id of cashout
-     * @returns trade account
-     */
-    fetchCashoutccount(
-        marketId: BN,
-        cashoutId: BN
-    ): Promise<anchor.IdlAccounts<Otc>["cashoutAccount"]> {
-        return this.program.account.cashoutAccount.fetch(
-            getCashoutAccountPda(
-                this.program,
-                this.configPda,
-                marketId,
-                cashoutId
-            )
-        );
-    }
-
-    /**
      * fetch last order id
      * @param marketId id of market
      * @returns lastOrderId
@@ -195,15 +179,6 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
      */
     async fetchLastTradeId(marketId: BN): Promise<BN> {
         return this.fetchMarketAccount(marketId).then((r) => r.lastTradeId);
-    }
-
-    /**
-     * fetch last cashout id
-     * @param marketId
-     * @returns lastCashoutId
-     */
-    async fetchLastCashoutId(marketId: BN): Promise<BN> {
-        return this.fetchMarketAccount(marketId).then((r) => r.lastCashoutId);
     }
 
     /**
@@ -366,7 +341,7 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             settleTime?: BN;
             settleDuration?: BN;
             settleRate?: BN;
-            pledgeRate?: BN;
+            minTrade?: BN;
         };
     }): Promise<Transaction> {
         const marketPda = getMarketAccountPda(
@@ -387,7 +362,7 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                 data.updateData.settleTime ?? null,
                 data.updateData.settleDuration ?? null,
                 data.updateData.settleRate ?? null,
-                data.updateData.pledgeRate ?? null
+                data.updateData.minTrade ?? null
             )
             .accounts({
                 marketAccount: marketPda,
@@ -480,10 +455,10 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
      * @param marketId id of market
      * @param orderId id of order (optional)
      * @param user user address who create order
-     * @param orderType order type (buy/sell)
+     * @param orderSide order type (buy/sell)
      * @param amount OTC token amount of order
      * @param value exchange token value of order
-     * @param isBid bid order?
+     * @param orderType 0 - standard order, 1 - bid order, 2 - cashout order
      * @param matchOrderIds list order id that matched with new order
      * @returns Promise<Transaction>
      */
@@ -491,10 +466,10 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         marketId: BN;
         orderId?: BN;
         user: PublicKey;
-        orderType: IdlTypes<Otc>["OrderType"];
+        orderSide: IdlTypes<Otc>["OrderSide"];
         amount: BN;
         value: BN;
-        isBid: boolean;
+        orderType: number;
         matchOrderIds?: BN[];
     }): Promise<Transaction> {
         const marketPda = getMarketAccountPda(
@@ -563,10 +538,10 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         const createOrderTx = await this.program.methods
             .createOrder(
                 data.marketId,
-                data.orderType,
+                data.orderSide,
                 data.amount,
                 data.value,
-                data.isBid
+                data.orderType
             )
             .accounts({
                 marketAccount: marketPda,
@@ -597,7 +572,7 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
                 exTokenInfo.value.owner
             );
 
-            const isBuy = Object.keys(data.orderType).includes("buy");
+            const isBuy = Object.keys(data.orderSide).includes("buy");
 
             let length = data.matchOrderIds.length;
             for (let i = 0; i < length; i++) {
@@ -828,6 +803,13 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         orderSellId: BN;
         tradeId?: BN;
     }): Promise<Transaction> {
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            marketAccountData.exToken
+        );
+        if (!exTokenInfo.value) throw new Error("Invalid ex token");
+
         const marketPda = getMarketAccountPda(
             this.program,
             this.configPda,
@@ -862,16 +844,33 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             _tradeId
         );
 
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const feeWalletExTokenAta = await getAssociatedTokenAddress(
+            marketAccountData.exToken,
+            this.configAccountData.feeWallet,
+            false,
+            exTokenInfo.value.owner
+        );
+
         const transaction = await this.program.methods
             .matchOrder(data.marketId, data.orderBuyId, data.orderSellId)
             .accounts({
                 marketAccount: marketPda,
                 orderBuyAccount: orderBuyPda,
                 orderSellAccount: orderSellPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                feeExTokenAccount: feeWalletExTokenAta,
                 tradeAccount: tradePda,
                 configAccount: this.configPda,
+                exToken: marketAccountData.exToken,
                 user: data.user,
                 authority: this.configAccountData.authority,
+                tokenProgram: exTokenInfo.value.owner,
             })
             .transaction();
 
@@ -907,12 +906,12 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
 
         let _cashoutId = data.cashoutId;
         if (!_cashoutId) {
-            _cashoutId = (await this.fetchLastCashoutId(data.marketId)).add(
+            _cashoutId = (await this.fetchLastOrderId(data.marketId)).add(
                 new BN(1)
             );
         }
 
-        const cashoutPda = getCashoutAccountPda(
+        const cashoutPda = getOrderAccountPda(
             this.program,
             this.configPda,
             data.marketId,
@@ -1024,7 +1023,7 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
      * @param user user address who is one of buyer seller or seller of trade
      * @param marketId id of market
      * @param cashoutId id of cashout
-     * @param orderId id of cashout
+     * @param orderId id of order that is matched with cashout
      * @param tradeId id of new trade (optional)
      * @returns
      */
@@ -1047,11 +1046,11 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
         );
         if (!exTokenInfo.value) throw new Error("Invalid ex token");
 
-        const cashoutPda = getCashoutAccountPda(
+        const cashoutPda = getOrderAccountPda(
             this.program,
             this.configPda,
             data.marketId,
-            data.orderId
+            data.cashoutId
         );
 
         const orderPda = getOrderAccountPda(
@@ -1088,7 +1087,7 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             exTokenInfo.value.owner
         );
 
-        const cashoutAccountData = await this.fetchCashoutccount(
+        const cashoutAccountData = await this.fetchOrderAccount(
             data.marketId,
             data.cashoutId
         );
@@ -1441,6 +1440,26 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
             (event: any, slot: number, signature: string) => {
                 let processedEvent;
                 switch (eventType) {
+                    case "NewOrderEvent":
+                        processedEvent = event as NewOrderEvent;
+                        callback(
+                            processedEvent as OtcEventHandlers[T],
+                            slot,
+                            signature
+                        );
+                        break;
+
+                    case "NewTradeEvent":
+                        processedEvent = event as NewTradeEvent;
+                        callback(
+                            processedEvent as OtcEventHandlers[T],
+                            slot,
+                            signature
+                        );
+                        break;
+
+                    // TODO add more events
+
                     default:
                         console.error("Unhandled event type:", eventType);
                 }

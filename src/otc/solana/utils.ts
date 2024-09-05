@@ -53,15 +53,6 @@ export async function checkOrCreateAssociatedTokenAccount(
     return { ata, tx: null };
 }
 
-export async function getNumberDecimals(
-    connection: Connection,
-    token: PublicKey
-): Promise<number> {
-    const info = await connection.getParsedAccountInfo(token);
-    const result = (info.value?.data as any).parsed.info.decimals as number;
-    return result;
-}
-
 export async function buildInstructionsWrapSol(
     connection: Connection,
     user: PublicKey,
@@ -112,10 +103,3 @@ export async function buildInstructionsUnWrapSol(user: PublicKey) {
     );
     return instructions;
 }
-
-export const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-export const randomInt = (min: number, max: number) => {
-    min = Math.max(1, min);
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};

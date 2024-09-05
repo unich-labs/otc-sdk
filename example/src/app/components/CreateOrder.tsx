@@ -131,13 +131,13 @@ export default function CreateOffer() {
                     marketId,
                     // orderId, // optional
                     user: usePublicKey,
-                    orderType:
+                    orderSide:
                         offerType == EOrderType.Sell
                             ? { sell: {} }
                             : { buy: {} },
                     amount: parsedAmount,
                     value: value,
-                    isBid,
+                    orderType: 0,
                     // only work if this order is order buy or comment matchOrderIds
                     matchOrderIds:
                         offerType == EOrderType.Sell ? [] : matchOrderIds,

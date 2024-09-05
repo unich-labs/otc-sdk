@@ -1,80 +1,35 @@
-import { PublicKey, VersionedTransactionResponse } from "@solana/web3.js";
+import { IdlTypes } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+import BN from "bn.js";
+import { Otc } from "./idl/otc";
 
-export type CreateTokenMetadata = {
-	name: string;
-	symbol: string;
-	description: string;
-	file: Blob;
-	twitter?: string;
-	telegram?: string;
-	website?: string;
+export type NewOrderEvent = {
+    configAccount: PublicKey;
+    marketId: BN;
+    orderId: BN;
+    orderSide: IdlTypes<Otc>["OrderSide"];
+    amount: BN;
+    value: BN;
+    orderType: number;
+    orderBy: PublicKey;
 };
 
-export type TokenMetadata = {
-	name: string;
-	symbol: string;
-	description: string;
-	image: string;
-	showName: boolean;
-	createdOn: string;
-	twitter: string;
-};
-
-export type CreateEvent = {
-	name: string;
-	symbol: string;
-	uri: string;
-	mint: PublicKey;
-	bondingCurve: PublicKey;
-	user: PublicKey;
-};
-
-export type TradeEvent = {
-	mint: PublicKey;
-	solAmount: bigint;
-	tokenAmount: bigint;
-	isBuy: boolean;
-	user: PublicKey;
-	timestamp: number;
-	virtualSolReserves: bigint;
-	virtualTokenReserves: bigint;
-	realSolReserves: bigint;
-	realTokenReserves: bigint;
-};
-
-export type CompleteEvent = {
-	user: PublicKey;
-	mint: PublicKey;
-	bondingCurve: PublicKey;
-	timestamp: number;
-};
-
-export type SetParamsEvent = {
-	feeRecipient: PublicKey;
-	initialVirtualTokenReserves: bigint;
-	initialVirtualSolReserves: bigint;
-	initialRealTokenReserves: bigint;
-	tokenTotalSupply: bigint;
-	feeBasisPoints: bigint;
+export type NewTradeEvent = {
+    configAccount: PublicKey;
+    marketId: BN;
+    tradeId: BN;
+    orderId: BN;
+    matchedOrderId: BN;
+    amount: BN;
+    buyerValue: BN;
+    sellerValue: BN;
+    buyer: PublicKey;
+    seller: PublicKey;
 };
 
 export interface OtcEventHandlers {
-	// createEvent: CreateEvent;
-	// tradeEvent: TradeEvent;
-	// completeEvent: CompleteEvent;
-	// setParamsEvent: SetParamsEvent;
+    NewOrderEvent: NewOrderEvent;
+    NewTradeEvent: NewTradeEvent;
 }
 
 export type OtcEventType = keyof OtcEventHandlers;
-
-export type PriorityFee = {
-	unitLimit: number;
-	unitPrice: number;
-};
-
-export type TransactionResult = {
-	signature?: string;
-	error?: unknown;
-	results?: VersionedTransactionResponse;
-	success: boolean;
-};

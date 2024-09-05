@@ -136,20 +136,3 @@ export const getTradeAccountPda = (
         program.programId
     )[0];
 };
-
-export const getCashoutAccountPda = (
-    program: Program<Otc>,
-    configAccount: PublicKey,
-    marketId: BN,
-    cashoutId: BN
-) => {
-    return PublicKey.findProgramAddressSync(
-        [
-            getSeed("CASHOUT_PDA_SEED", program),
-            configAccount.toBuffer(),
-            toBuffer(marketId, "be", 8),
-            toBuffer(cashoutId, "be", 8),
-        ],
-        program.programId
-    )[0];
-};
