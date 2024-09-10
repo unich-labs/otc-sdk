@@ -1246,6 +1246,10 @@ export type Otc = {
             "type": "u64"
           },
           {
+            "name": "totalReserve",
+            "type": "u64"
+          },
+          {
             "name": "settled",
             "type": "u8"
           },
@@ -3126,6 +3130,10 @@ export const IDL: Otc = {
           },
           {
             "name": "sellerValue",
+            "type": "u64"
+          },
+          {
+            "name": "totalReserve",
             "type": "u64"
           },
           {

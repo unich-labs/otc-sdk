@@ -424,17 +424,17 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
 
     /**
      * Cash out trades with ids
-     * @param tradeIds list id of trade that is cash out
+     * @param tradeId id of trade that is cash out
      * @param amount cash out amount
      * @param price cash out price
      * @returns Promise<ContractTransaction>
      */
-    async cashOutTrades(data: {
+    async cashOutTrade(data: {
         tradeId: bigint;
         amount: bigint;
         price: number;
     }): Promise<ContractTransaction> {
-        return this.contract.cashOutTrades.populateTransaction(
+        return this.contract.cashOutTrade.populateTransaction(
             data.tradeId,
             data.amount,
             this.getSqrtX96(data.price)
@@ -442,7 +442,6 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
     }
 
     async buyCashOut(cashOutId: bigint): Promise<ContractTransaction> {
-        // TODO impl
         return this.contract.buyCashOut.populateTransaction(cashOutId);
     }
 
