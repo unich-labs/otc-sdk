@@ -552,6 +552,85 @@ export type Otc = {
       ]
     },
     {
+      "name": "matchBidOrder",
+      "accounts": [
+        {
+          "name": "tradeAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marketAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderBidAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultExTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feeExTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "configAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "exToken",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "marketId",
+          "type": "u64"
+        },
+        {
+          "name": "orderId",
+          "type": "u64"
+        },
+        {
+          "name": "orderBidId",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "cancelOrder",
       "accounts": [
         {
@@ -2434,6 +2513,85 @@ export const IDL: Otc = {
         },
         {
           "name": "orderSellId",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "matchBidOrder",
+      "accounts": [
+        {
+          "name": "tradeAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marketAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orderBidAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultExTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feeExTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "configAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "exToken",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "marketId",
+          "type": "u64"
+        },
+        {
+          "name": "orderId",
+          "type": "u64"
+        },
+        {
+          "name": "orderBidId",
           "type": "u64"
         }
       ]

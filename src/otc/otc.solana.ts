@@ -878,6 +878,96 @@ export class OtcSolana implements IOtc<PublicKey, BN, Transaction> {
     }
 
     /**
+     * match open order with bid order
+     * @param user user address who match order
+     * @param marketId id of market
+     * @param orderId id of order that accept bid order
+     * @param orderBidId id of bid order
+     * @param tradeId id of trade (optional)
+     * @returns
+     */
+    async matchBidOrder(data: {
+        user: PublicKey;
+        marketId: BN;
+        orderId: BN;
+        orderBidId: BN;
+        tradeId?: BN;
+    }): Promise<Transaction> {
+        const marketAccountData = await this.fetchMarketAccount(data.marketId);
+
+        const exTokenInfo = await this.connection.getParsedAccountInfo(
+            marketAccountData.exToken
+        );
+        if (!exTokenInfo.value) throw new Error("Invalid ex token");
+
+        const marketPda = getMarketAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId
+        );
+
+        const orderPda = getOrderAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.orderId
+        );
+
+        const orderBidPda = getOrderAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            data.orderBidId
+        );
+
+        let _tradeId = data.tradeId;
+        if (!_tradeId) {
+            _tradeId = (await this.fetchLastTradeId(data.marketId)).add(
+                new BN(1)
+            );
+        }
+
+        const tradePda = getTradeAccountPda(
+            this.program,
+            this.configPda,
+            data.marketId,
+            _tradeId
+        );
+
+        const vaultExTokenPda = getVaultExTokenAccountPda(
+            this.program,
+            this.configPda,
+            marketAccountData.exToken
+        );
+
+        const feeWalletExTokenAta = await getAssociatedTokenAddress(
+            marketAccountData.exToken,
+            this.configAccountData.feeWallet,
+            false,
+            exTokenInfo.value.owner
+        );
+
+        const transaction = await this.program.methods
+            .matchBidOrder(data.marketId, data.orderId, data.orderBidId)
+            .accounts({
+                marketAccount: marketPda,
+                orderAccount: orderPda,
+                orderBidAccount: orderBidPda,
+                vaultExTokenAccount: vaultExTokenPda,
+                feeExTokenAccount: feeWalletExTokenAta,
+                tradeAccount: tradePda,
+                configAccount: this.configPda,
+                exToken: marketAccountData.exToken,
+                user: data.user,
+                authority: this.configAccountData.authority,
+                tokenProgram: exTokenInfo.value.owner,
+            })
+            .transaction();
+
+        return transaction;
+    }
+
+    /**
      * cashout an trade
      * @param user user address who is one of buyer seller or seller of trade
      * @param marketId id of market
