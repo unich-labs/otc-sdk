@@ -4,7 +4,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
 import { ethers } from "ethers";
 import { Button, Checkbox, Dropdown, Label, TextInput } from "flowbite-react";
-import { EOrderType, OtcEvm, OtcSolana, CHAIN_ID } from "otc-sdk";
+import { EOrderSide, EOrderType, OtcEvm, OtcSolana, CHAIN_ID } from "otc-sdk";
 import { useCallback, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -28,7 +28,7 @@ export default function CreateOffer() {
     const [marketId, setMarketId] = useState<string>(
         "0xd03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28"
     );
-    const [offerType, setOfferType] = useState<EOrderType>(EOrderType.Sell);
+    const [orderSide, setOrderSide] = useState<EOrderSide>(EOrderSide.Sell);
     const [amount, setAmount] = useState<number>(10);
     const [price, setPrice] = useState<number>(1);
     const [isBid, setIdBid] = useState<boolean>(false);
@@ -68,11 +68,11 @@ export default function CreateOffer() {
                 // });
 
                 const createOrderTx = await otc.createOrder({
-                    offerType,
+                    orderSide,
                     marketId,
                     amount: parsedAmount,
                     price,
-                    isBid: false,
+                    orderType: EOrderType.Standard,
                 });
 
                 txHash = await sendTransaction(config as any, {
@@ -100,7 +100,7 @@ export default function CreateOffer() {
                 );
             }
         },
-        [address, offerType, marketId, amount, price]
+        [address, orderSide, marketId, amount, price]
     );
 
     const handleCreateSolana = useCallback(
@@ -132,7 +132,7 @@ export default function CreateOffer() {
                     // orderId, // optional
                     user: usePublicKey,
                     orderSide:
-                        offerType == EOrderType.Sell
+                        orderSide == EOrderSide.Sell
                             ? { sell: {} }
                             : { buy: {} },
                     amount: parsedAmount,
@@ -140,7 +140,7 @@ export default function CreateOffer() {
                     orderType: 0,
                     // only work if this order is order buy or comment matchOrderIds
                     matchOrderIds:
-                        offerType == EOrderType.Sell ? [] : matchOrderIds,
+                        orderSide == EOrderSide.Sell ? [] : matchOrderIds,
                 });
 
                 const signature = await sendTransactionSolana(
@@ -165,7 +165,7 @@ export default function CreateOffer() {
                 alert(err);
             }
         },
-        [connection, usePublicKey, offerType, marketId, amount, price]
+        [connection, usePublicKey, orderSide, marketId, amount, price]
     );
 
     const handleCashoutSolana = useCallback(
@@ -227,7 +227,7 @@ export default function CreateOffer() {
                 alert(err);
             }
         },
-        [connection, usePublicKey, offerType, marketId, amount, price]
+        [connection, usePublicKey, orderSide, marketId, amount, price]
     );
 
     return (
@@ -258,24 +258,24 @@ export default function CreateOffer() {
                     <div className="mb-2 block">
                         <Label
                             className="text-white"
-                            htmlFor="offerType"
+                            htmlFor="orderSide"
                             value="Offer type"
                         />
                     </div>
 
                     <Dropdown
-                        label={offerType === EOrderType.Buy ? "Buy" : "Sell"}
-                        value={offerType}
+                        label={orderSide === EOrderSide.Buy ? "Buy" : "Sell"}
+                        value={orderSide}
                     >
                         <Dropdown.Item
-                            value={EOrderType.Buy}
-                            onClick={() => setOfferType(EOrderType.Buy)}
+                            value={EOrderSide.Buy}
+                            onClick={() => setOrderSide(EOrderSide.Buy)}
                         >
                             Buy
                         </Dropdown.Item>
                         <Dropdown.Item
-                            value={EOrderType.Sell}
-                            onClick={() => setOfferType(EOrderType.Sell)}
+                            value={EOrderSide.Sell}
+                            onClick={() => setOrderSide(EOrderSide.Sell)}
                         >
                             Sell
                         </Dropdown.Item>
