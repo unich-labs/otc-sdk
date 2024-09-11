@@ -5,7 +5,7 @@ import chaiAsPromised from "chai-as-promised";
 import {
     CHAIN_ID,
     CONTRACTS,
-    EOrderType,
+    EOrderSide,
     EvmAddress,
     OtcEvm,
     WEI6,
@@ -65,7 +65,7 @@ describe("OTC EVM testing", () => {
     });
 
     it("Create Sell offer without Native coin", async () => {
-        const offerType = EOrderType.Sell;
+        const offerType = EOrderSide.Sell;
         const amount = 100n * BigInt(WEI6) * BigInt(WEI6) * BigInt(WEI6);
         const price = 0.1;
         const isBid = false;
@@ -75,12 +75,12 @@ describe("OTC EVM testing", () => {
         //         data: "0xa61707b70000000000000000000000000000000000000000000000000000000000000002d03a9f836291dd24616bdb5d2ed41e6e8946457d29314ba5e9fe483669dd0f28000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000050f44d8921243c00000000000000000000000000000000000000000000000000000000000000000000000000",
         //         value: 1000000n, // TODO use sdk
         //     },
-        //     await otc.createOrder(offerType, marketId, amount, price, isBid)
+        // await otc.createOrder(offerType, marketId, amount, price, isBid);
         // );
     });
 
     // it("Create Sell offer with Native coin", async () => {
-    //     const offerType = EOrderType.Sell;
+    //     const offerType = EOrderSide.Sell;
     //     const amount = BigInt(1000) * BigInt(WEI6);
     //     const price = 0.1;
     //     const isBid = false;

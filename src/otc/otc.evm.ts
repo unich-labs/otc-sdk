@@ -11,6 +11,7 @@ import {
     CHAINS,
     CHAIN_ID,
     CONTRACTS,
+    EOrderSide,
     EOrderType,
     EvmAddress,
     WEI6,
@@ -87,8 +88,7 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
             settleRate: token[5],
             status: token[6],
             minTrade: token[7],
-            tokenDecimals: token[8],
-            exTokenDecimals: token[9],
+            exTokenDecimals: token[8],
         };
     }
 
@@ -101,13 +101,14 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
         const order = await this._contract.orders(orderId);
         return {
             marketId: order[0],
-            orderType: order[1],
-            isBid: order[2],
-            amount: order[3],
-            sqrtPriceX96: order[4],
-            filledAmount: order[5],
-            status: order[6],
+            orderSide: order[1],
+            amount: order[2],
+            sqrtPriceX96: order[3],
+            filledAmount: order[4],
+            status: order[5],
+            orderType: order[6],
             orderBy: order[7],
+            cashoutTradeId: order[8],
         };
     }
 
@@ -288,28 +289,28 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
 
     /**
      * Create a new order
-     * @param offerType order type
+     * @param orderSide order type
      * @param marketId id of market
      * @param amount order amount
      * @param price order price
-     * @param isBid is bid order
+     * @param orderType order type (0 standard order, 1 bid order)
      * @returns Promise<ContractTransaction>
      */
     async createOrder(data: {
-        offerType: EOrderType;
+        orderSide: EOrderSide;
         marketId: string;
         amount: bigint;
         price: number;
-        isBid: boolean;
+        orderType: EOrderType;
     }): Promise<ContractTransaction> {
         let methodName = "createOrder";
         const sqrtPriceX96 = BigInt(Math.sqrt(data.price) * 2 ** 96);
         let payload = [
-            data.offerType,
+            data.orderSide,
             data.marketId,
             data.amount,
             sqrtPriceX96,
-            data.isBid,
+            data.orderType,
         ];
 
         let overrides = {};
@@ -429,12 +430,12 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
      * @param price cash out price
      * @returns Promise<ContractTransaction>
      */
-    async cashOutTrade(data: {
+    async cashoutTrade(data: {
         tradeId: bigint;
         amount: bigint;
         price: number;
     }): Promise<ContractTransaction> {
-        return this.contract.cashOutTrade.populateTransaction(
+        return this.contract.cashoutTrade.populateTransaction(
             data.tradeId,
             data.amount,
             this.getSqrtX96(data.price)
@@ -500,8 +501,8 @@ export class OtcEvm implements IOtc<EvmAddress, bigint, ContractTransaction> {
                         event = "TradeSettleCancelled";
                         break;
 
-                    case OTC_TOPIC0.TradeCashOuted:
-                        event = "TradeCashOuted";
+                    case OTC_TOPIC0.CashoutedFilled:
+                        event = "CashoutedFilled";
                         break;
 
                     default:

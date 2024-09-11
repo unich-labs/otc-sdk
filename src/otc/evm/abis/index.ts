@@ -158,7 +158,7 @@ export const OtcAbi = [
             {
                 indexed: false,
                 internalType: "uint8",
-                name: "orderType",
+                name: "orderSide",
                 type: "uint8",
             },
             {
@@ -175,15 +175,21 @@ export const OtcAbi = [
             },
             {
                 indexed: false,
+                internalType: "uint8",
+                name: "orderType",
+                type: "uint8",
+            },
+            {
+                indexed: false,
                 internalType: "address",
                 name: "doer",
                 type: "address",
             },
             {
                 indexed: false,
-                internalType: "bool",
-                name: "isBid",
-                type: "bool",
+                internalType: "uint256",
+                name: "tradeId",
+                type: "uint256",
             },
         ],
         name: "NewOrder",
@@ -380,31 +386,6 @@ export const OtcAbi = [
         inputs: [
             {
                 indexed: false,
-                internalType: "uint256",
-                name: "orderId",
-                type: "uint256",
-            },
-            {
-                indexed: false,
-                internalType: "bytes32",
-                name: "hash",
-                type: "bytes32",
-            },
-            {
-                indexed: false,
-                internalType: "address",
-                name: "doer",
-                type: "address",
-            },
-        ],
-        name: "Settle2Steps",
-        type: "event",
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
                 internalType: "bytes32",
                 name: "marketId",
                 type: "bytes32",
@@ -455,7 +436,7 @@ export const OtcAbi = [
             {
                 indexed: false,
                 internalType: "address",
-                name: "cashOutBy",
+                name: "cashoutBy",
                 type: "address",
             },
             {
@@ -471,7 +452,7 @@ export const OtcAbi = [
                 type: "uint160",
             },
         ],
-        name: "TradeCashOuted",
+        name: "TradeCashouted",
         type: "event",
     },
     {
@@ -607,19 +588,6 @@ export const OtcAbi = [
     },
     {
         inputs: [],
-        name: "ADMIN_ROLE",
-        outputs: [
-            {
-                internalType: "bytes32",
-                name: "",
-                type: "bytes32",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
         name: "DEFAULT_ADMIN_ROLE",
         outputs: [
             {
@@ -642,24 +610,6 @@ export const OtcAbi = [
             },
         ],
         stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "cashOutId",
-                type: "uint256",
-            },
-            {
-                internalType: "uint256",
-                name: "amount",
-                type: "uint256",
-            },
-        ],
-        name: "buyCashOut",
-        outputs: [],
-        stateMutability: "nonpayable",
         type: "function",
     },
     {
@@ -693,48 +643,9 @@ export const OtcAbi = [
                 type: "uint160",
             },
         ],
-        name: "cashOutTrade",
+        name: "cashoutTrade",
         outputs: [],
         stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        name: "cashOuts",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "tradeId",
-                type: "uint256",
-            },
-            {
-                internalType: "address",
-                name: "cashOutBy",
-                type: "address",
-            },
-            {
-                internalType: "uint256",
-                name: "amount",
-                type: "uint256",
-            },
-            {
-                internalType: "uint160",
-                name: "sqrtPriceX96",
-                type: "uint160",
-            },
-            {
-                internalType: "uint256",
-                name: "filledAmount",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
         type: "function",
     },
     {
@@ -787,7 +698,7 @@ export const OtcAbi = [
         inputs: [
             {
                 internalType: "uint8",
-                name: "orderType",
+                name: "orderSide",
                 type: "uint8",
             },
             {
@@ -806,9 +717,9 @@ export const OtcAbi = [
                 type: "uint160",
             },
             {
-                internalType: "bool",
-                name: "isBid",
-                type: "bool",
+                internalType: "uint8",
+                name: "orderType",
+                type: "uint8",
             },
         ],
         name: "createOrder",
@@ -951,23 +862,21 @@ export const OtcAbi = [
         type: "function",
     },
     {
-        inputs: [],
+        inputs: [
+            {
+                internalType: "address",
+                name: "admin",
+                type: "address",
+            },
+            {
+                internalType: "address",
+                name: "feeWallet",
+                type: "address",
+            },
+        ],
         name: "initialize",
         outputs: [],
         stateMutability: "nonpayable",
-        type: "function",
-    },
-    {
-        inputs: [],
-        name: "lastCashOutId",
-        outputs: [
-            {
-                internalType: "uint256",
-                name: "",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "view",
         type: "function",
     },
     {
@@ -1074,11 +983,6 @@ export const OtcAbi = [
             },
             {
                 internalType: "uint8",
-                name: "tokenDecimals",
-                type: "uint8",
-            },
-            {
-                internalType: "uint8",
                 name: "exTokenDecimals",
                 type: "uint8",
             },
@@ -1149,13 +1053,8 @@ export const OtcAbi = [
             },
             {
                 internalType: "uint8",
-                name: "orderType",
+                name: "orderSide",
                 type: "uint8",
-            },
-            {
-                internalType: "bool",
-                name: "isBid",
-                type: "bool",
             },
             {
                 internalType: "uint256",
@@ -1178,9 +1077,19 @@ export const OtcAbi = [
                 type: "uint8",
             },
             {
+                internalType: "uint8",
+                name: "orderType",
+                type: "uint8",
+            },
+            {
                 internalType: "address",
                 name: "orderBy",
                 type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "cashoutTradeId",
+                type: "uint256",
             },
         ],
         stateMutability: "view",
@@ -1337,12 +1246,12 @@ export const OtcAbi = [
             },
             {
                 internalType: "uint256",
-                name: "buyerCashOuted",
+                name: "buyerCashouted",
                 type: "uint256",
             },
             {
                 internalType: "uint256",
-                name: "sellerCashOuted",
+                name: "sellerCashouted",
                 type: "uint256",
             },
             {

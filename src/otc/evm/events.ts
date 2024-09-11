@@ -10,7 +10,7 @@ export const OTC_TOPIC0 = {
     UpdateMarketSettleDuration:
         "0xfed50438fab426e7279f9b4abda502aba7e52371572e819e763e8d76d9d638b1",
     NewOrder:
-        "0xb92ff2d3dde86d241e0288238e1edd1b623da37771aa6e08fd156c3d1a853b2a",
+        "0xe3476bc16087afa455c078d2ee1e32fe3d348e96382f1569662da9c384d6c7bc",
     OrderUpdated:
         "0x295cad0cb03b45662b0a7dbef1725bc0b4b87729d89720d845231770efdaf806",
     OrderClosed:
@@ -21,6 +21,6 @@ export const OTC_TOPIC0 = {
         "0x3097921e7c8c5014b80ac9de4e97135330ed907f1eb5b4fdbda013d5de0b6807",
     TradeSettleCancelled:
         "0x1cda7c31596c3a725d18093b978ca61dfa315fd10f92377ce9b674e1d3fe5afa",
-    TradeCashOuted:
-        "0xa0e33b4c976edaab2fbf93a323b5c89f3c625093478cd0cdfc1c42c0364f863c",
+    CashoutedFilled:
+        "0xc73f0a91e5eb25d69bd9247d16dfdb1eb9aff79134ce5abf369b1b749bc9bdce",
 };

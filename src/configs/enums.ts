@@ -18,12 +18,22 @@ export enum EMarketStatus {
 }
 
 /**
+ * Order Side
+ * @enum EOrderSide
+ */
+export enum EOrderSide {
+    Buy = 1,
+    Sell = 2,
+}
+
+/**
  * Order Type
  * @enum EOrderType
  */
 export enum EOrderType {
-    Buy = 1,
-    Sell = 2,
+    Standard = 0,
+    Bid = 1,
+    Cashout = 2,
 }
 
 /**

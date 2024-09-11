@@ -1,6 +1,6 @@
 import {
     EOrderStatus,
-    EOrderType,
+    EOrderSide,
     ETradeStatus,
     EMarketStatus,
 } from "../configs";
@@ -70,11 +70,6 @@ export interface IMarket<BN, Address> {
     minTrade: BN;
 
     /**
-     * OTC token decimals
-     */
-    tokenDecimals: number;
-
-    /**
      * exchange token decimals
      */
     exTokenDecimals: number;
@@ -92,12 +87,7 @@ export interface IOrder<BN, Address> {
     /**
      * order type (buy or sell)
      */
-    orderType: EOrderType;
-
-    /**
-     * is bid order
-     */
-    isBid: boolean;
+    orderSide: EOrderSide;
 
     /**
      * order amount
@@ -120,9 +110,19 @@ export interface IOrder<BN, Address> {
     status: EOrderStatus;
 
     /**
+     * order type (0 standard order, 1 bid order, 2 cashout order)
+     */
+    orderType: boolean;
+
+    /**
      * order owner address
      */
     orderBy: Address;
+
+    /**
+     * cashout trade id if order type is cashout order
+     */
+    cashoutTradeId: Address;
 }
 
 /**
@@ -231,7 +231,7 @@ export interface IOtc<Address, BN, Transaction> {
     //     operator: Address
     // ) => Promise<Transaction>;
     // createOffer: (
-    //     offerType: EOrderType,
+    //     offerType: EOrderSide,
     //     tokenId: any,
     //     amount: BN,
     //     value: BN,

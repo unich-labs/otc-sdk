@@ -18,8 +18,8 @@ export const CONTRACTS: Record<
 > = {
     [CHAIN_ID.SEPOLIA]: {
         OTC: {
-            address: "0xAfb7F70B05819446FdA986B09c8F9684CC664edb",
-            deployedAtBlockOrSignature: 6664525,
+            address: "0x8cC52585a9b8e86E9b0430A88cA5B2645feb65e8",
+            deployedAtBlockOrSignature: 6670837,
         },
     },
     [CHAIN_ID.SOLANA_DEVNET]: {
